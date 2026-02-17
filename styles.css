@@ -403,7 +403,7 @@ p {
     justify-content: center;
     flex-wrap: wrap;
     margin-top: 2rem;
-    margin-bottom: 4rem;  /* Creates large space below buttons */
+    margin-bottom: 5rem;  /* Creates large space below buttons */
 }
 
 .hero-scroll-indicator {
@@ -2002,7 +2002,7 @@ p {
     .hero-cta {
         flex-direction: column;
         align-items: stretch;
-        margin-bottom: 4rem;  /* Less space on mobile but still visible */
+        margin-bottom: 5rem;  /* Less space on mobile but still visible */
     }
     
     .hero-scroll-indicator {
