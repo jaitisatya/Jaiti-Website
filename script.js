@@ -432,7 +432,35 @@ document.addEventListener('DOMContentLoaded', function () {
     console.log('%c🌟 Jaiti Foundation 🌟', 'font-size: 20px; font-weight: bold; color: #1e40af;');
     console.log('%cEmpowering underprivileged children through free education, moral values, and holistic development.', 'font-size: 14px; color: #475569;');
     console.log('%cWebsite developed with ❤️ for Jaiti Foundation', 'font-size: 12px; color: #94a3b8; font-style: italic;');
+    // ========== VISITOR COUNTER ==========
+const visitorCountEl = document.getElementById('visitorCount');
+
+if (visitorCountEl) {
+    // Get current count from localStorage, start from a base number
+    const BASE_COUNT = 1000; // Starting base so it doesn't show 1 on first visit
+    let count = parseInt(localStorage.getItem('jaiti_visitor_count') || BASE_COUNT);
     
+    // Increment on each visit
+    count++;
+    localStorage.setItem('jaiti_visitor_count', count);
+    
+    // Animate the number counting up
+    let display = 0;
+    const duration = 2000;
+    const steps = 60;
+    const increment = count / steps;
+    const stepTime = duration / steps;
+    
+    const counterTimer = setInterval(function () {
+        display += increment;
+        if (display >= count) {
+            visitorCountEl.textContent = count.toLocaleString();
+            clearInterval(counterTimer);
+        } else {
+            visitorCountEl.textContent = Math.floor(display).toLocaleString();
+        }
+    }, stepTime);
+}
 });
 
 // ========== PAGE LOAD ANIMATION ==========
