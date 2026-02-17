@@ -407,17 +407,14 @@ p {
 }
 
 .hero-scroll-indicator {
-    .hero-scroll-indicator {
     position: absolute;
-    bottom: 3rem;  /* Changed from 2rem to 3rem - moves it down */
+    bottom: 2rem;
     left: 50%;
     transform: translateX(-50%);
     text-align: center;
     color: var(--white);
     font-size: 0.875rem;
     opacity: 0.8;
-    z-index: 10;  /* Add this - ensures it appears above other elements */
-}
 }
 
 .scroll-arrow {
