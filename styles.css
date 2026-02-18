@@ -327,7 +327,8 @@ p {
 
 .hero {
     position: relative;
-    min-height: 90vh;
+    min-height: 100vh;
+    max-height: 100vh;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -374,7 +375,7 @@ p {
     display: flex;
     justify-content: center;
     gap: 4rem;
-    margin: 3rem 0;
+    margin: 1.5rem 0;
     flex-wrap: wrap;
 }
 
@@ -403,7 +404,7 @@ p {
     justify-content: center;
     flex-wrap: wrap;
     margin-top: 2rem;
-    margin-bottom: 5rem;  /* Creates large space below buttons */
+    margin-bottom: 1.5rem;  /* Creates large space below buttons */
 }
 
 .hero-scroll-indicator {
