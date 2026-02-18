@@ -688,6 +688,14 @@ p {
     margin-left: 0.25rem;
 }
 
+.impact-card:nth-child(3) .impact-number::after {
+    content: '%';
+}
+
+.impact-card:nth-child(4) .impact-number::after {
+    content: '';
+}
+
 .impact-label {
     font-size: 1.125rem;
     font-weight: 600;
@@ -2181,8 +2189,8 @@ p {
     position: fixed;
     bottom: 5rem;
     right: 2rem;
-    width: 60px;
-    height: 60px;
+    width: 50px;
+    height: 50px;
     background: #25d366;
     border-radius: 50%;
     display: flex;
