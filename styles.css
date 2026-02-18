@@ -107,7 +107,7 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 h1 {
-    font-size: clamp(2.5rem, 5vw, 4rem);
+    font-size: clamp(1.8rem, 4vw, 3rem);
     margin-bottom: 1rem;
 }
 
@@ -366,8 +366,8 @@ p {
 
 .hero-subtitle {
     color: var(--white);
-    font-size: 1.25rem;
-    margin-bottom: 2rem;
+    font-size: 1rem;
+    margin-bottom: 1rem;
     opacity: 0.95;
 }
 
@@ -375,7 +375,7 @@ p {
     display: flex;
     justify-content: center;
     gap: 4rem;
-    margin: 1.5rem 0;
+    margin: .75rem 0;
     flex-wrap: wrap;
 }
 
@@ -385,7 +385,7 @@ p {
 
 .stat-number {
     font-family: 'Playfair Display', serif;
-    font-size: 3.5rem;
+    font-size: 2.5rem;
     font-weight: 700;
     color: var(--white);
     line-height: 1;
