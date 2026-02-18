@@ -304,7 +304,7 @@ document.addEventListener('DOMContentLoaded', function () {
     backToTopBtn.style.cssText = `
         position: fixed;
         bottom: 1.5rem;
-        right: 2rem;
+        right: 1rem;
         width: 50px;
         height: 50px;
         background: linear-gradient(135deg, #1e40af 0%, #3b82f6 100%);
