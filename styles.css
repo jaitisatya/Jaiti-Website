@@ -78,7 +78,7 @@ body {
     color: var(--text-primary);
     line-height: 1.6;
     overflow-x: hidden;
-    padding-top: 80px;
+    padding-top: 70px;
     background: var(--white);
 }
 
@@ -235,7 +235,7 @@ p {
     left: 0;
     right: 0;
     background: var(--white);
-    padding: 1.25rem 0;
+    padding: 1rem 0;
     z-index: 1000;
     box-shadow: var(--shadow-md);
     transition: all var(--transition);
@@ -1996,7 +1996,8 @@ p {
     }
     
     .hero {
-        min-height: 70vh;
+         min-height: 100vh;
+        max-height: 100vh;
     }
     
     .hero-stats {
