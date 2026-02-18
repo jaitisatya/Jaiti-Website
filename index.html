@@ -79,45 +79,55 @@
             <h2>Why Jaiti Foundation Exists</h2>
             <p class="section-description">
                 Jaiti Foundation works alongside schools, communities, volunteers and mentors to include, 
-                educate, and empower every child in India’s slum communities.
+                educate, and empower every child in India's slum communities.
             </p>
         </div>
 
-        <div class="why-grid">
-            <div class="why-card">
-                <div class="why-icon">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z"/>
-                    </svg>
-                </div>
-                <h3>Breaking the Cycle</h3>
-                <p>We work to break the intergenerational cycle of poverty through education, giving children tools to create better futures for themselves and their families.</p>
-            </div>
+        <div class="carousel-container">
+            <button class="carousel-btn carousel-prev" aria-label="Previous">&#8592;</button>
+            <div class="carousel-track-wrapper">
+                <div class="why-grid carousel-track" id="purposeTrack">
 
-            <div class="why-card">
-                <div class="why-icon">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
-                        <polyline points="22 4 12 14.01 9 11.01"/>
-                    </svg>
-                </div>
-                <h3>Education is a Right</h3>
-                <p>We believe education is not a privilege reserved for the wealthy, but a fundamental right that every child deserves, regardless of their economic background.</p>
-            </div>
+                    <div class="why-card">
+                        <div class="why-icon">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z"/>
+                            </svg>
+                        </div>
+                        <h3>Breaking the Cycle</h3>
+                        <p>We work to break the intergenerational cycle of poverty through education, giving children tools to create better futures for themselves and their families.</p>
+                    </div>
 
-            <div class="why-card">
-                <div class="why-icon">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
-                        <circle cx="9" cy="7" r="4"/>
-                        <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
-                        <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
-                    </svg>
+                    <div class="why-card">
+                        <div class="why-icon">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
+                                <polyline points="22 4 12 14.01 9 11.01"/>
+                            </svg>
+                        </div>
+                        <h3>Education is a Right</h3>
+                        <p>We believe education is not a privilege reserved for the wealthy, but a fundamental right that every child deserves, regardless of their economic background.</p>
+                    </div>
+
+                    <div class="why-card">
+                        <div class="why-icon">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+                                <circle cx="9" cy="7" r="4"/>
+                                <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
+                                <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+                            </svg>
+                        </div>
+                        <h3>Holistic Development</h3>
+                        <p>Beyond academics, we nurture moral values, civic responsibility, and provide nutritious meals, ensuring complete development of each child.</p>
+                    </div>
+
                 </div>
-                <h3>Holistic Development</h3>
-                <p>Beyond academics, we nurture moral values, civic responsibility, and provide nutritious meals, ensuring complete development of each child.</p>
             </div>
+            <button class="carousel-btn carousel-next" aria-label="Next">&#8594;</button>
+            <div class="carousel-dots" id="purposeDots"></div>
         </div>
+
     </div>
 </section>
 
@@ -129,63 +139,73 @@
             <h2>How We Make a Difference</h2>
         </div>
 
-        <div class="programs-grid">
-            <div class="program-card">
-                <div class="program-image">
-                    <img src="images/photo1.jpg" alt="Free Education">
-                    <div class="program-overlay">
-                        <span class="program-number">01</span>
-                    </div>
-                </div>
-                <div class="program-content">
-                    <h3>Free Quality Education</h3>
-                    <p>Complete academic support from experienced educators, covering all subjects with personalized attention to ensure every child excels.</p>
-                    <a href="programs.html" class="program-link">Learn More →</a>
-                </div>
-            </div>
+        <div class="carousel-container">
+            <button class="carousel-btn carousel-prev" aria-label="Previous">&#8592;</button>
+            <div class="carousel-track-wrapper">
+                <div class="programs-grid carousel-track" id="workTrack">
 
-            <div class="program-card">
-                <div class="program-image">
-                    <img src="images/photo2.jpg" alt="Moral Education">
-                    <div class="program-overlay">
-                        <span class="program-number">02</span>
+                    <div class="program-card">
+                        <div class="program-image">
+                            <img src="images/photo1.jpg" alt="Free Education">
+                            <div class="program-overlay">
+                                <span class="program-number">01</span>
+                            </div>
+                        </div>
+                        <div class="program-content">
+                            <h3>Free Quality Education</h3>
+                            <p>Complete academic support from experienced educators, covering all subjects with personalized attention to ensure every child excels.</p>
+                            <a href="programs.html" class="program-link">Learn More →</a>
+                        </div>
                     </div>
-                </div>
-                <div class="program-content">
-                    <h3>Moral & Value Education</h3>
-                    <p>Building strong character through lessons in ethics, compassion, integrity, and respect, preparing children to be responsible citizens.</p>
-                    <a href="programs.html" class="program-link">Learn More →</a>
-                </div>
-            </div>
 
-            <div class="program-card">
-                <div class="program-image">
-                    <img src="images/photo3.jpg" alt="Civic Education">
-                    <div class="program-overlay">
-                        <span class="program-number">03</span>
+                    <div class="program-card">
+                        <div class="program-image">
+                            <img src="images/photo2.jpg" alt="Moral Education">
+                            <div class="program-overlay">
+                                <span class="program-number">02</span>
+                            </div>
+                        </div>
+                        <div class="program-content">
+                            <h3>Moral & Value Education</h3>
+                            <p>Building strong character through lessons in ethics, compassion, integrity, and respect, preparing children to be responsible citizens.</p>
+                            <a href="programs.html" class="program-link">Learn More →</a>
+                        </div>
                     </div>
-                </div>
-                <div class="program-content">
-                    <h3>Civic Sense & Awareness</h3>
-                    <p>Teaching children about their rights, responsibilities, environmental awareness, and how to be active, informed members of society.</p>
-                    <a href="programs.html" class="program-link">Learn More →</a>
-                </div>
-            </div>
 
-            <div class="program-card">
-                <div class="program-image">
-                    <img src="images/photo4.jpg" alt="Nutritious Food">
-                    <div class="program-overlay">
-                        <span class="program-number">04</span>
+                    <div class="program-card">
+                        <div class="program-image">
+                            <img src="images/photo3.jpg" alt="Civic Education">
+                            <div class="program-overlay">
+                                <span class="program-number">03</span>
+                            </div>
+                        </div>
+                        <div class="program-content">
+                            <h3>Civic Sense & Awareness</h3>
+                            <p>Teaching children about their rights, responsibilities, environmental awareness, and how to be active, informed members of society.</p>
+                            <a href="programs.html" class="program-link">Learn More →</a>
+                        </div>
                     </div>
-                </div>
-                <div class="program-content">
-                    <h3>Nutritious Meals</h3>
-                    <p>Daily healthy meals ensure children have the energy to learn and grow, addressing nutrition gaps that affect development and concentration.</p>
-                    <a href="programs.html" class="program-link">Learn More →</a>
+
+                    <div class="program-card">
+                        <div class="program-image">
+                            <img src="images/photo4.jpg" alt="Nutritious Food">
+                            <div class="program-overlay">
+                                <span class="program-number">04</span>
+                            </div>
+                        </div>
+                        <div class="program-content">
+                            <h3>Nutritious Meals</h3>
+                            <p>Daily healthy meals ensure children have the energy to learn and grow, addressing nutrition gaps that affect development and concentration.</p>
+                            <a href="programs.html" class="program-link">Learn More →</a>
+                        </div>
+                    </div>
+
                 </div>
             </div>
+            <button class="carousel-btn carousel-next" aria-label="Next">&#8594;</button>
+            <div class="carousel-dots" id="workDots"></div>
         </div>
+
     </div>
 </section>
 
@@ -369,6 +389,7 @@
         </div>
     </div>
 </footer>
+
 <!-- ================= VISITOR COUNTER ================= -->
 <section class="section visitor-counter-section">
     <div class="container">

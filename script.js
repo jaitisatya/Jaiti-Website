@@ -94,8 +94,8 @@ document.addEventListener('DOMContentLoaded', function () {
     
     function animateCounter(element, target) {
         let current = 0;
-        const increment = target / 60; // Animate over ~1 second at 60fps
-        const duration = 1500; // Total animation duration in ms
+        const increment = target / 60;
+        const duration = 1500;
         const stepTime = duration / (target / increment);
         
         const timer = setInterval(function () {
@@ -117,14 +117,12 @@ document.addEventListener('DOMContentLoaded', function () {
         contactForm.addEventListener('submit', function (e) {
             e.preventDefault();
             
-            // Get form data
             const formData = new FormData(contactForm);
             const data = {};
             formData.forEach((value, key) => {
                 data[key] = value;
             });
             
-            // Basic validation
             const name = data.name.trim();
             const email = data.email.trim();
             const subject = data.subject;
@@ -140,15 +138,11 @@ document.addEventListener('DOMContentLoaded', function () {
                 return;
             }
             
-            // Simulate form submission
-            // In a real application, you would send this data to a server
             console.log('Form submitted with data:', data);
             
-            // Show success message
             contactForm.style.display = 'none';
             formSuccess.style.display = 'block';
             
-            // Optionally reset form and hide success message after delay
             setTimeout(function () {
                 contactForm.reset();
                 contactForm.style.display = 'flex';
@@ -172,7 +166,7 @@ document.addEventListener('DOMContentLoaded', function () {
                     setTimeout(function () {
                         entry.target.style.opacity = '1';
                         entry.target.style.transform = 'translateY(0)';
-                    }, index * 100); // Stagger animation
+                    }, index * 100);
                     revealObserver.unobserve(entry.target);
                 }
             });
@@ -189,7 +183,7 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     }
     
-    // ========== GALLERY LIGHTBOX (Optional Enhancement) ==========
+    // ========== GALLERY LIGHTBOX ==========
     const galleryItems = document.querySelectorAll('.gallery-item');
     
     if (galleryItems.length > 0) {
@@ -198,7 +192,6 @@ document.addEventListener('DOMContentLoaded', function () {
                 const img = this.querySelector('img');
                 const caption = this.querySelector('.gallery-caption');
                 
-                // Create lightbox
                 const lightbox = document.createElement('div');
                 lightbox.className = 'lightbox';
                 lightbox.innerHTML = `
@@ -214,7 +207,6 @@ document.addEventListener('DOMContentLoaded', function () {
                     </div>
                 `;
                 
-                // Add lightbox styles
                 lightbox.style.cssText = `
                     position: fixed;
                     inset: 0;
@@ -267,7 +259,6 @@ document.addEventListener('DOMContentLoaded', function () {
                 document.body.appendChild(lightbox);
                 document.body.style.overflow = 'hidden';
                 
-                // Close lightbox
                 lightboxClose.addEventListener('click', closeLightbox);
                 lightbox.addEventListener('click', function (e) {
                     if (e.target === lightbox) {
@@ -283,7 +274,6 @@ document.addEventListener('DOMContentLoaded', function () {
                     }, 300);
                 }
                 
-                // Close on Escape key
                 document.addEventListener('keydown', function (e) {
                     if (e.key === 'Escape') {
                         closeLightbox();
@@ -402,7 +392,6 @@ document.addEventListener('DOMContentLoaded', function () {
     const formInputs = document.querySelectorAll('.contact-form input, .contact-form textarea, .contact-form select');
     
     formInputs.forEach(input => {
-        // Add floating label effect
         input.addEventListener('focus', function () {
             this.parentElement.classList.add('focused');
         });
@@ -413,7 +402,6 @@ document.addEventListener('DOMContentLoaded', function () {
             }
         });
         
-        // Check if already has value on load
         if (input.value) {
             input.parentElement.classList.add('focused');
         }
@@ -432,42 +420,121 @@ document.addEventListener('DOMContentLoaded', function () {
     console.log('%c🌟 Jaiti Foundation 🌟', 'font-size: 20px; font-weight: bold; color: #1e40af;');
     console.log('%cEmpowering underprivileged children through free education, moral values, and holistic development.', 'font-size: 14px; color: #475569;');
     console.log('%cWebsite developed with ❤️ for Jaiti Foundation', 'font-size: 12px; color: #94a3b8; font-style: italic;');
-    // ========== VISITOR COUNTER ==========
-const visitorCountEl = document.getElementById('visitorCount');
 
-if (visitorCountEl) {
-    // Get current count from localStorage, start from a base number
-    const BASE_COUNT = 1000; // Starting base so it doesn't show 1 on first visit
-    let count = parseInt(localStorage.getItem('jaiti_visitor_count') || BASE_COUNT);
-    
-    // Increment on each visit
-    count++;
-    localStorage.setItem('jaiti_visitor_count', count);
-    
-    // Animate the number counting up
-    let display = 0;
-    const duration = 2000;
-    const steps = 60;
-    const increment = count / steps;
-    const stepTime = duration / steps;
-    
-    const counterTimer = setInterval(function () {
-        display += increment;
-        if (display >= count) {
-            visitorCountEl.textContent = count.toLocaleString();
-            clearInterval(counterTimer);
-        } else {
-            visitorCountEl.textContent = Math.floor(display).toLocaleString();
+    // ========== VISITOR COUNTER ==========
+    const visitorCountEl = document.getElementById('visitorCount');
+
+    if (visitorCountEl) {
+        const BASE_COUNT = 1000;
+        let count = parseInt(localStorage.getItem('jaiti_visitor_count') || BASE_COUNT);
+        
+        count++;
+        localStorage.setItem('jaiti_visitor_count', count);
+        
+        let display = 0;
+        const duration = 2000;
+        const steps = 60;
+        const increment = count / steps;
+        const stepTime = duration / steps;
+        
+        const counterTimer = setInterval(function () {
+            display += increment;
+            if (display >= count) {
+                visitorCountEl.textContent = count.toLocaleString();
+                clearInterval(counterTimer);
+            } else {
+                visitorCountEl.textContent = Math.floor(display).toLocaleString();
+            }
+        }, stepTime);
+    }
+
+    // ========== CAROUSEL SLIDER ==========
+    function initCarousel(trackId, dotsContainerId) {
+        const track = document.getElementById(trackId);
+        if (!track) return;
+
+        const container = track.closest('.carousel-container');
+        const prevBtn = container.querySelector('.carousel-prev');
+        const nextBtn = container.querySelector('.carousel-next');
+        const dotsContainer = document.getElementById(dotsContainerId);
+        const items = Array.from(track.children);
+        let current = 0;
+
+        // Create dots — one per item
+        items.forEach((_, i) => {
+            const dot = document.createElement('button');
+            dot.className = 'carousel-dot' + (i === 0 ? ' active' : '');
+            dot.setAttribute('aria-label', 'Go to slide ' + (i + 1));
+            dot.addEventListener('click', () => goTo(i));
+            dotsContainer.appendChild(dot);
+        });
+
+        function getVisibleCount() {
+            return window.innerWidth <= 768 ? 1 : 3;
         }
-    }, stepTime);
-}
+
+        function updateDots() {
+            const dots = dotsContainer.querySelectorAll('.carousel-dot');
+            dots.forEach((d, i) => d.classList.toggle('active', i === current));
+        }
+
+        function updateButtons() {
+            const visible = getVisibleCount();
+            const max = items.length - visible;
+            prevBtn.style.opacity = current <= 0 ? '0.4' : '1';
+            nextBtn.style.opacity = current >= max ? '0.4' : '1';
+        }
+
+        function goTo(index) {
+            const visible = getVisibleCount();
+            const max = items.length - visible;
+            current = Math.max(0, Math.min(index, max));
+
+            // Calculate item width including gap
+            const gap = 32; // 2rem = 32px
+            const itemWidth = items[0].offsetWidth + gap;
+            track.style.transform = `translateX(-${current * itemWidth}px)`;
+
+            updateDots();
+            updateButtons();
+        }
+
+        prevBtn.addEventListener('click', () => goTo(current - 1));
+        nextBtn.addEventListener('click', () => goTo(current + 1));
+
+        // Touch/swipe support for mobile
+        let touchStartX = 0;
+        let touchEndX = 0;
+
+        track.addEventListener('touchstart', (e) => {
+            touchStartX = e.changedTouches[0].screenX;
+        }, { passive: true });
+
+        track.addEventListener('touchend', (e) => {
+            touchEndX = e.changedTouches[0].screenX;
+            const diff = touchStartX - touchEndX;
+            if (Math.abs(diff) > 50) {
+                if (diff > 0) goTo(current + 1);
+                else goTo(current - 1);
+            }
+        }, { passive: true });
+
+        // Recalculate on resize
+        window.addEventListener('resize', () => goTo(current));
+
+        // Initial setup
+        updateButtons();
+    }
+
+    initCarousel('purposeTrack', 'purposeDots');
+    initCarousel('workTrack', 'workDots');
+
 });
 
 // ========== PAGE LOAD ANIMATION ==========
 window.addEventListener('load', function () {
     document.body.classList.add('loaded');
     
-    // Fade in hero content
     const heroContent = document.querySelector('.hero-content');
     if (heroContent) {
         heroContent.style.animation = 'fadeIn 1s ease-out';
@@ -476,7 +543,6 @@ window.addEventListener('load', function () {
 
 // ========== UTILITY FUNCTIONS ==========
 
-// Debounce function for performance
 function debounce(func, wait) {
     let timeout;
     return function executedFunction(...args) {
@@ -489,7 +555,6 @@ function debounce(func, wait) {
     };
 }
 
-// Throttle function for scroll events
 function throttle(func, limit) {
     let inThrottle;
     return function() {
