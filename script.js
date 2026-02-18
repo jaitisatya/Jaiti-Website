@@ -303,7 +303,7 @@ document.addEventListener('DOMContentLoaded', function () {
     backToTopBtn.className = 'back-to-top';
     backToTopBtn.style.cssText = `
         position: fixed;
-        bottom: 1.5rem;
+        bottom: 1rem;
         right: 1rem;
         width: 50px;
         height: 50px;
