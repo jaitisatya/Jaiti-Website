@@ -157,7 +157,10 @@ document.addEventListener('DOMContentLoaded', function () {
     }
     
     // ========== SCROLL REVEAL ANIMATION ==========
-    const revealElements = document.querySelectorAll('.why-card, .program-card, .value-card, .benefit-card, .contribute-card, .step-card, .info-card, .gallery-item');
+    // NOTE: .why-card and .program-card removed intentionally
+    // They are inside the carousel and setting opacity:0 was causing
+    // cards to stay invisible and impact counter to show 0
+    const revealElements = document.querySelectorAll('.value-card, .benefit-card, .contribute-card, .step-card, .info-card, .gallery-item');
     
     if (revealElements.length > 0) {
         const revealObserver = new IntersectionObserver(function (entries) {

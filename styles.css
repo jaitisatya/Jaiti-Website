@@ -357,6 +357,7 @@ p {
     max-width: 900px;
     padding: 1rem 2rem 0 2rem;
 }
+
 .hero h1 {
     color: var(--white);
     margin-bottom: 1.5rem;
@@ -405,9 +406,10 @@ p {
     margin-top: 2rem;
     margin-bottom: 0;
 }
+
 .hero-scroll-indicator {
     position: absolute;
-    bottom: .5rem;
+    bottom: 0.5rem;
     left: 50%;
     transform: translateX(-50%);
     text-align: center;
@@ -859,7 +861,7 @@ p {
     margin: 0;
 }
 
-/* ========== MVV SECTION (Mission, Vision, Values) ========== */
+/* ========== MVV SECTION ========== */
 
 .mvv-section {
     background: var(--lighter-gray);
@@ -1993,10 +1995,12 @@ p {
     .mobile-menu-btn.active span:nth-child(3) {
         transform: rotate(-45deg) translate(6px, -6px);
     }
+
     .hero {
         min-height: calc(100vh - 70px);
         max-height: calc(100vh - 70px);
     }
+
     .hero-stats {
         gap: 2rem;
     }
