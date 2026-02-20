@@ -404,7 +404,7 @@ p {
     justify-content: center;
     flex-wrap: wrap;
     margin-top: 2rem;
-    margin-bottom: 0;
+    margin-bottom: 2;
 }
 
 .hero-scroll-indicator {
