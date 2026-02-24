@@ -451,6 +451,40 @@ document.addEventListener('DOMContentLoaded', function () {
         }, stepTime);
     }
 
+    // ========== HERO IMAGE SLIDER (AUTO, 4 SECONDS) ==========
+    const heroSlides = document.querySelectorAll('.hero-slide');
+    const heroDots = document.querySelectorAll('.hero-dot');
+
+    if (heroSlides.length > 0) {
+        let currentSlide = 0;
+        let heroTimer;
+
+        function goToSlide(index) {
+            heroSlides[currentSlide].classList.remove('active');
+            heroDots[currentSlide].classList.remove('active');
+            currentSlide = (index + heroSlides.length) % heroSlides.length;
+            heroSlides[currentSlide].classList.add('active');
+            heroDots[currentSlide].classList.add('active');
+        }
+
+        function startHeroTimer() {
+            heroTimer = setInterval(function () {
+                goToSlide(currentSlide + 1);
+            }, 4000);
+        }
+
+        // Dot click: jump to that slide and restart timer
+        heroDots.forEach(function (dot) {
+            dot.addEventListener('click', function () {
+                clearInterval(heroTimer);
+                goToSlide(parseInt(this.getAttribute('data-index')));
+                startHeroTimer();
+            });
+        });
+
+        startHeroTimer();
+    }
+
     // ========== CAROUSEL SLIDER ==========
     function initCarousel(trackId, dotsContainerId) {
         const track = document.getElementById(trackId);
