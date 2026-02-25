@@ -1130,3 +1130,287 @@ p {
     transition: background 0.25s ease, border-color 0.25s ease, transform 0.25s ease, box-shadow 0.25s ease !important;
 }
 .carousel-btn:hover { transform: translateY(-50%) scale(1.12) !important; }
+
+
+/* ==========================================
+   📱 MOBILE RESPONSIVENESS FIXES
+   ========================================== */
+
+/* ===== CAROUSEL MOBILE FIX (CRITICAL) ===== */
+@media (max-width: 768px) {
+
+    /* Force carousel wrapper to not overflow */
+    .carousel-container {
+        padding: 0 2.8rem;
+        overflow: hidden;
+    }
+
+    .carousel-track-wrapper {
+        overflow: hidden;
+        width: 100%;
+    }
+
+    /* Each card must be exactly full width minus gap */
+    .why-grid.carousel-track > .why-card,
+    .programs-grid.carousel-track > .program-card {
+        min-width: calc(100% - 0px) !important;
+        max-width: calc(100% - 0px) !important;
+        width: calc(100% - 0px) !important;
+        flex-shrink: 0 !important;
+        box-sizing: border-box !important;
+    }
+
+    /* No gap on mobile so card fills full width */
+    .carousel-track {
+        gap: 1rem !important;
+    }
+
+    /* Why cards — fix text overflow */
+    .why-card {
+        padding: 1.75rem !important;
+        word-break: break-word;
+        overflow-wrap: break-word;
+    }
+
+    /* Program cards — fix text overflow */
+    .program-card {
+        overflow: hidden;
+    }
+
+    .program-content h3 {
+        font-size: 1.3rem;
+        word-break: break-word;
+    }
+
+    .program-content p {
+        font-size: 0.95rem;
+    }
+
+    /* Carousel nav buttons */
+    .carousel-btn {
+        width: 36px !important;
+        height: 36px !important;
+        top: 35% !important;
+    }
+
+    .carousel-btn svg {
+        width: 16px !important;
+        height: 16px !important;
+    }
+
+    .carousel-prev { left: 0 !important; }
+    .carousel-next { right: 0 !important; }
+}
+
+/* ===== GENERAL MOBILE TEXT OVERFLOW FIX ===== */
+@media (max-width: 768px) {
+
+    /* Prevent any horizontal scroll */
+    body, html {
+        overflow-x: hidden !important;
+        max-width: 100vw;
+    }
+
+    * {
+        max-width: 100%;
+    }
+
+    /* Section padding reduce for mobile */
+    .section {
+        padding: 60px 0 !important;
+    }
+
+    /* Typography adjustments */
+    h1 { font-size: clamp(1.6rem, 5vw, 2.2rem) !important; }
+    h2 { font-size: clamp(1.5rem, 5vw, 2rem) !important; }
+    h3 { font-size: clamp(1.2rem, 4vw, 1.6rem) !important; }
+
+    /* Section header margin reduce */
+    .section-header {
+        margin-bottom: 2rem !important;
+    }
+
+    /* Container padding fix */
+    .container {
+        width: 92% !important;
+        padding: 0 0.75rem !important;
+    }
+
+    /* Impact grid — 2 columns on mobile */
+    .impact-grid {
+        grid-template-columns: 1fr 1fr !important;
+        gap: 1rem !important;
+    }
+
+    .impact-number {
+        font-size: 2.5rem !important;
+    }
+
+    .impact-card {
+        padding: 1.25rem !important;
+    }
+
+    /* Why cards grid fix */
+    .why-grid:not(.carousel-track) {
+        grid-template-columns: 1fr !important;
+    }
+
+    /* Approach content stack fix */
+    .approach-content {
+        grid-template-columns: 1fr !important;
+        gap: 2rem !important;
+    }
+
+    .approach-image img {
+        animation: none !important; /* disable float on mobile */
+        max-height: 280px;
+        object-fit: cover;
+        width: 100%;
+    }
+
+    .image-decoration {
+        display: none; /* hide decorative border on mobile */
+    }
+
+    /* Story content fix */
+    .story-content {
+        grid-template-columns: 1fr !important;
+    }
+
+    .story-highlight {
+        position: relative;
+        bottom: auto; left: auto;
+        margin-top: 1rem;
+        border-radius: var(--radius);
+    }
+
+    /* CTA buttons full width */
+    .cta-buttons {
+        flex-direction: column !important;
+        align-items: stretch !important;
+        gap: 0.75rem !important;
+    }
+
+    .btn-large {
+        padding: 1rem 1.5rem !important;
+        font-size: 1rem !important;
+        justify-content: center;
+    }
+
+    /* Contact grid stack */
+    .contact-grid {
+        grid-template-columns: 1fr !important;
+        gap: 2rem !important;
+        margin-top: 1.5rem !important;
+    }
+
+    /* Footer columns stack */
+    .footer-content {
+        grid-template-columns: 1fr !important;
+        gap: 2rem !important;
+    }
+
+    /* Visitor counter */
+    .visitor-count {
+        font-size: 3.5rem !important;
+    }
+
+    /* Gallery 1 column on small mobile */
+    .gallery-grid {
+        grid-template-columns: 1fr !important;
+        gap: 1rem !important;
+    }
+
+    /* Form full width */
+    .form-group input,
+    .form-group select,
+    .form-group textarea {
+        font-size: 16px !important; /* prevents iOS zoom on focus */
+    }
+
+    /* Navbar fix */
+    .navbar {
+        padding: 0.75rem 0 !important;
+    }
+
+    /* Hero adjustments */
+    .hero-content {
+        padding: 1rem 1rem 0 1rem !important;
+    }
+
+    .hero h1 {
+        font-size: clamp(1.5rem, 5vw, 2rem) !important;
+        margin-bottom: 1rem !important;
+    }
+
+    .hero-subtitle {
+        font-size: 0.9rem !important;
+    }
+
+    .hero-stats {
+        gap: 1.5rem !important;
+        margin: 0.5rem 0 !important;
+    }
+
+    .stat-number { font-size: 2rem !important; }
+    .stat-label { font-size: 0.85rem !important; }
+
+    .hero-cta {
+        gap: 0.75rem !important;
+        margin-top: 1.25rem !important;
+        margin-bottom: 1.25rem !important;
+    }
+
+    /* MVV grid */
+    .mvv-grid {
+        grid-template-columns: 1fr !important;
+    }
+
+    .mvv-card {
+        padding: 2rem !important;
+    }
+
+    /* Difference section */
+    .difference-content {
+        grid-template-columns: 1fr !important;
+    }
+
+    /* Page header */
+    .page-header {
+        padding: 90px 0 50px !important;
+    }
+
+    .page-header h1 {
+        font-size: clamp(1.5rem, 5vw, 2rem) !important;
+    }
+
+    .page-header p {
+        font-size: 1rem !important;
+    }
+}
+
+/* ===== EXTRA SMALL PHONES (< 380px) ===== */
+@media (max-width: 380px) {
+    .logo span { font-size: 1rem !important; }
+    .logo img { width: 32px !important; height: 32px !important; }
+
+    .carousel-container {
+        padding: 0 2.5rem !important;
+    }
+
+    .impact-grid {
+        grid-template-columns: 1fr !important;
+    }
+
+    .hero h1 {
+        font-size: 1.4rem !important;
+    }
+
+    .why-card, .program-card {
+        padding: 1.25rem !important;
+    }
+
+    .section-label {
+        font-size: 0.7rem !important;
+    }
+}

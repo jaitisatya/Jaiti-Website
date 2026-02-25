@@ -462,7 +462,7 @@ document.addEventListener('DOMContentLoaded', function () {
             const visible = getVisibleCount();
             const max = items.length - visible;
             current = Math.max(0, Math.min(index, max));
-            const gap = 32;
+            const gap = window.innerWidth <= 768 ? 16 : 32; // 1rem mobile, 2rem desktop
             const itemWidth = items[0].offsetWidth + gap;
             track.style.transform = `translateX(-${current * itemWidth}px)`;
             updateDots();
