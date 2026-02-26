@@ -1,5 +1,5 @@
 // ==========================================
-// JAITI FOUNDATION - JAVASCRIPT
+// JAITI FOUNDATION - JAVASCRIPT (UPDATED)
 // ==========================================
 
 document.addEventListener('DOMContentLoaded', function () {
@@ -143,7 +143,6 @@ document.addEventListener('DOMContentLoaded', function () {
     }
     
     // ========== SCROLL REVEAL - CARDS ==========
-    // NOTE: .why-card and .program-card excluded (carousel conflict)
     const revealElements = document.querySelectorAll(
         '.value-card, .benefit-card, .contribute-card, .step-card, .info-card, .gallery-item'
     );
@@ -391,38 +390,67 @@ document.addEventListener('DOMContentLoaded', function () {
         }, stepTime);
     }
 
-    // ========== HERO IMAGE SLIDER ==========
+    // ========== HERO IMAGE SLIDER (UPDATED - IMPROVED) ==========
     const heroSlides = document.querySelectorAll('.hero-slide');
     const heroDots = document.querySelectorAll('.hero-dot');
 
-    if (heroSlides.length > 0) {
+    if (heroSlides.length > 0 && heroDots.length > 0) {
         let currentSlide = 0;
         let heroTimer;
+        const SLIDE_INTERVAL = 5000; // 5 seconds
 
         function goToSlide(index) {
-            heroSlides[currentSlide].classList.remove('active');
-            heroDots[currentSlide].classList.remove('active');
+            // Remove active class from all slides and dots
+            heroSlides.forEach(slide => slide.classList.remove('active'));
+            heroDots.forEach(dot => dot.classList.remove('active'));
+            
+            // Calculate new index
             currentSlide = (index + heroSlides.length) % heroSlides.length;
+            
+            // Add active class to current slide and dot
             heroSlides[currentSlide].classList.add('active');
             heroDots[currentSlide].classList.add('active');
         }
 
-        function startHeroTimer() {
-            heroTimer = setInterval(function () { goToSlide(currentSlide + 1); }, 4000);
+        function nextSlide() {
+            goToSlide(currentSlide + 1);
         }
 
-        heroDots.forEach(function (dot) {
-            dot.addEventListener('click', function () {
-                clearInterval(heroTimer);
-                goToSlide(parseInt(this.getAttribute('data-index')));
-                startHeroTimer();
+        function startHeroTimer() {
+            heroTimer = setInterval(nextSlide, SLIDE_INTERVAL);
+        }
+
+        function resetTimer() {
+            clearInterval(heroTimer);
+            startHeroTimer();
+        }
+
+        // Add click handlers to dots
+        heroDots.forEach((dot, index) => {
+            dot.addEventListener('click', function (e) {
+                e.preventDefault();
+                goToSlide(index);
+                resetTimer(); // Reset timer when user clicks
             });
         });
 
+        // Pause on hover, resume on mouse leave
+        const heroSection = document.querySelector('.hero');
+        if (heroSection) {
+            heroSection.addEventListener('mouseenter', () => {
+                clearInterval(heroTimer);
+            });
+
+            heroSection.addEventListener('mouseleave', () => {
+                startHeroTimer();
+            });
+        }
+
+        // Start the auto-play
         startHeroTimer();
     }
 
-    // ========== CAROUSEL SLIDER ==========
+    // ========== CAROUSEL SLIDER (UPDATED) ==========
     function initCarousel(trackId, dotsContainerId) {
         const track = document.getElementById(trackId);
         if (!track) return;
@@ -434,6 +462,7 @@ document.addEventListener('DOMContentLoaded', function () {
         const items = Array.from(track.children);
         let current = 0;
 
+        // Create dots
         items.forEach((_, i) => {
             const dot = document.createElement('button');
             dot.className = 'carousel-dot' + (i === 0 ? ' active' : '');
@@ -453,16 +482,18 @@ document.addEventListener('DOMContentLoaded', function () {
 
         function updateButtons() {
             const visible = getVisibleCount();
-            const max = items.length - visible;
+            const max = Math.max(0, items.length - visible);
             prevBtn.style.opacity = current <= 0 ? '0.4' : '1';
             nextBtn.style.opacity = current >= max ? '0.4' : '1';
+            prevBtn.style.pointerEvents = current <= 0 ? 'none' : 'auto';
+            nextBtn.style.pointerEvents = current >= max ? 'none' : 'auto';
         }
 
         function goTo(index) {
             const visible = getVisibleCount();
-            const max = items.length - visible;
+            const max = Math.max(0, items.length - visible);
             current = Math.max(0, Math.min(index, max));
-            const gap = window.innerWidth <= 768 ? 16 : 32; // 1rem mobile, 2rem desktop
+            const gap = window.innerWidth <= 768 ? 16 : 32;
             const itemWidth = items[0].offsetWidth + gap;
             track.style.transform = `translateX(-${current * itemWidth}px)`;
             updateDots();
@@ -472,6 +503,7 @@ document.addEventListener('DOMContentLoaded', function () {
         prevBtn.addEventListener('click', () => goTo(current - 1));
         nextBtn.addEventListener('click', () => goTo(current + 1));
 
+        // Touch support
         let touchStartX = 0;
         let touchEndX = 0;
 
@@ -492,6 +524,7 @@ document.addEventListener('DOMContentLoaded', function () {
         updateButtons();
     }
 
+    // Initialize carousels
     initCarousel('purposeTrack', 'purposeDots');
     initCarousel('workTrack', 'workDots');
 
