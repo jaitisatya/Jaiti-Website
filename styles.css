@@ -340,10 +340,12 @@ p {
     z-index: 1;
 }
 
+/* ===== UPDATED: HERO CONTENT SPACING FIX ===== */
 .hero-content {
     position: relative; z-index: 2;
     max-width: 900px;
-    padding: 1rem 2rem 0 2rem;
+    padding: 0 2rem 0 2rem;
+    margin-top: -60px;
     animation: fadeInUp 0.8s ease-out;
 }
 
@@ -828,6 +830,13 @@ p {
     .mobile-menu-btn.active span:nth-child(2) { opacity: 0; }
     .mobile-menu-btn.active span:nth-child(3) { transform: rotate(-45deg) translate(6px, -6px); }
     .hero { min-height: calc(100vh - 70px); max-height: calc(100vh - 70px); }
+    
+    /* ===== MOBILE HERO CONTENT FIX ===== */
+    .hero-content {
+        padding: 0 1rem 0 1rem !important;
+        margin-top: -40px !important;
+    }
+    
     .hero-stats { gap: 2rem; }
     .stat-number { font-size: 2.5rem; }
     .hero-cta { flex-direction: column; align-items: stretch; margin-bottom: 1.5rem; }
@@ -923,21 +932,14 @@ p {
 .carousel-dot { width: 10px; height: 10px; border-radius: 50%; background: var(--light-gray); cursor: pointer; transition: var(--transition); border: none; padding: 0; }
 .carousel-dot.active { background: var(--primary); transform: scale(1.3); }
 
+/* ========== ANIMATIONS & ENHANCED STYLES ========== */
 
-/* ==========================================
-   ✨ NEW ANIMATIONS & TRANSITIONS
-   ========================================== */
-
-/* ===== NAVBAR GLASSMORPHISM ON SCROLL ===== */
 .navbar.scrolled {
     background: rgba(255, 255, 255, 0.96);
     backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
     box-shadow: 0 4px 24px rgba(30, 64, 175, 0.12);
-    border-bottom: 1px solid rgba(30, 64, 175, 0.08);
 }
 
-/* ===== LOGO HOVER BOUNCE ===== */
 .logo img {
     transition: transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
@@ -945,88 +947,6 @@ p {
     transform: rotate(-6deg) scale(1.12);
 }
 
-/* ===== SECTION LABEL SHINE ===== */
-.section-label {
-    position: relative;
-    overflow: hidden;
-}
-.section-label::after {
-    content: '';
-    position: absolute;
-    top: 0; left: -100%;
-    width: 60%; height: 100%;
-    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
-    animation: labelShine 3s infinite;
-}
-@keyframes labelShine {
-    0%   { left: -100%; }
-    50%  { left: 150%; }
-    100% { left: 150%; }
-}
-
-/* ===== PAGE HEADER SLIDE DOWN ===== */
-.page-header-content {
-    animation: slideDown 0.75s ease-out both;
-}
-@keyframes slideDown {
-    from { opacity: 0; transform: translateY(-28px); }
-    to   { opacity: 1; transform: translateY(0); }
-}
-
-/* ===== SCROLL REVEAL ===== */
-.reveal {
-    opacity: 0;
-    transform: translateY(40px);
-    transition: opacity 0.7s ease, transform 0.7s ease;
-}
-.reveal.visible {
-    opacity: 1;
-    transform: translateY(0);
-}
-.reveal-left {
-    opacity: 0;
-    transform: translateX(-48px);
-    transition: opacity 0.7s ease, transform 0.7s ease;
-}
-.reveal-left.visible { opacity: 1; transform: translateX(0); }
-.reveal-right {
-    opacity: 0;
-    transform: translateX(48px);
-    transition: opacity 0.7s ease, transform 0.7s ease;
-}
-.reveal-right.visible { opacity: 1; transform: translateX(0); }
-.stagger-1 { transition-delay: 0.1s; }
-.stagger-2 { transition-delay: 0.2s; }
-.stagger-3 { transition-delay: 0.3s; }
-
-/* ===== BUTTON RIPPLE ===== */
-.btn { position: relative; overflow: hidden; }
-.btn::after {
-    content: '';
-    position: absolute;
-    width: 0; height: 0;
-    background: rgba(255, 255, 255, 0.28);
-    border-radius: 50%;
-    top: 50%; left: 50%;
-    transform: translate(-50%, -50%);
-    transition: width 0.5s ease, height 0.5s ease, opacity 0.5s ease;
-    opacity: 0;
-}
-.btn:active::after { width: 320px; height: 320px; opacity: 0; }
-
-/* ===== WHY SECTION BG GRADIENT ANIMATION ===== */
-.why-section {
-    background: linear-gradient(135deg, #f1f5f9 0%, #e8f0fe 50%, #f1f5f9 100%);
-    background-size: 200% 200%;
-    animation: gradientShift 9s ease infinite;
-}
-@keyframes gradientShift {
-    0%   { background-position: 0% 50%; }
-    50%  { background-position: 100% 50%; }
-    100% { background-position: 0% 50%; }
-}
-
-/* ===== WHY CARDS ENHANCED HOVER ===== */
 .why-card {
     border-bottom: 3px solid transparent;
     transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease !important;
@@ -1036,10 +956,7 @@ p {
     box-shadow: 0 22px 44px rgba(30, 64, 175, 0.14) !important;
     border-bottom-color: var(--primary);
 }
-.why-icon { transition: transform 0.3s ease; }
-.why-card:hover .why-icon { transform: scale(1.12) rotate(-5deg); }
 
-/* ===== PROGRAM CARDS ENHANCED ===== */
 .program-card {
     border: 1px solid transparent;
     transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease !important;
@@ -1047,384 +964,34 @@ p {
 .program-card:hover {
     border-color: var(--primary-light) !important;
     transform: translateY(-12px) !important;
-    box-shadow: 0 28px 50px rgba(30, 64, 175, 0.16) !important;
 }
 
-/* ===== IMPACT CARDS BOUNCE ===== */
 .impact-card {
     transition: transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1), background 0.3s ease !important;
 }
 .impact-card:hover {
     transform: translateY(-10px) scale(1.04) !important;
-    background: rgba(255, 255, 255, 0.22) !important;
-}
-.impact-number { transition: transform 0.3s ease; }
-.impact-card:hover .impact-number { transform: scale(1.1); }
-
-/* ===== HERO STAT HOVER ===== */
-.stat-number {
-    text-shadow: 0 0 20px rgba(255,255,255,0.45);
-    transition: transform 0.3s ease;
-}
-.stat-item:hover .stat-number { transform: scale(1.1); }
-
-/* ===== APPROACH IMAGE FLOAT ===== */
-.approach-image img { animation: floatImg 6s ease-in-out infinite; }
-@keyframes floatImg {
-    0%, 100% { transform: translateY(0); }
-    50%       { transform: translateY(-12px); }
 }
 
-/* ===== CONTACT DETAIL ITEM SLIDE ===== */
-.contact-detail-item {
-    padding: 1rem;
-    border-radius: var(--radius);
-    transition: background 0.3s ease, transform 0.3s ease;
-}
-.contact-detail-item:hover {
-    background: var(--lighter-gray);
-    transform: translateX(6px);
-}
-
-/* ===== INFO CARDS ENHANCED ===== */
-.info-card {
-    border-top: 3px solid transparent;
-    transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease !important;
-}
-.info-card:hover {
-    border-top-color: var(--primary) !important;
-    transform: translateY(-9px) !important;
-    box-shadow: 0 22px 42px rgba(30, 64, 175, 0.13) !important;
-}
-
-/* ===== SOCIAL ICONS BOUNCE HOVER ===== */
-.social-icon {
-    transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.3s ease !important;
-}
-.social-icon:hover {
-    transform: translateY(-6px) scale(1.18) rotate(5deg) !important;
-    box-shadow: 0 10px 24px rgba(0,0,0,0.28) !important;
-}
-
-/* ===== FOOTER LINKS ARROW HOVER ===== */
-.footer-links a {
-    position: relative;
-    padding-left: 0;
-    transition: color 0.3s ease, padding-left 0.3s ease !important;
-}
-.footer-links a::before {
-    content: '→';
-    position: absolute;
-    left: -20px;
-    opacity: 0;
-    transition: opacity 0.3s ease, left 0.3s ease;
-    color: var(--primary-light);
-}
-.footer-links a:hover { color: var(--white) !important; padding-left: 1.2rem !important; }
-.footer-links a:hover::before { opacity: 1; left: 0; }
-
-/* ===== GALLERY ITEMS ENHANCED ===== */
 .gallery-item {
     transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.3s ease !important;
 }
 .gallery-item:hover {
     transform: scale(1.05) rotate(0.5deg) !important;
-    box-shadow: 0 22px 44px rgba(0,0,0,0.22) !important;
 }
 
-/* ===== VISITOR COUNTER PULSE ===== */
 .visitor-count { animation: countPulse 2.5s ease-in-out infinite; }
 @keyframes countPulse {
     0%, 100% { opacity: 1; }
-    50%       { opacity: 0.82; }
+    50% { opacity: 0.82; }
 }
 
-/* ===== CAROUSEL BTN HOVER POP ===== */
-.carousel-btn {
-    transition: background 0.25s ease, border-color 0.25s ease, transform 0.25s ease, box-shadow 0.25s ease !important;
-}
-.carousel-btn:hover { transform: translateY(-50%) scale(1.12) !important; }
-
-
-/* ==========================================
-   📱 MOBILE RESPONSIVENESS FIXES
-   ========================================== */
-
-/* ===== CAROUSEL MOBILE FIX (CRITICAL) ===== */
-@media (max-width: 768px) {
-
-    /* Force carousel wrapper to not overflow */
-    .carousel-container {
-        padding: 0 2.8rem;
-        overflow: hidden;
-    }
-
-    .carousel-track-wrapper {
-        overflow: hidden;
-        width: 100%;
-    }
-
-    /* Each card must be exactly full width minus gap */
-    .why-grid.carousel-track > .why-card,
-    .programs-grid.carousel-track > .program-card {
-        min-width: calc(100% - 0px) !important;
-        max-width: calc(100% - 0px) !important;
-        width: calc(100% - 0px) !important;
-        flex-shrink: 0 !important;
-        box-sizing: border-box !important;
-    }
-
-    /* No gap on mobile so card fills full width */
-    .carousel-track {
-        gap: 1rem !important;
-    }
-
-    /* Why cards — fix text overflow */
-    .why-card {
-        padding: 1.75rem !important;
-        word-break: break-word;
-        overflow-wrap: break-word;
-    }
-
-    /* Program cards — fix text overflow */
-    .program-card {
-        overflow: hidden;
-    }
-
-    .program-content h3 {
-        font-size: 1.3rem;
-        word-break: break-word;
-    }
-
-    .program-content p {
-        font-size: 0.95rem;
-    }
-
-    /* Carousel nav buttons */
-    .carousel-btn {
-        width: 36px !important;
-        height: 36px !important;
-        top: 35% !important;
-    }
-
-    .carousel-btn svg {
-        width: 16px !important;
-        height: 16px !important;
-    }
-
-    .carousel-prev { left: 0 !important; }
-    .carousel-next { right: 0 !important; }
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(30px); }
+    to { opacity: 1; transform: translateY(0); }
 }
 
-/* ===== GENERAL MOBILE TEXT OVERFLOW FIX ===== */
-@media (max-width: 768px) {
-
-    /* Prevent any horizontal scroll */
-    body, html {
-        overflow-x: hidden !important;
-        max-width: 100vw;
-    }
-
-    * {
-        max-width: 100%;
-    }
-
-    /* Section padding reduce for mobile */
-    .section {
-        padding: 60px 0 !important;
-    }
-
-    /* Typography adjustments */
-    h1 { font-size: clamp(1.6rem, 5vw, 2.2rem) !important; }
-    h2 { font-size: clamp(1.5rem, 5vw, 2rem) !important; }
-    h3 { font-size: clamp(1.2rem, 4vw, 1.6rem) !important; }
-
-    /* Section header margin reduce */
-    .section-header {
-        margin-bottom: 2rem !important;
-    }
-
-    /* Container padding fix */
-    .container {
-        width: 92% !important;
-        padding: 0 0.75rem !important;
-    }
-
-    /* Impact grid — 2 columns on mobile */
-    .impact-grid {
-        grid-template-columns: 1fr 1fr !important;
-        gap: 1rem !important;
-    }
-
-    .impact-number {
-        font-size: 2.5rem !important;
-    }
-
-    .impact-card {
-        padding: 1.25rem !important;
-    }
-
-    /* Why cards grid fix */
-    .why-grid:not(.carousel-track) {
-        grid-template-columns: 1fr !important;
-    }
-
-    /* Approach content stack fix */
-    .approach-content {
-        grid-template-columns: 1fr !important;
-        gap: 2rem !important;
-    }
-
-    .approach-image img {
-        animation: none !important; /* disable float on mobile */
-        max-height: 280px;
-        object-fit: cover;
-        width: 100%;
-    }
-
-    .image-decoration {
-        display: none; /* hide decorative border on mobile */
-    }
-
-    /* Story content fix */
-    .story-content {
-        grid-template-columns: 1fr !important;
-    }
-
-    .story-highlight {
-        position: relative;
-        bottom: auto; left: auto;
-        margin-top: 1rem;
-        border-radius: var(--radius);
-    }
-
-    /* CTA buttons full width */
-    .cta-buttons {
-        flex-direction: column !important;
-        align-items: stretch !important;
-        gap: 0.75rem !important;
-    }
-
-    .btn-large {
-        padding: 1rem 1.5rem !important;
-        font-size: 1rem !important;
-        justify-content: center;
-    }
-
-    /* Contact grid stack */
-    .contact-grid {
-        grid-template-columns: 1fr !important;
-        gap: 2rem !important;
-        margin-top: 1.5rem !important;
-    }
-
-    /* Footer columns stack */
-    .footer-content {
-        grid-template-columns: 1fr !important;
-        gap: 2rem !important;
-    }
-
-    /* Visitor counter */
-    .visitor-count {
-        font-size: 3.5rem !important;
-    }
-
-    /* Gallery 1 column on small mobile */
-    .gallery-grid {
-        grid-template-columns: 1fr !important;
-        gap: 1rem !important;
-    }
-
-    /* Form full width */
-    .form-group input,
-    .form-group select,
-    .form-group textarea {
-        font-size: 16px !important; /* prevents iOS zoom on focus */
-    }
-
-    /* Navbar fix */
-    .navbar {
-        padding: 0.75rem 0 !important;
-    }
-
-    /* Hero adjustments */
-    .hero-content {
-        padding: 1rem 1rem 0 1rem !important;
-    }
-
-    .hero h1 {
-        font-size: clamp(1.5rem, 5vw, 2rem) !important;
-        margin-bottom: 1rem !important;
-    }
-
-    .hero-subtitle {
-        font-size: 0.9rem !important;
-    }
-
-    .hero-stats {
-        gap: 1.5rem !important;
-        margin: 0.5rem 0 !important;
-    }
-
-    .stat-number { font-size: 2rem !important; }
-    .stat-label { font-size: 0.85rem !important; }
-
-    .hero-cta {
-        gap: 0.75rem !important;
-        margin-top: 1.25rem !important;
-        margin-bottom: 1.25rem !important;
-    }
-
-    /* MVV grid */
-    .mvv-grid {
-        grid-template-columns: 1fr !important;
-    }
-
-    .mvv-card {
-        padding: 2rem !important;
-    }
-
-    /* Difference section */
-    .difference-content {
-        grid-template-columns: 1fr !important;
-    }
-
-    /* Page header */
-    .page-header {
-        padding: 90px 0 50px !important;
-    }
-
-    .page-header h1 {
-        font-size: clamp(1.5rem, 5vw, 2rem) !important;
-    }
-
-    .page-header p {
-        font-size: 1rem !important;
-    }
-}
-
-/* ===== EXTRA SMALL PHONES (< 380px) ===== */
-@media (max-width: 380px) {
-    .logo span { font-size: 1rem !important; }
-    .logo img { width: 32px !important; height: 32px !important; }
-
-    .carousel-container {
-        padding: 0 2.5rem !important;
-    }
-
-    .impact-grid {
-        grid-template-columns: 1fr !important;
-    }
-
-    .hero h1 {
-        font-size: 1.4rem !important;
-    }
-
-    .why-card, .program-card {
-        padding: 1.25rem !important;
-    }
-
-    .section-label {
-        font-size: 0.7rem !important;
-    }
+@keyframes fadeInUp {
+    from { opacity: 0; transform: translateY(30px); }
+    to { opacity: 1; transform: translateY(0); }
 }
