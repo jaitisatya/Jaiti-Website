@@ -1,5 +1,5 @@
 // ==========================================
-// JAITI FOUNDATION - JAVASCRIPT (UPDATED)
+// JAITI FOUNDATION - JAVASCRIPT (MOBILE OPTIMIZED)
 // ==========================================
 
 document.addEventListener('DOMContentLoaded', function () {
@@ -30,10 +30,8 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     }
     
-    // ========== NAVBAR SCROLL EFFECT + SCROLLED CLASS ==========
+    // ========== NAVBAR SCROLL EFFECT ==========
     const navbar = document.querySelector('.navbar');
-    let lastScroll = 0;
-    
     window.addEventListener('scroll', function () {
         const currentScroll = window.pageYOffset;
         
@@ -44,8 +42,6 @@ document.addEventListener('DOMContentLoaded', function () {
             navbar.classList.remove('scrolled');
             navbar.style.boxShadow = '0 2px 10px rgba(0, 0, 0, 0.05)';
         }
-        
-        lastScroll = currentScroll;
     });
     
     // ========== SMOOTH SCROLLING ==========
@@ -97,49 +93,6 @@ document.addEventListener('DOMContentLoaded', function () {
                 element.textContent = Math.floor(current);
             }
         }, stepTime);
-    }
-    
-    // ========== CONTACT FORM HANDLING ==========
-    const contactForm = document.getElementById('contactForm');
-    const formSuccess = document.getElementById('formSuccess');
-    
-    if (contactForm && formSuccess) {
-        contactForm.addEventListener('submit', function (e) {
-            e.preventDefault();
-            
-            const formData = new FormData(contactForm);
-            const data = {};
-            formData.forEach((value, key) => { data[key] = value; });
-            
-            const name = data.name.trim();
-            const email = data.email.trim();
-            const subject = data.subject;
-            const message = data.message.trim();
-            
-            if (!name || !email || !subject || !message) {
-                alert('Please fill in all required fields.');
-                return;
-            }
-            
-            if (!isValidEmail(email)) {
-                alert('Please enter a valid email address.');
-                return;
-            }
-            
-            contactForm.style.display = 'none';
-            formSuccess.style.display = 'block';
-            
-            setTimeout(function () {
-                contactForm.reset();
-                contactForm.style.display = 'flex';
-                formSuccess.style.display = 'none';
-            }, 5000);
-        });
-    }
-    
-    function isValidEmail(email) {
-        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-        return emailRegex.test(email);
     }
     
     // ========== SCROLL REVEAL - CARDS ==========
@@ -194,76 +147,6 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     }
     
-    // ========== GALLERY LIGHTBOX ==========
-    const galleryItems = document.querySelectorAll('.gallery-item');
-    
-    if (galleryItems.length > 0) {
-        galleryItems.forEach(item => {
-            item.addEventListener('click', function () {
-                const img = this.querySelector('img');
-                const caption = this.querySelector('.gallery-caption');
-                
-                const lightbox = document.createElement('div');
-                lightbox.className = 'lightbox';
-                lightbox.innerHTML = `
-                    <div class="lightbox-content">
-                        <span class="lightbox-close">&times;</span>
-                        <img src="${img.src}" alt="${img.alt}">
-                        ${caption ? `
-                            <div class="lightbox-caption">
-                                <h3>${caption.querySelector('h3').textContent}</h3>
-                                <p>${caption.querySelector('p').textContent}</p>
-                            </div>
-                        ` : ''}
-                    </div>
-                `;
-                
-                lightbox.style.cssText = `
-                    position: fixed; inset: 0; background: rgba(0, 0, 0, 0.95);
-                    z-index: 10000; display: flex; align-items: center;
-                    justify-content: center; padding: 2rem; animation: fadeIn 0.3s ease;
-                `;
-                
-                const lightboxContent = lightbox.querySelector('.lightbox-content');
-                lightboxContent.style.cssText = `max-width: 90%; max-height: 90vh; position: relative;`;
-                
-                const lightboxImg = lightbox.querySelector('img');
-                lightboxImg.style.cssText = `max-width: 100%; max-height: 80vh; border-radius: 8px; display: block;`;
-                
-                const lightboxClose = lightbox.querySelector('.lightbox-close');
-                lightboxClose.style.cssText = `
-                    position: absolute; top: -40px; right: 0; font-size: 2rem;
-                    color: white; cursor: pointer; background: none; border: none; padding: 0.5rem;
-                `;
-                
-                const lightboxCaption = lightbox.querySelector('.lightbox-caption');
-                if (lightboxCaption) {
-                    lightboxCaption.style.cssText = `color: white; text-align: center; margin-top: 1rem;`;
-                }
-                
-                document.body.appendChild(lightbox);
-                document.body.style.overflow = 'hidden';
-                
-                lightboxClose.addEventListener('click', closeLightbox);
-                lightbox.addEventListener('click', function (e) {
-                    if (e.target === lightbox) closeLightbox();
-                });
-                
-                function closeLightbox() {
-                    lightbox.style.animation = 'fadeOut 0.3s ease';
-                    setTimeout(function () {
-                        document.body.removeChild(lightbox);
-                        document.body.style.overflow = 'auto';
-                    }, 300);
-                }
-                
-                document.addEventListener('keydown', function (e) {
-                    if (e.key === 'Escape') closeLightbox();
-                });
-            });
-        });
-    }
-    
     // ========== BACK TO TOP BUTTON ==========
     const backToTopBtn = document.createElement('button');
     backToTopBtn.innerHTML = `
@@ -305,66 +188,6 @@ document.addEventListener('DOMContentLoaded', function () {
         this.style.boxShadow = '0 4px 20px rgba(30, 64, 175, 0.3)';
     });
     
-    // ========== ACTIVE NAV LINK HIGHLIGHTING ==========
-    const sections = document.querySelectorAll('section[id]');
-    const navLinksArray = document.querySelectorAll('.nav-links a');
-    
-    if (sections.length > 0 && navLinksArray.length > 0) {
-        window.addEventListener('scroll', function () {
-            let current = '';
-            sections.forEach(section => {
-                const sectionTop = section.offsetTop - 100;
-                const sectionHeight = section.clientHeight;
-                if (window.pageYOffset >= sectionTop && window.pageYOffset < sectionTop + sectionHeight) {
-                    current = section.getAttribute('id');
-                }
-            });
-            navLinksArray.forEach(link => {
-                link.classList.remove('active');
-                if (link.getAttribute('href') === '#' + current) {
-                    link.classList.add('active');
-                }
-            });
-        });
-    }
-    
-    // ========== LAZY LOADING IMAGES ==========
-    const images = document.querySelectorAll('img[data-src]');
-    if (images.length > 0 && 'IntersectionObserver' in window) {
-        const imageObserver = new IntersectionObserver(function (entries, observer) {
-            entries.forEach(entry => {
-                if (entry.isIntersecting) {
-                    const img = entry.target;
-                    img.src = img.getAttribute('data-src');
-                    img.removeAttribute('data-src');
-                    imageObserver.unobserve(img);
-                }
-            });
-        });
-        images.forEach(img => { imageObserver.observe(img); });
-    }
-    
-    // ========== FORM INPUT ANIMATIONS ==========
-    const formInputs = document.querySelectorAll('.contact-form input, .contact-form textarea, .contact-form select');
-    formInputs.forEach(input => {
-        input.addEventListener('focus', function () { this.parentElement.classList.add('focused'); });
-        input.addEventListener('blur', function () {
-            if (!this.value) this.parentElement.classList.remove('focused');
-        });
-        if (input.value) input.parentElement.classList.add('focused');
-    });
-    
-    // ========== PRINT FUNCTIONALITY ==========
-    const printButtons = document.querySelectorAll('[data-print]');
-    printButtons.forEach(button => {
-        button.addEventListener('click', function () { window.print(); });
-    });
-    
-    // ========== CONSOLE MESSAGE ==========
-    console.log('%c🌟 Jaiti Foundation 🌟', 'font-size: 20px; font-weight: bold; color: #1e40af;');
-    console.log('%cEmpowering underprivileged children through free education, moral values, and holistic development.', 'font-size: 14px; color: #475569;');
-    console.log('%cWebsite developed with ❤️ for Jaiti Foundation', 'font-size: 12px; color: #94a3b8; font-style: italic;');
-
     // ========== VISITOR COUNTER ==========
     const visitorCountEl = document.getElementById('visitorCount');
     if (visitorCountEl) {
@@ -390,24 +213,21 @@ document.addEventListener('DOMContentLoaded', function () {
         }, stepTime);
     }
 
-    // ========== HERO IMAGE SLIDER (UPDATED - IMPROVED) ==========
+    // ========== HERO IMAGE SLIDER (AUTO-PLAY + DOTS) ==========
     const heroSlides = document.querySelectorAll('.hero-slide');
     const heroDots = document.querySelectorAll('.hero-dot');
 
     if (heroSlides.length > 0 && heroDots.length > 0) {
         let currentSlide = 0;
         let heroTimer;
-        const SLIDE_INTERVAL = 5000; // 5 seconds
+        const SLIDE_INTERVAL = 5000;
 
         function goToSlide(index) {
-            // Remove active class from all slides and dots
             heroSlides.forEach(slide => slide.classList.remove('active'));
             heroDots.forEach(dot => dot.classList.remove('active'));
             
-            // Calculate new index
             currentSlide = (index + heroSlides.length) % heroSlides.length;
             
-            // Add active class to current slide and dot
             heroSlides[currentSlide].classList.add('active');
             heroDots[currentSlide].classList.add('active');
         }
@@ -425,16 +245,14 @@ document.addEventListener('DOMContentLoaded', function () {
             startHeroTimer();
         }
 
-        // Add click handlers to dots
         heroDots.forEach((dot, index) => {
             dot.addEventListener('click', function (e) {
                 e.preventDefault();
                 goToSlide(index);
-                resetTimer(); // Reset timer when user clicks
+                resetTimer();
             });
         });
 
-        // Pause on hover, resume on mouse leave
         const heroSection = document.querySelector('.hero');
         if (heroSection) {
             heroSection.addEventListener('mouseenter', () => {
@@ -446,11 +264,10 @@ document.addEventListener('DOMContentLoaded', function () {
             });
         }
 
-        // Start the auto-play
         startHeroTimer();
     }
 
-    // ========== CAROUSEL SLIDER (UPDATED) ==========
+    // ========== CAROUSEL SLIDER (MOBILE OPTIMIZED) ==========
     function initCarousel(trackId, dotsContainerId) {
         const track = document.getElementById(trackId);
         if (!track) return;
@@ -461,6 +278,7 @@ document.addEventListener('DOMContentLoaded', function () {
         const dotsContainer = document.getElementById(dotsContainerId);
         const items = Array.from(track.children);
         let current = 0;
+        let isTransitioning = false;
 
         // Create dots
         items.forEach((_, i) => {
@@ -472,7 +290,10 @@ document.addEventListener('DOMContentLoaded', function () {
         });
 
         function getVisibleCount() {
-            return window.innerWidth <= 768 ? 1 : 3;
+            const width = window.innerWidth;
+            if (width <= 480) return 1;      // Mobile
+            if (width <= 768) return 1;      // Tablet
+            return 3;                        // Desktop
         }
 
         function updateDots() {
@@ -490,20 +311,31 @@ document.addEventListener('DOMContentLoaded', function () {
         }
 
         function goTo(index) {
+            if (isTransitioning) return;
+            isTransitioning = true;
+
             const visible = getVisibleCount();
             const max = Math.max(0, items.length - visible);
             current = Math.max(0, Math.min(index, max));
+            
             const gap = window.innerWidth <= 768 ? 16 : 32;
             const itemWidth = items[0].offsetWidth + gap;
+            
+            track.style.transition = 'transform 0.4s ease';
             track.style.transform = `translateX(-${current * itemWidth}px)`;
+            
             updateDots();
             updateButtons();
+
+            setTimeout(() => {
+                isTransitioning = false;
+            }, 400);
         }
 
         prevBtn.addEventListener('click', () => goTo(current - 1));
         nextBtn.addEventListener('click', () => goTo(current + 1));
 
-        // Touch support
+        // ===== TOUCH/SWIPE SUPPORT (MOBILE) =====
         let touchStartX = 0;
         let touchEndX = 0;
 
@@ -514,13 +346,25 @@ document.addEventListener('DOMContentLoaded', function () {
         track.addEventListener('touchend', (e) => {
             touchEndX = e.changedTouches[0].screenX;
             const diff = touchStartX - touchEndX;
-            if (Math.abs(diff) > 50) {
-                if (diff > 0) goTo(current + 1);
-                else goTo(current - 1);
+            const minSwipe = 50;
+            
+            if (Math.abs(diff) > minSwipe) {
+                if (diff > 0) {
+                    goTo(current + 1);
+                } else {
+                    goTo(current - 1);
+                }
             }
         }, { passive: true });
 
-        window.addEventListener('resize', () => goTo(current));
+        // Handle window resize
+        window.addEventListener('resize', debounce(() => {
+            const visible = getVisibleCount();
+            const max = Math.max(0, items.length - visible);
+            current = Math.min(current, max);
+            goTo(current);
+        }, 250));
+
         updateButtons();
     }
 
@@ -528,6 +372,9 @@ document.addEventListener('DOMContentLoaded', function () {
     initCarousel('purposeTrack', 'purposeDots');
     initCarousel('workTrack', 'workDots');
 
+    // ========== CONSOLE MESSAGE ==========
+    console.log('%c🌟 Jaiti Foundation 🌟', 'font-size: 20px; font-weight: bold; color: #1e40af;');
+    console.log('%cEmpowering underprivileged children through free education.', 'font-size: 14px; color: #475569;');
 });
 
 // ========== PAGE LOAD ANIMATION ==========
