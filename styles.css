@@ -858,8 +858,8 @@ p {
     .programs-grid.carousel-track > .program-card { 
         min-width: 100% !important; 
         max-width: 100% !important; 
-        flex-shrink: 0;
-        box-sizing: border-box;
+        flex-shrink: 0 !important;
+        box-sizing: border-box !important;
     }
     .carousel-prev { left: 0.5rem !important; width: 40px !important; height: 40px !important; }
     .carousel-next { right: 0.5rem !important; width: 40px !important; height: 40px !important; }
@@ -928,9 +928,21 @@ p {
 /* ========== CAROUSEL ========== */
 
 .carousel-container { position: relative; width: 100%; padding: 0 2.5rem; box-sizing: border-box; }
+/* ========== CAROUSEL (DESKTOP ONLY) ========== */
+
 .carousel-track-wrapper { overflow: hidden; width: 100%; }
 .carousel-track { display: flex !important; grid-template-columns: unset !important; transition: transform 0.4s ease; gap: 2rem; will-change: transform; }
-.why-grid.carousel-track > .why-card, .programs-grid.carousel-track > .program-card { min-width: calc(33.333% - 1.35rem); max-width: calc(33.333% - 1.35rem); flex-shrink: 0; box-sizing: border-box; }
+
+/* Desktop: 3 cards visible */
+@media (min-width: 769px) {
+    .why-grid.carousel-track > .why-card, 
+    .programs-grid.carousel-track > .program-card { 
+        min-width: calc(33.333% - 1.35rem); 
+        max-width: calc(33.333% - 1.35rem); 
+        flex-shrink: 0; 
+        box-sizing: border-box; 
+    }
+}
 .carousel-btn { position: absolute; top: 40%; transform: translateY(-50%); background: var(--white); border: 2px solid var(--light-gray); width: 48px; height: 48px; border-radius: 50%; cursor: pointer; z-index: 10; box-shadow: var(--shadow-md); transition: var(--transition); display: flex; align-items: center; justify-content: center; padding: 0; color: var(--primary); }
 .carousel-btn svg { width: 22px; height: 22px; stroke: var(--primary); flex-shrink: 0; display: block; }
 .carousel-btn:hover { background: var(--primary); border-color: var(--primary); transform: translateY(-50%) scale(1.1); box-shadow: var(--shadow-lg); }
