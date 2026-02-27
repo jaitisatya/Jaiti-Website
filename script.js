@@ -291,9 +291,9 @@ document.addEventListener('DOMContentLoaded', function () {
 
         function getVisibleCount() {
             const width = window.innerWidth;
-            if (width <= 480) return 1;      // Mobile
-            if (width <= 768) return 1;      // Tablet
-            return 3;                        // Desktop
+            // Mobile: 1 card, Tablet: 1 card, Desktop: 3 cards
+            if (width <= 768) return 1;
+            return 3;
         }
 
         function updateDots() {
@@ -303,7 +303,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
         function updateButtons() {
             const visible = getVisibleCount();
-            const max = Math.max(0, items.length - visible);
+            const max = items.length - visible;
             prevBtn.style.opacity = current <= 0 ? '0.4' : '1';
             nextBtn.style.opacity = current >= max ? '0.4' : '1';
             prevBtn.style.pointerEvents = current <= 0 ? 'none' : 'auto';
@@ -315,11 +315,14 @@ document.addEventListener('DOMContentLoaded', function () {
             isTransitioning = true;
 
             const visible = getVisibleCount();
-            const max = Math.max(0, items.length - visible);
+            const max = items.length - visible;
             current = Math.max(0, Math.min(index, max));
             
-            const gap = window.innerWidth <= 768 ? 16 : 32;
-            const itemWidth = items[0].offsetWidth + gap;
+            // Calculate width with proper gap
+            const firstItem = items[0];
+            const computedStyle = window.getComputedStyle(track);
+            const gap = parseFloat(computedStyle.gap) || 32;
+            const itemWidth = firstItem.offsetWidth + gap;
             
             track.style.transition = 'transform 0.4s ease';
             track.style.transform = `translateX(-${current * itemWidth}px)`;
@@ -350,9 +353,9 @@ document.addEventListener('DOMContentLoaded', function () {
             
             if (Math.abs(diff) > minSwipe) {
                 if (diff > 0) {
-                    goTo(current + 1);
+                    goTo(current + 1);  // Swipe left = next
                 } else {
-                    goTo(current - 1);
+                    goTo(current - 1);  // Swipe right = previous
                 }
             }
         }, { passive: true });
@@ -360,7 +363,7 @@ document.addEventListener('DOMContentLoaded', function () {
         // Handle window resize
         window.addEventListener('resize', debounce(() => {
             const visible = getVisibleCount();
-            const max = Math.max(0, items.length - visible);
+            const max = items.length - visible;
             current = Math.min(current, max);
             goTo(current);
         }, 250));

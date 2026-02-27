@@ -851,10 +851,18 @@ p {
     .difference-content { grid-template-columns: 1fr; }
     .difference-content .difference-image { order: -1; }
     .footer-content { grid-template-columns: 1fr; gap: 2rem; }
-    .carousel-container { padding: 0 3rem; }
-    .why-grid.carousel-track > .why-card, .programs-grid.carousel-track > .program-card { min-width: 100%; max-width: 100%; }
-    .carousel-prev { left: 0; }
-    .carousel-next { right: 0; }
+    .carousel-container { padding: 0 1rem; overflow: hidden; }
+    .carousel-track-wrapper { overflow: hidden; width: 100%; }
+    .why-grid.carousel-track, .programs-grid.carousel-track { gap: 0 !important; }
+    .why-grid.carousel-track > .why-card, 
+    .programs-grid.carousel-track > .program-card { 
+        min-width: 100% !important; 
+        max-width: 100% !important; 
+        flex-shrink: 0;
+        box-sizing: border-box;
+    }
+    .carousel-prev { left: 0.5rem !important; width: 40px !important; height: 40px !important; }
+    .carousel-next { right: 0.5rem !important; width: 40px !important; height: 40px !important; }
     .whatsapp-float { bottom: 4.5rem; right: 1rem; width: 52px; height: 52px; }
     .whatsapp-float svg { width: 28px; height: 28px; }
     .whatsapp-tooltip { display: none; }
