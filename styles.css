@@ -1,5 +1,6 @@
 /* ==========================================
    JAITI FOUNDATION - PROFESSIONAL STYLES
+   MOBILE BUTTON FIX: Instagram 8.5rem, WhatsApp 4.5rem
    ========================================== */
 
 :root {
@@ -286,7 +287,6 @@ p {
 
 /* ========== HERO SECTION ========== */
 
-/* ===== UPDATED: HERO HEIGHT REDUCED ===== */
 .hero {
     position: relative;
     min-height: calc(100vh - 70px);
@@ -311,7 +311,6 @@ p {
 
 .hero-slide.active { opacity: 1; }
 
-/* ===== UPDATED: HERO DOTS MOVED UP ===== */
 .hero-dots {
     position: absolute;
     bottom: 7rem; left: 50%;
@@ -335,14 +334,12 @@ p {
     border-radius: 5px;
 }
 
-/* ===== UPDATED: LIGHT BLUE OVERLAY ===== */
 .hero-overlay {
     position: absolute; inset: 0;
     background: linear-gradient(135deg, rgba(59, 130, 246, 0.4) 0%, rgba(96, 165, 250, 0.35) 100%);
     z-index: 1;
 }
 
-/* ===== UPDATED: HERO CONTENT SPACING FIX ===== */
 .hero-content {
     position: relative; z-index: 2;
     max-width: 900px;
@@ -394,7 +391,6 @@ p {
     margin-top: 2rem; margin-bottom: 2rem;
 }
 
-/* ===== UPDATED: SCROLL INDICATOR GAP INCREASED ===== */
 .hero-scroll-indicator {
     position: absolute;
     bottom: 1.5rem; left: 50%;
@@ -403,7 +399,6 @@ p {
     font-size: 0.875rem; opacity: 0.8; z-index: 10;
 }
 
-/* Simple yellow chevron — clean modern design */
 .scroll-arrow {
     width: 22px;
     height: 22px;
@@ -803,7 +798,7 @@ p {
 .footer-bottom p { color: rgba(255, 255, 255, 0.7); font-size: 0.9375rem; margin-bottom: 0.5rem; }
 .footer-note { font-size: 0.875rem; font-style: italic; opacity: 0.6; }
 
-/* ========== RESPONSIVE ========== */
+/* ========== RESPONSIVE - 1024px ========== */
 
 @media (max-width: 1024px) {
     .approach-content, .story-content, .difference-content, .requirements-content { grid-template-columns: 1fr; gap: 3rem; }
@@ -811,6 +806,8 @@ p {
     .contact-grid { grid-template-columns: 1fr; }
     .mvv-grid { grid-template-columns: 1fr; }
 }
+
+/* ========== RESPONSIVE - 768px (TABLET/MOBILE) ========== */
 
 @media (max-width: 768px) {
     .section { padding: 60px 0; }
@@ -840,9 +837,9 @@ p {
         bottom: 1.2rem !important;
     }
 
-    /* ===== MOBILE INSTAGRAM BUTTON FIX ===== */
+    /* ===== MOBILE INSTAGRAM BUTTON FIX (8.5rem spacing) ===== */
     .instagram-float {
-        bottom: 6.5rem !important;
+        bottom: 8.5rem !important;
         right: 1rem !important;
         width: 52px !important;
         height: 52px !important;
@@ -855,6 +852,23 @@ p {
 
     .instagram-tooltip {
         display: none !important;
+    }
+
+    /* ===== MOBILE WHATSAPP BUTTON ===== */
+    .whatsapp-float { 
+        bottom: 4.5rem !important; 
+        right: 1rem !important; 
+        width: 52px !important; 
+        height: 52px !important; 
+    }
+    
+    .whatsapp-float svg { 
+        width: 28px !important; 
+        height: 28px !important; 
+    }
+    
+    .whatsapp-tooltip { 
+        display: none !important; 
     }
     
     .hero-stats { gap: 2rem; }
@@ -880,14 +894,13 @@ p {
     }
     .carousel-prev { left: 0.5rem !important; width: 40px !important; height: 40px !important; }
     .carousel-next { right: 0.5rem !important; width: 40px !important; height: 40px !important; }
-    .whatsapp-float { bottom: 4.5rem; right: 1rem; width: 52px; height: 52px; }
-    .whatsapp-float svg { width: 28px; height: 28px; }
-    .whatsapp-tooltip { display: none; }
     .visitor-count { font-size: 3.5rem; }
     .footer-social { justify-content: flex-start; }
     .social-icon { width: 38px; height: 38px; }
     .social-icon svg { width: 18px; height: 18px; }
 }
+
+/* ========== RESPONSIVE - 480px (SMALL MOBILE) ========== */
 
 @media (max-width: 480px) {
     .hero-stats { flex-direction: column; gap: 1.5rem; }
@@ -927,7 +940,7 @@ p {
 
 .instagram-float { 
     position: fixed; 
-    bottom: 8rem;
+    bottom: 9rem;
     right: 1rem; 
     width: 50px; 
     height: 50px; 
@@ -984,14 +997,66 @@ p {
     opacity: 1; 
 }
 
-/* ========== WHATSAPP ========== */
+/* ========== WHATSAPP FLOATING BUTTON ========== */
 
-.whatsapp-float { position: fixed; bottom: 4.5rem; right: 1rem; width: 50px; height: 50px; background: #25d366; border-radius: 50%; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 20px rgba(37, 211, 102, 0.4); z-index: 1000; transition: all 0.3s ease; text-decoration: none; }
-.whatsapp-float svg { width: 34px; height: 34px; color: white; }
-.whatsapp-float:hover { transform: translateY(-5px) scale(1.1); box-shadow: 0 8px 30px rgba(37, 211, 102, 0.5); }
-.whatsapp-tooltip { position: absolute; right: 70px; background: #25d366; color: white; padding: 0.5rem 1rem; border-radius: var(--radius); font-size: 0.875rem; font-weight: 600; white-space: nowrap; opacity: 0; pointer-events: none; transition: opacity 0.3s ease; font-family: 'Inter', sans-serif; }
-.whatsapp-tooltip::after { content: ''; position: absolute; right: -6px; top: 50%; transform: translateY(-50%); border: 6px solid transparent; border-right: none; border-left-color: #25d366; }
-.whatsapp-float:hover .whatsapp-tooltip { opacity: 1; }
+.whatsapp-float { 
+    position: fixed; 
+    bottom: 4.5rem; 
+    right: 1rem; 
+    width: 50px; 
+    height: 50px; 
+    background: #25d366; 
+    border-radius: 50%; 
+    display: flex; 
+    align-items: center; 
+    justify-content: center; 
+    box-shadow: 0 4px 20px rgba(37, 211, 102, 0.4); 
+    z-index: 1000; 
+    transition: all 0.3s ease; 
+    text-decoration: none; 
+}
+
+.whatsapp-float svg { 
+    width: 34px; 
+    height: 34px; 
+    color: white; 
+}
+
+.whatsapp-float:hover { 
+    transform: translateY(-5px) scale(1.1); 
+    box-shadow: 0 8px 30px rgba(37, 211, 102, 0.5); 
+}
+
+.whatsapp-tooltip { 
+    position: absolute; 
+    right: 70px; 
+    background: #25d366; 
+    color: white; 
+    padding: 0.5rem 1rem; 
+    border-radius: var(--radius); 
+    font-size: 0.875rem; 
+    font-weight: 600; 
+    white-space: nowrap; 
+    opacity: 0; 
+    pointer-events: none; 
+    transition: opacity 0.3s ease; 
+    font-family: 'Inter', sans-serif; 
+}
+
+.whatsapp-tooltip::after { 
+    content: ''; 
+    position: absolute; 
+    right: -6px; 
+    top: 50%; 
+    transform: translateY(-50%); 
+    border: 6px solid transparent; 
+    border-right: none; 
+    border-left-color: #25d366; 
+}
+
+.whatsapp-float:hover .whatsapp-tooltip { 
+    opacity: 1; 
+}
 
 /* ========== SOCIAL ICONS ========== */
 
@@ -1006,12 +1071,10 @@ p {
 /* ========== CAROUSEL ========== */
 
 .carousel-container { position: relative; width: 100%; padding: 0 2.5rem; box-sizing: border-box; }
-/* ========== CAROUSEL (DESKTOP ONLY) ========== */
 
 .carousel-track-wrapper { overflow: hidden; width: 100%; }
 .carousel-track { display: flex !important; grid-template-columns: unset !important; transition: transform 0.4s ease; gap: 2rem; will-change: transform; }
 
-/* Desktop: 3 cards visible */
 @media (min-width: 769px) {
     .why-grid.carousel-track > .why-card, 
     .programs-grid.carousel-track > .program-card { 
@@ -1021,6 +1084,7 @@ p {
         box-sizing: border-box; 
     }
 }
+
 .carousel-btn { position: absolute; top: 40%; transform: translateY(-50%); background: var(--white); border: 2px solid var(--light-gray); width: 48px; height: 48px; border-radius: 50%; cursor: pointer; z-index: 10; box-shadow: var(--shadow-md); transition: var(--transition); display: flex; align-items: center; justify-content: center; padding: 0; color: var(--primary); }
 .carousel-btn svg { width: 22px; height: 22px; stroke: var(--primary); flex-shrink: 0; display: block; }
 .carousel-btn:hover { background: var(--primary); border-color: var(--primary); transform: translateY(-50%) scale(1.1); box-shadow: var(--shadow-lg); }
