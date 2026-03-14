@@ -1158,3 +1158,101 @@ p {
     from { opacity: 0; transform: translateY(30px); }
     to { opacity: 1; transform: translateY(0); }
 }
+/* ========================================
+   ADD THIS TO END OF YOUR EXISTING styles.css
+   YouTube Floating Button Only
+   ======================================== */
+
+/* ========== YOUTUBE FLOATING BUTTON ========== */
+
+.youtube-float {
+    position: fixed;
+    bottom: 90px;
+    right: 20px;
+    width: 60px;
+    height: 60px;
+    background: linear-gradient(135deg, #ff0000, #cc0000);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 1.5rem;
+    box-shadow: 0 4px 12px rgba(255, 0, 0, 0.3);
+    transition: all 0.3s ease;
+    z-index: 99;
+    text-decoration: none;
+    border: none;
+    cursor: pointer;
+}
+
+.youtube-float:hover {
+    transform: scale(1.1);
+    box-shadow: 0 6px 20px rgba(255, 0, 0, 0.4);
+}
+
+.youtube-float svg {
+    width: 28px;
+    height: 28px;
+    fill: white;
+}
+
+.youtube-tooltip {
+    position: absolute;
+    right: 100%;
+    margin-right: 15px;
+    background: #333;
+    color: white;
+    padding: 8px 12px;
+    border-radius: 6px;
+    font-size: 0.85rem;
+    white-space: nowrap;
+    opacity: 0;
+    pointer-events: none;
+    transition: all 0.3s ease;
+}
+
+.youtube-float:hover .youtube-tooltip {
+    opacity: 1;
+}
+
+/* Social YouTube Icon in Footer */
+.social-youtube {
+    color: #ff0000;
+    transition: all 0.3s ease;
+}
+
+.social-youtube:hover {
+    color: #cc0000;
+    transform: scale(1.2);
+}
+
+/* Responsive for mobile */
+@media (max-width: 768px) {
+    .youtube-float {
+        width: 50px;
+        height: 50px;
+        bottom: 70px;
+        right: 15px;
+    }
+
+    .youtube-float svg {
+        width: 24px;
+        height: 24px;
+    }
+
+    .youtube-tooltip {
+        font-size: 0.75rem;
+        padding: 6px 10px;
+        margin-right: 10px;
+    }
+}
+
+@media (max-width: 480px) {
+    .youtube-float {
+        width: 50px;
+        height: 50px;
+        bottom: 70px;
+        right: 10px;
+    }
+}
