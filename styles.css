@@ -847,6 +847,31 @@ p {
 /* ========== RESPONSIVE - 768px (TABLET/MOBILE) ========== */
 
 @media (max-width: 768px) {
+
+    /* ===== MOBILE: smaller buttons + reduced radius ===== */
+    :root {
+        --float-btn-size: 40px;
+        --float-icon-size: 20px;
+    }
+
+    /* Back to Top — match social button size & radius */
+    .back-to-top {
+        width: 40px !important;
+        height: 40px !important;
+        border-radius: 12px !important;
+    }
+    .back-to-top svg {
+        width: 18px !important;
+        height: 18px !important;
+    }
+
+    /* Reduce border-radius on all social float buttons */
+    .youtube-float,
+    .instagram-float,
+    .whatsapp-float {
+        border-radius: 12px !important;
+    }
+
     .section { padding: 60px 0; }
     .navbar { padding: 1rem 0; }
     .logo img { width: 40px; height: 40px; }
