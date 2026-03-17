@@ -34,7 +34,6 @@ document.addEventListener('DOMContentLoaded', function () {
     const navbar = document.querySelector('.navbar');
     window.addEventListener('scroll', function () {
         const currentScroll = window.pageYOffset;
-        
         if (currentScroll > 50) {
             navbar.classList.add('scrolled');
             navbar.style.boxShadow = '0 4px 20px rgba(0, 0, 0, 0.1)';
@@ -146,8 +145,19 @@ document.addEventListener('DOMContentLoaded', function () {
             sectionObserver.observe(el);
         });
     }
-    
+
     // ========== BACK TO TOP BUTTON ==========
+    //
+    // Mobile float button stack (bottom values from styles.css):
+    //   YouTube    → bottom: 10.5rem  (height: 52px)
+    //   Instagram  → bottom:  6.5rem  (height: 52px)
+    //   WhatsApp   → bottom:  2.5rem  (height: 52px)
+    //
+    // Back to Top must NOT overlap any of these.
+    // On mobile we place it LEFT side (right: auto, left: 1rem) so it
+    // never conflicts with the right-side social buttons at all.
+    // On desktop it stays bottom-right at 1rem as before.
+    //
     const backToTopBtn = document.createElement('button');
     backToTopBtn.innerHTML = `
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -155,53 +165,57 @@ document.addEventListener('DOMContentLoaded', function () {
         </svg>
     `;
     backToTopBtn.className = 'back-to-top';
-
-    // ---- FIX: use bottom: 8rem on mobile so it sits above WhatsApp ----
-    const isMobile = window.innerWidth <= 768;
-    backToTopBtn.style.cssText = `
-        position: fixed;
-        bottom: ${isMobile ? '8rem' : '1rem'};
-        right: 1rem;
-        width: 50px;
-        height: 50px;
-        background: linear-gradient(135deg, #1e40af 0%, #3b82f6 100%);
-        color: white;
-        border: none;
-        border-radius: 50%;
-        cursor: pointer;
-        display: none;
-        align-items: center;
-        justify-content: center;
-        box-shadow: 0 4px 20px rgba(30, 64, 175, 0.3);
-        transition: all 0.3s ease;
-        z-index: 999;
-    `;
-    backToTopBtn.querySelector('svg').style.cssText = `width: 24px; height: 24px;`;
+    backToTopBtn.setAttribute('aria-label', 'Back to top');
     document.body.appendChild(backToTopBtn);
 
-    // Update bottom position on resize
-    window.addEventListener('resize', function () {
-        backToTopBtn.style.bottom = window.innerWidth <= 768 ? '8rem' : '1rem';
-    });
-    // ---- END FIX ----
-    
+    // Build the correct inline style based on viewport
+    function setBackToTopStyle(visible) {
+        const mobile = window.innerWidth <= 768;
+        backToTopBtn.style.cssText = `
+            position: fixed;
+            bottom: 1rem;
+            ${mobile ? 'left: 1rem; right: auto;' : 'right: 1rem;'}
+            width: 50px;
+            height: 50px;
+            background: linear-gradient(135deg, #1e40af 0%, #3b82f6 100%);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            cursor: pointer;
+            display: ${visible ? 'flex' : 'none'};
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 20px rgba(30, 64, 175, 0.3);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            z-index: 998;
+        `;
+        backToTopBtn.querySelector('svg').style.cssText = 'width: 24px; height: 24px;';
+    }
+
+    // Initial hidden state
+    setBackToTopStyle(false);
+
+    // Show / hide on scroll
     window.addEventListener('scroll', function () {
-        if (window.pageYOffset > 500) {
-            backToTopBtn.style.display = 'flex';
-        } else {
-            backToTopBtn.style.display = 'none';
-        }
+        setBackToTopStyle(window.pageYOffset > 500);
     });
-    
+
+    // Re-position on resize (e.g. phone rotation)
+    window.addEventListener('resize', debounce(function () {
+        if (backToTopBtn.style.display !== 'none') {
+            setBackToTopStyle(true);
+        }
+    }, 150));
+
     backToTopBtn.addEventListener('click', function () {
         window.scrollTo({ top: 0, behavior: 'smooth' });
     });
-    
+
     backToTopBtn.addEventListener('mouseenter', function () {
         this.style.transform = 'translateY(-5px)';
         this.style.boxShadow = '0 6px 25px rgba(30, 64, 175, 0.4)';
     });
-    
+
     backToTopBtn.addEventListener('mouseleave', function () {
         this.style.transform = 'translateY(0)';
         this.style.boxShadow = '0 4px 20px rgba(30, 64, 175, 0.3)';
@@ -234,7 +248,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     // ========== HERO IMAGE SLIDER (AUTO-PLAY + DOTS) ==========
     const heroSlides = document.querySelectorAll('.hero-slide');
-    const heroDots = document.querySelectorAll('.hero-dot');
+    const heroDots   = document.querySelectorAll('.hero-dot');
 
     if (heroSlides.length > 0 && heroDots.length > 0) {
         let currentSlide = 0;
@@ -243,26 +257,15 @@ document.addEventListener('DOMContentLoaded', function () {
 
         function goToSlide(index) {
             heroSlides.forEach(slide => slide.classList.remove('active'));
-            heroDots.forEach(dot => dot.classList.remove('active'));
-            
+            heroDots.forEach(dot   => dot.classList.remove('active'));
             currentSlide = (index + heroSlides.length) % heroSlides.length;
-            
             heroSlides[currentSlide].classList.add('active');
             heroDots[currentSlide].classList.add('active');
         }
 
-        function nextSlide() {
-            goToSlide(currentSlide + 1);
-        }
-
-        function startHeroTimer() {
-            heroTimer = setInterval(nextSlide, SLIDE_INTERVAL);
-        }
-
-        function resetTimer() {
-            clearInterval(heroTimer);
-            startHeroTimer();
-        }
+        function nextSlide()   { goToSlide(currentSlide + 1); }
+        function startHeroTimer() { heroTimer = setInterval(nextSlide, SLIDE_INTERVAL); }
+        function resetTimer()  { clearInterval(heroTimer); startHeroTimer(); }
 
         heroDots.forEach((dot, index) => {
             dot.addEventListener('click', function (e) {
@@ -274,13 +277,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
         const heroSection = document.querySelector('.hero');
         if (heroSection) {
-            heroSection.addEventListener('mouseenter', () => {
-                clearInterval(heroTimer);
-            });
-
-            heroSection.addEventListener('mouseleave', () => {
-                startHeroTimer();
-            });
+            heroSection.addEventListener('mouseenter', () => clearInterval(heroTimer));
+            heroSection.addEventListener('mouseleave', () => startHeroTimer());
         }
 
         startHeroTimer();
@@ -291,12 +289,12 @@ document.addEventListener('DOMContentLoaded', function () {
         const track = document.getElementById(trackId);
         if (!track) return;
 
-        const container = track.closest('.carousel-container');
-        const prevBtn = container.querySelector('.carousel-prev');
-        const nextBtn = container.querySelector('.carousel-next');
+        const container    = track.closest('.carousel-container');
+        const prevBtn      = container.querySelector('.carousel-prev');
+        const nextBtn      = container.querySelector('.carousel-next');
         const dotsContainer = document.getElementById(dotsContainerId);
-        const items = Array.from(track.children);
-        let current = 0;
+        const items        = Array.from(track.children);
+        let current        = 0;
         let isTransitioning = false;
 
         // Create dots
@@ -309,23 +307,19 @@ document.addEventListener('DOMContentLoaded', function () {
         });
 
         function getVisibleCount() {
-            const width = window.innerWidth;
-            // Mobile: 1 card, Tablet: 1 card, Desktop: 3 cards
-            if (width <= 768) return 1;
-            return 3;
+            return window.innerWidth <= 768 ? 1 : 3;
         }
 
         function updateDots() {
-            const dots = dotsContainer.querySelectorAll('.carousel-dot');
-            dots.forEach((d, i) => d.classList.toggle('active', i === current));
+            dotsContainer.querySelectorAll('.carousel-dot')
+                .forEach((d, i) => d.classList.toggle('active', i === current));
         }
 
         function updateButtons() {
-            const visible = getVisibleCount();
-            const max = items.length - visible;
-            prevBtn.style.opacity = current <= 0 ? '0.4' : '1';
-            nextBtn.style.opacity = current >= max ? '0.4' : '1';
-            prevBtn.style.pointerEvents = current <= 0 ? 'none' : 'auto';
+            const max = items.length - getVisibleCount();
+            prevBtn.style.opacity      = current <= 0   ? '0.4' : '1';
+            nextBtn.style.opacity      = current >= max ? '0.4' : '1';
+            prevBtn.style.pointerEvents = current <= 0   ? 'none' : 'auto';
             nextBtn.style.pointerEvents = current >= max ? 'none' : 'auto';
         }
 
@@ -333,66 +327,43 @@ document.addEventListener('DOMContentLoaded', function () {
             if (isTransitioning) return;
             isTransitioning = true;
 
-            const visible = getVisibleCount();
-            const max = items.length - visible;
+            const max = items.length - getVisibleCount();
             current = Math.max(0, Math.min(index, max));
-            
-            // Calculate width with proper gap
-            const firstItem = items[0];
-            const computedStyle = window.getComputedStyle(track);
-            const gap = parseFloat(computedStyle.gap) || 32;
-            const itemWidth = firstItem.offsetWidth + gap;
-            
+
+            const gap       = parseFloat(window.getComputedStyle(track).gap) || 32;
+            const itemWidth = items[0].offsetWidth + gap;
+
             track.style.transition = 'transform 0.4s ease';
-            track.style.transform = `translateX(-${current * itemWidth}px)`;
-            
+            track.style.transform  = `translateX(-${current * itemWidth}px)`;
+
             updateDots();
             updateButtons();
-
-            setTimeout(() => {
-                isTransitioning = false;
-            }, 400);
+            setTimeout(() => { isTransitioning = false; }, 400);
         }
 
         prevBtn.addEventListener('click', () => goTo(current - 1));
         nextBtn.addEventListener('click', () => goTo(current + 1));
 
-        // ===== TOUCH/SWIPE SUPPORT (MOBILE) =====
+        // Touch / swipe
         let touchStartX = 0;
-        let touchEndX = 0;
-
         track.addEventListener('touchstart', (e) => {
             touchStartX = e.changedTouches[0].screenX;
         }, { passive: true });
-
         track.addEventListener('touchend', (e) => {
-            touchEndX = e.changedTouches[0].screenX;
-            const diff = touchStartX - touchEndX;
-            const minSwipe = 50;
-            
-            if (Math.abs(diff) > minSwipe) {
-                if (diff > 0) {
-                    goTo(current + 1);  // Swipe left = next
-                } else {
-                    goTo(current - 1);  // Swipe right = previous
-                }
-            }
+            const diff = touchStartX - e.changedTouches[0].screenX;
+            if (Math.abs(diff) > 50) goTo(diff > 0 ? current + 1 : current - 1);
         }, { passive: true });
 
-        // Handle window resize
         window.addEventListener('resize', debounce(() => {
-            const visible = getVisibleCount();
-            const max = items.length - visible;
-            current = Math.min(current, max);
+            current = Math.min(current, items.length - getVisibleCount());
             goTo(current);
         }, 250));
 
         updateButtons();
     }
 
-    // Initialize carousels
     initCarousel('purposeTrack', 'purposeDots');
-    initCarousel('workTrack', 'workDots');
+    initCarousel('workTrack',    'workDots');
 
     // ========== CONSOLE MESSAGE ==========
     console.log('%c🌟 Jaiti Foundation 🌟', 'font-size: 20px; font-weight: bold; color: #1e40af;');
@@ -420,8 +391,8 @@ function debounce(func, wait) {
 
 function throttle(func, limit) {
     let inThrottle;
-    return function() {
-        const args = arguments;
+    return function () {
+        const args    = arguments;
         const context = this;
         if (!inThrottle) {
             func.apply(context, args);
