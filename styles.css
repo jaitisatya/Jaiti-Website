@@ -920,7 +920,7 @@ p {
     .whatsapp-tooltip { display: none !important; }
 
     .instagram-float {
-        bottom: 5rem !important;
+        bottom: 3.5rem !important;
         right: 1rem !important;
         width: var(--float-btn-size) !important;
         height: var(--float-btn-size) !important;
@@ -932,7 +932,7 @@ p {
     .instagram-tooltip { display: none !important; }
 
     .youtube-float {
-        bottom: 9rem !important;
+        bottom: 6rem !important;
         right: 1rem !important;
         width: var(--float-btn-size) !important;
         height: var(--float-btn-size) !important;
