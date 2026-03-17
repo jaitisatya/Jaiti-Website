@@ -479,7 +479,17 @@ p {
 
 .why-icon svg { width: 32px; height: 32px; stroke: var(--white); }
 .why-card h3 { font-size: 1.5rem; margin-bottom: 1rem; color: var(--text-primary); }
-.why-card p { color: var(--text-secondary); line-height: 1.7; }
+
+/* ===== LINE-CLAMP: standard + webkit for cross-browser compatibility ===== */
+.why-card p {
+    color: var(--text-secondary);
+    line-height: 1.7;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 4;          /* Safari, older Chrome/Edge */
+    line-clamp: 4;                  /* Standard property (modern browsers) */
+    overflow: hidden;
+}
 
 /* ========== PROGRAMS PREVIEW ========== */
 
@@ -517,7 +527,17 @@ p {
 
 .program-content { padding: 2rem; }
 .program-content h3 { font-size: 1.5rem; margin-bottom: 1rem; }
-.program-content p { color: var(--text-secondary); margin-bottom: 1.5rem; }
+
+/* ===== LINE-CLAMP: standard + webkit for cross-browser compatibility ===== */
+.program-content p {
+    color: var(--text-secondary);
+    margin-bottom: 1.5rem;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 3;          /* Safari, older Chrome/Edge */
+    line-clamp: 3;                  /* Standard property (modern browsers) */
+    overflow: hidden;
+}
 
 .program-link {
     color: var(--primary); font-weight: 600;
@@ -688,7 +708,20 @@ p {
 .gallery-item:hover .gallery-overlay { opacity: 1; }
 .gallery-caption { color: var(--white); }
 .gallery-caption h3 { font-size: 1.25rem; color: var(--white); margin-bottom: 0.5rem; }
-.gallery-caption p { font-size: 0.875rem; color: var(--white); opacity: 0.9; margin: 0; }
+
+/* ===== LINE-CLAMP: standard + webkit for cross-browser compatibility ===== */
+.gallery-caption p {
+    font-size: 0.875rem;
+    color: var(--white);
+    opacity: 0.9;
+    margin: 0;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;          /* Safari, older Chrome/Edge */
+    line-clamp: 2;                  /* Standard property (modern browsers) */
+    overflow: hidden;
+}
+
 .gallery-stats { background: var(--primary-gradient); color: var(--white); }
 .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 2rem; }
 .stat-card { text-align: center; padding: 2rem; }
@@ -841,21 +874,28 @@ p {
         bottom: 1.2rem !important;
     }
 
-    /* ===== MOBILE FLOAT BUTTONS — ALL EQUAL SIZE ===== */
-    .youtube-float {
-        bottom: 10.5rem !important;
+    /* ===== MOBILE FLOAT BUTTONS — ALL EQUAL SIZE & EVEN SPACING ===== */
+    /* Back to Top (script.js) sits at bottom: 1rem on the LEFT side.   */
+    /* All social buttons sit on the RIGHT side, stacked upward from     */
+    /* the same 1rem baseline with a consistent 4rem gap between each.   */
+    /*   WhatsApp  → bottom: 1rem   (baseline, same as Back to Top)      */
+    /*   Instagram → bottom: 5rem   (1rem + 52px btn + 12px gap ≈ 4rem) */
+    /*   YouTube   → bottom: 9rem   (5rem + same step)                   */
+
+    .whatsapp-float {
+        bottom: 1rem !important;
         right: 1rem !important;
         width: var(--float-btn-size) !important;
         height: var(--float-btn-size) !important;
     }
-    .youtube-float svg {
+    .whatsapp-float svg {
         width: var(--float-icon-size) !important;
         height: var(--float-icon-size) !important;
     }
-    .youtube-tooltip { display: none !important; }
+    .whatsapp-tooltip { display: none !important; }
 
     .instagram-float {
-        bottom: 6.5rem !important;
+        bottom: 5rem !important;
         right: 1rem !important;
         width: var(--float-btn-size) !important;
         height: var(--float-btn-size) !important;
@@ -866,17 +906,17 @@ p {
     }
     .instagram-tooltip { display: none !important; }
 
-    .whatsapp-float {
-        bottom: 2.5rem !important;
+    .youtube-float {
+        bottom: 9rem !important;
         right: 1rem !important;
         width: var(--float-btn-size) !important;
         height: var(--float-btn-size) !important;
     }
-    .whatsapp-float svg {
+    .youtube-float svg {
         width: var(--float-icon-size) !important;
         height: var(--float-icon-size) !important;
     }
-    .whatsapp-tooltip { display: none !important; }
+    .youtube-tooltip { display: none !important; }
     
     .hero-stats { gap: 2rem; }
     .stat-number { font-size: 2.5rem; }
@@ -899,6 +939,16 @@ p {
         flex-shrink: 0 !important;
         box-sizing: border-box !important;
     }
+
+    /* On mobile, remove line-clamp so full text is visible in cards */
+    .why-card p,
+    .program-content p {
+        -webkit-line-clamp: unset;
+        line-clamp: unset;
+        overflow: visible;
+        display: block;
+    }
+
     .carousel-prev { left: 0.5rem !important; width: 40px !important; height: 40px !important; }
     .carousel-next { right: 0.5rem !important; width: 40px !important; height: 40px !important; }
     .visitor-count { font-size: 3.5rem; }
