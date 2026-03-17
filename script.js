@@ -155,16 +155,35 @@ document.addEventListener('DOMContentLoaded', function () {
         </svg>
     `;
     backToTopBtn.className = 'back-to-top';
+
+    // ---- FIX: use bottom: 8rem on mobile so it sits above WhatsApp ----
+    const isMobile = window.innerWidth <= 768;
     backToTopBtn.style.cssText = `
-        position: fixed; bottom: 1rem; right: 1rem; width: 50px; height: 50px;
+        position: fixed;
+        bottom: ${isMobile ? '8rem' : '1rem'};
+        right: 1rem;
+        width: 50px;
+        height: 50px;
         background: linear-gradient(135deg, #1e40af 0%, #3b82f6 100%);
-        color: white; border: none; border-radius: 50%; cursor: pointer;
-        display: none; align-items: center; justify-content: center;
+        color: white;
+        border: none;
+        border-radius: 50%;
+        cursor: pointer;
+        display: none;
+        align-items: center;
+        justify-content: center;
         box-shadow: 0 4px 20px rgba(30, 64, 175, 0.3);
-        transition: all 0.3s ease; z-index: 999;
+        transition: all 0.3s ease;
+        z-index: 999;
     `;
     backToTopBtn.querySelector('svg').style.cssText = `width: 24px; height: 24px;`;
     document.body.appendChild(backToTopBtn);
+
+    // Update bottom position on resize
+    window.addEventListener('resize', function () {
+        backToTopBtn.style.bottom = window.innerWidth <= 768 ? '8rem' : '1rem';
+    });
+    // ---- END FIX ----
     
     window.addEventListener('scroll', function () {
         if (window.pageYOffset > 500) {
