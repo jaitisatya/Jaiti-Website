@@ -58,40 +58,74 @@ document.addEventListener('DOMContentLoaded', function () {
     });
     
     // ========== IMPACT COUNTER ANIMATION ==========
+    // FIX: Show final value immediately so "0" never flashes.
+    // Animation plays once when element enters the viewport.
+
     const impactNumbers = document.querySelectorAll('.impact-number');
-    
+
     if (impactNumbers.length > 0) {
-        const observerOptions = { threshold: 0.1, rootMargin: '0px' };
-        
-        const observer = new IntersectionObserver(function (entries, observer) {
-            entries.forEach(entry => {
+
+        // Helper: read suffix (+, %) stored in data-suffix or detected from data-target text
+        function getSuffix(el) {
+            // data-suffix attribute takes priority
+            if (el.dataset.suffix !== undefined) return el.dataset.suffix;
+            // Otherwise detect from original HTML text
+            const raw = el.getAttribute('data-target') || el.textContent;
+            if (raw.includes('%')) return '%';
+            if (raw.includes('+')) return '+';
+            return '';
+        }
+
+        // Step 1 — Set final value IMMEDIATELY so page never shows "0"
+        impactNumbers.forEach(function (el) {
+            const target = parseInt(el.getAttribute('data-target'));
+            const suffix = getSuffix(el);
+            if (!isNaN(target)) {
+                el.textContent = target + suffix;
+            }
+        });
+
+        // Step 2 — Animate when scrolled into view (runs once per element)
+        function animateCounter(element, target, suffix) {
+            let current = 0;
+            const duration = 1800;          // total ms
+            const totalSteps = 60;
+            const stepTime = duration / totalSteps;
+            const increment = target / totalSteps;
+
+            // Reset to 0 just before animation starts (already in view, so no flash)
+            element.textContent = '0' + suffix;
+
+            const timer = setInterval(function () {
+                current += increment;
+                if (current >= target) {
+                    element.textContent = target + suffix;
+                    clearInterval(timer);
+                } else {
+                    element.textContent = Math.floor(current) + suffix;
+                }
+            }, stepTime);
+        }
+
+        const observerOptions = { threshold: 0.3, rootMargin: '0px' };
+
+        const observer = new IntersectionObserver(function (entries, obs) {
+            entries.forEach(function (entry) {
                 if (entry.isIntersecting) {
-                    const target = entry.target;
-                    const finalNumber = parseInt(target.getAttribute('data-target'));
-                    animateCounter(target, finalNumber);
-                    observer.unobserve(target);
+                    const el     = entry.target;
+                    const target = parseInt(el.getAttribute('data-target'));
+                    const suffix = getSuffix(el);
+                    if (!isNaN(target)) {
+                        animateCounter(el, target, suffix);
+                    }
+                    obs.unobserve(el);
                 }
             });
         }, observerOptions);
-        
-        impactNumbers.forEach(number => { observer.observe(number); });
-    }
-    
-    function animateCounter(element, target) {
-        let current = 0;
-        const increment = target / 60;
-        const duration = 1500;
-        const stepTime = duration / (target / increment);
-        
-        const timer = setInterval(function () {
-            current += increment;
-            if (current >= target) {
-                element.textContent = target;
-                clearInterval(timer);
-            } else {
-                element.textContent = Math.floor(current);
-            }
-        }, stepTime);
+
+        impactNumbers.forEach(function (el) {
+            observer.observe(el);
+        });
     }
     
     // ========== SCROLL REVEAL - CARDS ==========
@@ -147,17 +181,6 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     // ========== BACK TO TOP BUTTON ==========
-    //
-    // Mobile float button stack (bottom values from styles.css):
-    //   YouTube    → bottom: 10.5rem  (height: 52px)
-    //   Instagram  → bottom:  6.5rem  (height: 52px)
-    //   WhatsApp   → bottom:  2.5rem  (height: 52px)
-    //
-    // Back to Top must NOT overlap any of these.
-    // On mobile we place it LEFT side (right: auto, left: 1rem) so it
-    // never conflicts with the right-side social buttons at all.
-    // On desktop it stays bottom-right at 1rem as before.
-    //
     const backToTopBtn = document.createElement('button');
     backToTopBtn.innerHTML = `
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -168,7 +191,6 @@ document.addEventListener('DOMContentLoaded', function () {
     backToTopBtn.setAttribute('aria-label', 'Back to top');
     document.body.appendChild(backToTopBtn);
 
-    // Build the correct inline style based on viewport
     function setBackToTopStyle(visible) {
         const mobile = window.innerWidth <= 768;
         backToTopBtn.style.cssText = `
@@ -192,15 +214,12 @@ document.addEventListener('DOMContentLoaded', function () {
         backToTopBtn.querySelector('svg').style.cssText = 'width: 24px; height: 24px;';
     }
 
-    // Initial hidden state
     setBackToTopStyle(false);
 
-    // Show / hide on scroll
     window.addEventListener('scroll', function () {
         setBackToTopStyle(window.pageYOffset > 500);
     });
 
-    // Re-position on resize (e.g. phone rotation)
     window.addEventListener('resize', debounce(function () {
         if (backToTopBtn.style.display !== 'none') {
             setBackToTopStyle(true);
@@ -228,6 +247,9 @@ document.addEventListener('DOMContentLoaded', function () {
         let count = parseInt(localStorage.getItem('jaiti_visitor_count') || BASE_COUNT);
         count++;
         localStorage.setItem('jaiti_visitor_count', count);
+
+        // Show final value immediately — no flash
+        visitorCountEl.textContent = count.toLocaleString();
         
         let display = 0;
         const duration = 2000;
@@ -297,7 +319,6 @@ document.addEventListener('DOMContentLoaded', function () {
         let current        = 0;
         let isTransitioning = false;
 
-        // Create dots
         items.forEach((_, i) => {
             const dot = document.createElement('button');
             dot.className = 'carousel-dot' + (i === 0 ? ' active' : '');
@@ -344,7 +365,6 @@ document.addEventListener('DOMContentLoaded', function () {
         prevBtn.addEventListener('click', () => goTo(current - 1));
         nextBtn.addEventListener('click', () => goTo(current + 1));
 
-        // Touch / swipe
         let touchStartX = 0;
         track.addEventListener('touchstart', (e) => {
             touchStartX = e.changedTouches[0].screenX;
