@@ -456,10 +456,10 @@ document.addEventListener('DOMContentLoaded', function () {
             } else { clearError(email); }
 
             // Phone — exactly 10 digits (optional but if filled must be valid)
-            const phoneVal = phone.value.trim().replace(/[\s\-\+]/g, '');
-            if (phoneVal !== '') {
-                if (!/^\d{10}$/.test(phoneVal)) {
-                    showError(phone, 'Phone number must be exactly 10 digits'); valid = false;
+            const digitsOnly = phone.value.replace(/\D/g, '');
+            if (phone.value.trim() !== '') {
+                if (digitsOnly.length !== 10) {
+                    showError(phone, 'Phone number must be exactly 10 digits (you entered ' + digitsOnly.length + ')'); valid = false;
                 } else { clearError(phone); }
             } else { clearError(phone); }
 
@@ -470,10 +470,10 @@ document.addEventListener('DOMContentLoaded', function () {
 
             // Message — minimum 2 words
             const words = message.value.trim().split(/\s+/).filter(w => w.length > 0);
-            if (!message.value.trim()) {
+            if (words.length === 0) {
                 showError(message, 'Please write your message'); valid = false;
             } else if (words.length < 2) {
-                showError(message, 'Please write at least 2 words in your message'); valid = false;
+                showError(message, 'Your message must have at least 2 words'); valid = false;
             } else { clearError(message); }
 
             return valid;
