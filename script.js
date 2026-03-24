@@ -385,6 +385,145 @@ document.addEventListener('DOMContentLoaded', function () {
     initCarousel('purposeTrack', 'purposeDots');
     initCarousel('workTrack',    'workDots');
 
+    // ========== CONTACT FORM VALIDATION & SUBMISSION ==========
+    const contactForm = document.getElementById('contactForm');
+
+    if (contactForm) {
+
+        // --- Helper: show error under a field ---
+        function showError(input, msg) {
+            clearError(input);
+            input.classList.add('field-error');
+            const err = document.createElement('span');
+            err.className = 'field-error-msg';
+            err.textContent = msg;
+            input.parentNode.appendChild(err);
+        }
+
+        // --- Helper: clear error from a field ---
+        function clearError(input) {
+            input.classList.remove('field-error');
+            const existing = input.parentNode.querySelector('.field-error-msg');
+            if (existing) existing.remove();
+        }
+
+        // --- Helper: show success popup ---
+        function showSuccessPopup() {
+            const overlay = document.createElement('div');
+            overlay.className = 'success-popup-overlay';
+            overlay.innerHTML = `
+                <div class="success-popup">
+                    <div class="success-popup-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                            <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
+                            <polyline points="22 4 12 14.01 9 11.01"/>
+                        </svg>
+                    </div>
+                    <h4>Message Sent!</h4>
+                    <p>Thank you for reaching out. We'll get back to you within 24-48 hours.</p>
+                    <button class="success-popup-close">OK, Got it!</button>
+                </div>`;
+            document.body.appendChild(overlay);
+            overlay.querySelector('.success-popup-close').addEventListener('click', function () {
+                overlay.remove();
+            });
+            overlay.addEventListener('click', function (e) {
+                if (e.target === overlay) overlay.remove();
+            });
+        }
+
+        // --- Validate full form, return true if valid ---
+        function validateForm() {
+            let valid = true;
+
+            const name    = document.getElementById('name');
+            const email   = document.getElementById('email');
+            const phone   = document.getElementById('phone');
+            const subject = document.getElementById('subject');
+            const message = document.getElementById('message');
+
+            // Name
+            if (!name.value.trim()) {
+                showError(name, 'Please enter your full name'); valid = false;
+            } else { clearError(name); }
+
+            // Email — proper format check
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            if (!email.value.trim()) {
+                showError(email, 'Please enter your email address'); valid = false;
+            } else if (!emailRegex.test(email.value.trim())) {
+                showError(email, 'Please enter a valid email (e.g. name@example.com)'); valid = false;
+            } else { clearError(email); }
+
+            // Phone — exactly 10 digits (optional but if filled must be valid)
+            const phoneVal = phone.value.trim().replace(/[\s\-\+]/g, '');
+            if (phoneVal !== '') {
+                if (!/^\d{10}$/.test(phoneVal)) {
+                    showError(phone, 'Phone number must be exactly 10 digits'); valid = false;
+                } else { clearError(phone); }
+            } else { clearError(phone); }
+
+            // Subject
+            if (!subject.value) {
+                showError(subject, 'Please select a subject'); valid = false;
+            } else { clearError(subject); }
+
+            // Message — minimum 2 words
+            const words = message.value.trim().split(/\s+/).filter(w => w.length > 0);
+            if (!message.value.trim()) {
+                showError(message, 'Please write your message'); valid = false;
+            } else if (words.length < 2) {
+                showError(message, 'Please write at least 2 words in your message'); valid = false;
+            } else { clearError(message); }
+
+            return valid;
+        }
+
+        // --- Clear error on input/change ---
+        ['name','email','phone','subject','message'].forEach(function(id) {
+            const el = document.getElementById(id);
+            if (el) {
+                el.addEventListener('input', function () { clearError(el); });
+                el.addEventListener('change', function () { clearError(el); });
+            }
+        });
+
+        // --- Form submit ---
+        contactForm.addEventListener('submit', function (e) {
+            e.preventDefault();
+
+            if (!validateForm()) return;
+
+            const submitBtn = contactForm.querySelector('button[type="submit"]');
+            const originalText = submitBtn.innerHTML;
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = 'Sending...';
+
+            const formData = new FormData(contactForm);
+
+            fetch(contactForm.action, {
+                method: 'POST',
+                body: formData,
+                headers: { 'Accept': 'application/json' }
+            })
+            .then(function (response) {
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = originalText;
+                if (response.ok) {
+                    contactForm.reset();
+                    showSuccessPopup();
+                } else {
+                    alert('Something went wrong. Please try again or email us directly.');
+                }
+            })
+            .catch(function () {
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = originalText;
+                alert('Network error. Please check your connection and try again.');
+            });
+        });
+    }
+
     // ========== CONSOLE MESSAGE ==========
     console.log('%c🌟 Jaiti Foundation 🌟', 'font-size: 20px; font-weight: bold; color: #1e40af;');
     console.log('%cEmpowering underprivileged children through free education.', 'font-size: 14px; color: #475569;');

@@ -805,6 +805,26 @@ p {
 .success-icon svg { width: 30px; height: 30px; stroke: var(--white); }
 .form-success h4 { color: var(--success); margin-bottom: 0.5rem; }
 .form-success p { color: var(--text-secondary); margin: 0; }
+
+/* ===== FIELD ERROR STATES ===== */
+.form-group input.field-error,
+.form-group select.field-error,
+.form-group textarea.field-error { border-color: var(--error); box-shadow: 0 0 0 4px rgba(239, 68, 68, 0.1); }
+.field-error-msg { font-size: 0.8rem; color: var(--error); margin-top: 0.25rem; display: flex; align-items: center; gap: 0.3rem; animation: fadeInDown 0.2s ease; }
+.field-error-msg::before { content: "!"; display: inline-flex; align-items: center; justify-content: center; width: 14px; height: 14px; background: var(--error); color: white; border-radius: 50%; font-size: 10px; font-weight: 700; flex-shrink: 0; }
+@keyframes fadeInDown { from { opacity: 0; transform: translateY(-4px); } to { opacity: 1; transform: translateY(0); } }
+
+/* ===== SUCCESS POPUP ===== */
+.success-popup-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.5); display: flex; align-items: center; justify-content: center; z-index: 9999; padding: 1rem; animation: overlayIn 0.25s ease; }
+@keyframes overlayIn { from { opacity: 0; } to { opacity: 1; } }
+.success-popup { background: var(--white); border-radius: var(--radius-xl); padding: 2.5rem 2rem; max-width: 420px; width: 100%; text-align: center; box-shadow: var(--shadow-xl); animation: popupIn 0.3s cubic-bezier(0.34,1.56,0.64,1); }
+@keyframes popupIn { from { opacity: 0; transform: scale(0.85) translateY(20px); } to { opacity: 1; transform: scale(1) translateY(0); } }
+.success-popup-icon { width: 70px; height: 70px; background: linear-gradient(135deg, #10b981, #059669); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 1.5rem; }
+.success-popup-icon svg { width: 36px; height: 36px; stroke: white; stroke-width: 2.5; }
+.success-popup h4 { font-size: 1.4rem; color: var(--text-primary); margin-bottom: 0.75rem; }
+.success-popup p { color: var(--text-secondary); line-height: 1.6; margin-bottom: 1.5rem; }
+.success-popup-close { background: var(--primary-gradient); color: white; border: none; padding: 0.75rem 2rem; border-radius: var(--radius); font-size: 1rem; font-weight: 600; cursor: pointer; transition: var(--transition); }
+.success-popup-close:hover { transform: translateY(-2px); box-shadow: var(--shadow-md); }
 .additional-info { background: var(--lighter-gray); }
 .info-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 2rem; }
 .info-card { background: var(--white); padding: 2.5rem; border-radius: var(--radius-lg); box-shadow: var(--shadow); transition: var(--transition); }
