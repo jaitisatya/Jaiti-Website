@@ -189,7 +189,15 @@
                     All fields are required.
                 </p>
 
-                <form class="contact-form" id="contactForm">
+                <!-- ✅ FORMSPREE: action aur method add kiya gaya -->
+                <form class="contact-form" id="contactForm"
+                      action="https://formspree.io/f/mzddgejv"
+                      method="POST">
+
+                    <!-- Formspree hidden fields -->
+                    <input type="hidden" name="_subject" value="New message from Jaiti Foundation website">
+                    <input type="hidden" name="_replyto" value="">
+
                     <div class="form-group">
                         <label for="name">Full Name</label>
                         <input 
@@ -209,6 +217,7 @@
                             name="email" 
                             placeholder="your.email@example.com" 
                             required
+                            oninput="document.querySelector('[name=_replyto]').value=this.value"
                         >
                     </div>
 
