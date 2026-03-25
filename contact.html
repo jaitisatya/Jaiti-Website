@@ -24,8 +24,6 @@
     <link rel="canonical" href="https://jaiti.in/contact.html">
 
     <link rel="stylesheet" href="styles.css">
-
-    <!-- ===== intl-tel-input CSS ===== -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/intl-tel-input@18.1.1/build/css/intlTelInput.css">
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -33,7 +31,6 @@
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 
     <style>
-        /* ===== intl-tel-input: fit site style ===== */
         .iti { width: 100%; display: block; }
 
         #phone {
@@ -49,29 +46,28 @@
             outline: none;
             box-sizing: border-box;
         }
-        #phone:focus {
-            border-color: #1e40af;
-            box-shadow: 0 0 0 3px rgba(30,64,175,0.1);
-        }
-        #phone.ph-valid {
-            border-color: #16a34a;
-            box-shadow: 0 0 0 3px rgba(22,163,74,0.1);
-        }
-        #phone.ph-invalid {
-            border-color: #dc2626;
-            box-shadow: 0 0 0 3px rgba(220,38,38,0.1);
-        }
+        #phone:focus { border-color: #1e40af; box-shadow: 0 0 0 3px rgba(30,64,175,0.1); }
+        #phone.ph-valid { border-color: #16a34a; box-shadow: 0 0 0 3px rgba(22,163,74,0.1); }
+        #phone.ph-invalid { border-color: #dc2626; box-shadow: 0 0 0 3px rgba(220,38,38,0.1); }
 
+        .phone-hint {
+            display: block;
+            font-size: 0.78rem;
+            color: #94a3b8;
+            margin-top: 4px;
+            font-family: 'Inter', sans-serif;
+            min-height: 1.1em;
+            transition: color 0.2s;
+        }
         .phone-error {
             display: none;
             color: #dc2626;
             font-size: 0.82rem;
-            margin-top: 5px;
+            margin-top: 4px;
             font-family: 'Inter', sans-serif;
         }
         .phone-error.show { display: block; }
 
-        /* Dropdown styling */
         .iti__country-list {
             font-family: 'Inter', sans-serif;
             font-size: 0.9rem;
@@ -83,10 +79,7 @@
         }
         .iti__country.iti__highlight { background: #eff6ff; }
         .iti__selected-flag { border-radius: 10px 0 0 10px; padding: 0 10px; }
-
-        @media (max-width: 480px) {
-            .iti__country-list { width: 280px !important; }
-        }
+        @media (max-width: 480px) { .iti__country-list { width: 280px !important; } }
     </style>
 </head>
 
@@ -218,7 +211,6 @@
 
                     <input type="hidden" name="_subject" value="New message from Jaiti Foundation website">
                     <input type="hidden" name="_replyto" value="">
-                    <!-- Stores full international number e.g. +919876543210 -->
                     <input type="hidden" name="phone" id="phoneHidden">
 
                     <div class="form-group">
@@ -235,10 +227,11 @@
                     <div class="form-group">
                         <label for="phone">
                             Phone Number
-                            <span style="color:#94a3b8; font-weight:400; font-size:0.9em;">(Optional — any country)</span>
+                            <span style="color:#94a3b8;font-weight:400;font-size:0.9em;">(Optional)</span>
                         </label>
                         <input type="tel" id="phone" autocomplete="tel" placeholder="Enter phone number">
-                        <span class="phone-error" id="phoneError">Please enter a valid phone number.</span>
+                        <span class="phone-hint" id="phoneHint"></span>
+                        <span class="phone-error" id="phoneError"></span>
                     </div>
 
                     <div class="form-group">
@@ -387,6 +380,7 @@
                     <li><a href="programs.html">Our Programs</a></li>
                     <li><a href="gallery.html">Gallery</a></li>
                     <li><a href="volunteer.html">Get Involved</a></li>
+                    <li><a href="contact.html">Contact Us</a></li>
                 </ul>
             </div>
             <div class="footer-column">
@@ -439,72 +433,184 @@
 <script src="script.js"></script>
 
 <script>
-// ===== INTERNATIONAL PHONE INPUT =====
+// =====================================================
+// PHONE VALIDATION — Country-specific rules
+// intl-tel-input utils.js auto-handles digit count,
+// format, and valid prefixes for ALL 200+ countries.
+// Extra: hint messages + India 0-block + keypress filter
+// =====================================================
 (function () {
     var phoneInput  = document.getElementById('phone');
     var errorEl     = document.getElementById('phoneError');
+    var hintEl      = document.getElementById('phoneHint');
     var hiddenPhone = document.getElementById('phoneHidden');
     var form        = document.getElementById('contactForm');
     if (!phoneInput) return;
 
-    var iti = window.intlTelInput(phoneInput, {
-        initialCountry:     'in',
-        preferredCountries: ['in', 'us', 'gb', 'ae', 'au', 'ca', 'sg', 'nz', 'za'],
-        separateDialCode:   true,
-        nationalMode:       false,
-        autoPlaceholder:    'polite',
-        placeholderNumberType: 'MOBILE',
-        utilsScript: 'https://cdn.jsdelivr.net/npm/intl-tel-input@18.1.1/build/js/utils.js'
-    });
+    // Country-specific hint messages shown below input
+    var HINTS = {
+        'in': '10 digits · must start with 6, 7, 8 or 9 · no leading 0',
+        'us': '10 digits · area code + 7-digit number',
+        'ca': '10 digits · area code + 7-digit number',
+        'gb': '10 digits for mobile · starts with 07',
+        'ae': '9 digits · mobile starts with 05',
+        'au': '9 digits · mobile starts with 04',
+        'pk': '10 digits · mobile starts with 03',
+        'bd': '10 digits · mobile starts with 01',
+        'np': '10 digits · mobile starts with 98',
+        'lk': '9 digits · mobile starts with 07',
+        'sg': '8 digits · starts with 8 or 9',
+        'my': '9-10 digits · mobile starts with 01',
+        'nz': '8-9 digits · mobile starts with 02',
+        'za': '9 digits · mobile starts with 06, 07 or 08',
+        'ng': '10 digits · mobile starts with 07, 08 or 09',
+        'ke': '9 digits · mobile starts with 07',
+        'de': '10-11 digits',
+        'fr': '9 digits · mobile starts with 06 or 07',
+        'it': '10 digits · mobile starts with 03',
+        'sa': '9 digits · mobile starts with 05',
+        'kw': '8 digits · starts with 5, 6 or 9',
+        'bh': '8 digits · starts with 3 or 6',
+        'om': '8 digits · starts with 7 or 9',
+        'jp': '11 digits for mobile',
+        'cn': '11 digits · starts with 1',
+        'hk': '8 digits · starts with 5, 6 or 9',
+        'ph': '10 digits · mobile starts with 09',
+        'id': '9-12 digits · mobile starts with 08',
+        'th': '9 digits · mobile starts with 06, 08 or 09',
+        'vn': '9 digits · mobile starts with 03, 07, 08 or 09',
+        'mm': '7-9 digits · mobile starts with 09',
+        'kh': '8-9 digits · mobile starts with 01',
+        'ir': '10 digits · mobile starts with 09',
+        'tr': '10 digits · mobile starts with 05',
+        'eg': '10 digits · mobile starts with 01',
+        'gh': '9 digits · mobile starts with 02 or 05',
+        'tz': '9 digits · mobile starts with 07',
+        'ug': '9 digits · mobile starts with 07',
+        'zm': '9 digits · mobile starts with 09',
+        'zw': '9 digits · mobile starts with 07',
+        'mv': '7 digits',
+        'bt': '8 digits · mobile starts with 17 or 77',
+    };
 
-    // Error text per error code
-    var ERROR_MAP = {
+    // Error messages from intl-tel-input validation error codes
+    var ERRORS = {
+        0: 'Invalid phone number.',
         1: 'Invalid country code.',
         2: 'Number is too short.',
         3: 'Number is too long.',
-        4: 'Invalid number.',
+        4: 'Invalid phone number.',
         5: 'Invalid number format.'
     };
+
+    // Init intl-tel-input
+    var iti = window.intlTelInput(phoneInput, {
+        initialCountry:        'in',
+        preferredCountries:    ['in', 'us', 'gb', 'ae', 'au', 'ca', 'sg', 'pk', 'bd', 'nz', 'za'],
+        separateDialCode:      true,
+        nationalMode:          false,
+        autoPlaceholder:       'polite',
+        placeholderNumberType: 'MOBILE',
+        utilsScript:           'https://cdn.jsdelivr.net/npm/intl-tel-input@18.1.1/build/js/utils.js'
+    });
+
+    // Update hint text when country changes
+    function updateHint() {
+        var code = (iti.getSelectedCountryData().iso2 || '').toLowerCase();
+        hintEl.textContent = HINTS[code] || 'Enter your mobile number without country code';
+        hintEl.style.color = '#94a3b8';
+    }
 
     function showError(msg) {
         errorEl.textContent = msg;
         errorEl.classList.add('show');
+        phoneInput.classList.replace('ph-valid', 'ph-invalid');
         phoneInput.classList.add('ph-invalid');
-        phoneInput.classList.remove('ph-valid');
+        if (hintEl) hintEl.style.color = '#dc2626';
     }
 
-    function clearError() {
+    function clearState() {
         errorEl.classList.remove('show');
-        phoneInput.classList.remove('ph-invalid', 'ph-valid');
+        phoneInput.classList.remove('ph-valid', 'ph-invalid');
+        if (hintEl) hintEl.style.color = '#94a3b8';
     }
 
     function markValid() {
         errorEl.classList.remove('show');
-        phoneInput.classList.add('ph-valid');
         phoneInput.classList.remove('ph-invalid');
+        phoneInput.classList.add('ph-valid');
+        if (hintEl) hintEl.style.color = '#16a34a';
     }
 
+    // Main validation function
+    // intl-tel-input utils.js handles ALL country rules automatically:
+    // correct digit count, valid area codes, format per country
     function validate() {
         var val = phoneInput.value.trim();
-        if (!val) { clearError(); return true; }          // optional field
-        if (iti.isValidNumber()) { markValid(); return true; }
-        showError(ERROR_MAP[iti.getValidationError()] || 'Please enter a valid phone number.');
+
+        // Field is optional — empty is fine
+        if (!val) { clearState(); return true; }
+
+        // India extra rule: must not start with 0
+        var code = (iti.getSelectedCountryData().iso2 || '').toLowerCase();
+        if (code === 'in' && val.startsWith('0')) {
+            showError('Indian numbers cannot start with 0. Enter 10 digits starting with 6, 7, 8 or 9.');
+            return false;
+        }
+
+        // intl-tel-input validates digit count, prefix, format for all countries
+        if (iti.isValidNumber()) {
+            markValid();
+            return true;
+        }
+
+        var errCode = iti.getValidationError();
+        showError(ERRORS[errCode] || 'Please enter a valid phone number.');
         return false;
     }
 
-    phoneInput.addEventListener('blur',  validate);
-    phoneInput.addEventListener('input', clearError);
+    // Country flag change → update hint, re-validate if value present
+    phoneInput.addEventListener('countrychange', function () {
+        updateHint();
+        if (phoneInput.value.trim()) validate();
+        else clearState();
+    });
 
+    // Validate on blur
+    phoneInput.addEventListener('blur', validate);
+
+    // Clear error while typing
+    phoneInput.addEventListener('input', function () {
+        if (phoneInput.classList.contains('ph-invalid')) clearState();
+    });
+
+    // Only allow digits while typing (no letters, no special chars)
+    phoneInput.addEventListener('keypress', function (e) {
+        if (!/[0-9]/.test(String.fromCharCode(e.which))) e.preventDefault();
+    });
+
+    // On paste: strip non-digits
+    phoneInput.addEventListener('paste', function (e) {
+        e.preventDefault();
+        var pasted = (e.clipboardData || window.clipboardData).getData('text');
+        var digits = pasted.replace(/\D/g, '');
+        phoneInput.value = digits;
+    });
+
+    // Form submit: validate + write E.164 to hidden field
     form.addEventListener('submit', function (e) {
         if (!validate()) {
             e.preventDefault();
             phoneInput.scrollIntoView({ behavior: 'smooth', block: 'center' });
             return;
         }
-        // Write full E.164 number (+919876543210) into hidden field for Formspree
         var val = phoneInput.value.trim();
         hiddenPhone.value = val ? iti.getNumber() : '';
     });
+
+    // Set initial hint
+    updateHint();
+
 })();
 </script>
 
