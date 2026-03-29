@@ -3,9 +3,95 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>On YouTube | Jaiti Foundation</title>
-    <meta name="description" content="Watch Jaiti Foundation's videos on YouTube — stories of impact, education sessions, and our journey of empowering underprivileged children.">
+<title>On YouTube | Jaiti Foundation</title>
+<meta name="description" content="Watch Jaiti Foundation's videos on YouTube — stories of impact, education sessions, and our journey of empowering underprivileged children. Discover our mission through video content, teaching sessions, and real stories of transformation.">
 
+<!-- ===== OPEN GRAPH TAGS ===== -->
+<meta property="og:title" content="Jaiti Foundation on YouTube - Stories of Impact & Education">
+<meta property="og:description" content="Watch our journey of empowering underprivileged children through video content, teaching sessions, and real stories of transformation. Subscribe for free educational content.">
+<meta property="og:image" content="https://jaiti.in/images/logo.jpg">
+<meta property="og:url" content="https://jaiti.in/youtube.html">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Jaiti Foundation">
+<meta property="og:locale" content="en_US">
+<meta property="og:updated_time" content="2026-03-28T10:22:00Z">
+
+<!-- ===== TWITTER CARD TAGS ===== -->
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Jaiti Foundation on YouTube - Stories of Impact & Education">
+<meta name="twitter:description" content="Watch our journey of empowering underprivileged children through video content, teaching sessions, and real stories of transformation.">
+<meta name="twitter:image" content="https://jaiti.in/images/logo.jpg">
+<meta name="twitter:site" content="@JaitiFoundation">
+<meta name="twitter:creator" content="@JaitiFoundation">
+
+<!-- ===== CANONICAL URL ===== -->
+<link rel="canonical" href="https://jaiti.in/youtube.html">
+
+<!-- ===== STRUCTURED DATA (JSON-LD) ===== -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Organization",
+  "name": "Jaiti Foundation",
+  "url": "https://jaiti.in",
+  "logo": "https://jaiti.in/images/logo.jpg",
+  "description": "Jaiti Foundation provides free education, moral values, civic sense, and nutritious food to underprivileged children in Jaipur, India.",
+  "contactPoint": {
+    "@type": "ContactPoint",
+    "telephone": "+91-6367916384",
+    "contactType": "customer service",
+    "availableLanguage": ["English", "Hindi"]
+  },
+  "sameAs": [
+    "https://www.youtube.com/@JaitiFoundation",
+    "https://www.instagram.com/jaitifoundation",
+    "https://www.facebook.com/share/14W71MbGVhM/",
+    "https://www.linkedin.com/company/jaiti-foundation/"
+  ],
+  "potentialAction": {
+    "@type": "WatchAction",
+    "target": "https://www.youtube.com/@JaitiFoundation",
+    "description": "Watch our educational videos and stories of impact"
+  }
+}
+</script>
+
+<!-- ===== BREADCRUMB LIST SCHEMA ===== -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    {
+      "@type": "ListItem",
+      "position": 1,
+      "name": "Home",
+      "item": "https://jaiti.in"
+    },
+    {
+      "@type": "ListItem",
+      "position": 2,
+      "name": "On YouTube",
+      "item": "https://jaiti.in/youtube.html"
+    }
+  ]
+}
+</script>
+
+<!-- ===== WEB SITE SCHEMA ===== -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "WebSite",
+  "name": "Jaiti Foundation",
+  "url": "https://jaiti.in",
+  "potentialAction": {
+    "@type": "SearchAction",
+    "target": "https://jaiti.in/search?q={search_term_string}",
+    "query-input": "required name=search_term_string"
+  }
+}
+</script>
     <link rel="icon" href="images/logo.jpg">
     <link rel="stylesheet" href="styles.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -837,3 +923,24 @@ async function loadVideos() {
 
             if (videos.length) {
                 showVideos(videos);
+            }
+            break;
+        } catch (err) {
+            console.warn(`Proxy ${proxyUrl} failed:`, err.message);
+        }
+    }
+
+    // If all proxies fail, show error state
+    setTimeout(() => {
+        const grid = document.getElementById('videoGrid');
+        if (!grid.classList.contains('loaded')) {
+            showError();
+        }
+    }, 10000);
+}
+
+// Initialize video loading
+loadVideos();
+</script>
+</body>
+</html>
