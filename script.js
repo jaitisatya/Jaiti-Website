@@ -241,32 +241,8 @@ document.addEventListener('DOMContentLoaded', function () {
     });
     
     // ========== VISITOR COUNTER ==========
-    const visitorCountEl = document.getElementById('visitorCount');
-    if (visitorCountEl) {
-        const BASE_COUNT = 1000;
-        let count = parseInt(localStorage.getItem('jaiti_visitor_count') || BASE_COUNT);
-        count++;
-        localStorage.setItem('jaiti_visitor_count', count);
-
-        // Show final value immediately — no flash
-        visitorCountEl.textContent = count.toLocaleString();
-        
-        let display = 0;
-        const duration = 2000;
-        const steps = 60;
-        const increment = count / steps;
-        const stepTime = duration / steps;
-        
-        const counterTimer = setInterval(function () {
-            display += increment;
-            if (display >= count) {
-                visitorCountEl.textContent = count.toLocaleString();
-                clearInterval(counterTimer);
-            } else {
-                visitorCountEl.textContent = Math.floor(display).toLocaleString();
-            }
-        }, stepTime);
-    }
+    // Handled by inline script in index.html using counterapi.dev for real counts.
+    // This block intentionally left empty to avoid conflicts.
 
     // ========== HERO IMAGE SLIDER (AUTO-PLAY + DOTS) ==========
     const heroSlides = document.querySelectorAll('.hero-slide');
@@ -539,69 +515,8 @@ window.addEventListener('load', function () {
 });
 
 // ========== GALLERY FULLSCREEN ==========
-document.addEventListener('click', function(e) {
-    const galleryImg = e.target.closest('.gallery-item img');
-    if (galleryImg) {
-        e.preventDefault();
-        e.stopPropagation();
-        
-        // Native fullscreen support
-        if (galleryImg.requestFullscreen) {
-            galleryImg.requestFullscreen().catch(err => {
-                console.warn('Fullscreen failed:', err);
-                // Fallback: create simple modal
-                openSimpleModal(galleryImg);
-            });
-        } else {
-            openSimpleModal(galleryImg);
-        }
-    }
-});
-
-function openSimpleModal(img) {
-    const modal = document.createElement('div');
-    modal.className = 'simple-lightbox-overlay';
-    modal.innerHTML = `
-        <div class="simple-lightbox">
-            <button class="simple-close" aria-label="Close">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <line x1="18" y1="6" x2="6" y2="18"></line>
-                    <line x1="6" y1="6" x2="18" y2="18"></line>
-                </svg>
-            </button>
-            <img src="${img.src}" alt="${img.alt || ''}">
-        </div>
-    `;
-    document.body.appendChild(modal);
-    document.body.style.overflow = 'hidden';
-    
-    modal.querySelector('.simple-close').onclick = () => {
-        document.body.style.overflow = '';
-        modal.remove();
-    };
-    modal.onclick = (e) => {
-        if (e.target === modal) {
-            document.body.style.overflow = '';
-            modal.remove();
-        }
-    };
-}
-
-// Handle fullscreen exit (ESC key)
-document.addEventListener('fullscreenchange', function() {
-    if (!document.fullscreenElement) {
-        console.log('Exited fullscreen');
-    }
-});
-
-// ESC exits fullscreen
-document.addEventListener('keydown', function(e) {
-    if (e.key === 'Escape' && document.fullscreenElement) {
-        if (document.exitFullscreen) {
-            document.exitFullscreen();
-        }
-    }
-});
+// Gallery lightbox is now handled by inline JS in gallery.html
+// This block intentionally empty to avoid conflicts.
 
 
 // ========== UTILITY FUNCTIONS ==========
