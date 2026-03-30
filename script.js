@@ -538,142 +538,71 @@ window.addEventListener('load', function () {
     }
 });
 
-// ========== GALLERY LIGHTBOX ==========
-(function() {
-    'use strict';
+// ========== GALLERY FULLSCREEN ==========
+document.addEventListener('click', function(e) {
+    const galleryImg = e.target.closest('.gallery-item img');
+    if (galleryImg) {
+        e.preventDefault();
+        e.stopPropagation();
+        
+        // Native fullscreen support
+        if (galleryImg.requestFullscreen) {
+            galleryImg.requestFullscreen().catch(err => {
+                console.warn('Fullscreen failed:', err);
+                // Fallback: create simple modal
+                openSimpleModal(galleryImg);
+            });
+        } else {
+            openSimpleModal(galleryImg);
+        }
+    }
+});
 
-    let currentImageIndex = 0;
-    const images = [];
-
-    // Create lightbox elements
-    const lightboxOverlay = document.createElement('div');
-    lightboxOverlay.className = 'lightbox-overlay';
-    lightboxOverlay.innerHTML = `
-        <div class="lightbox-modal">
-            <button class="lightbox-close" aria-label="Close lightbox">
+function openSimpleModal(img) {
+    const modal = document.createElement('div');
+    modal.className = 'simple-lightbox-overlay';
+    modal.innerHTML = `
+        <div class="simple-lightbox">
+            <button class="simple-close" aria-label="Close">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                     <line x1="18" y1="6" x2="6" y2="18"></line>
                     <line x1="6" y1="6" x2="18" y2="18"></line>
                 </svg>
             </button>
-            <button class="lightbox-prev" aria-label="Previous image">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <line x1="15" y1="18" x2="9" y2="12"></line>
-                    <line x1="9" y1="12" x2="15" y2="6"></line>
-                </svg>
-            </button>
-            <button class="lightbox-next" aria-label="Next image">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <line x1="9" y1="18" x2="15" y2="12"></line>
-                    <line x1="15" y1="12" x2="9" y2="6"></line>
-                </svg>
-            </button>
-            <div class="lightbox-image-container">
-                <img class="lightbox-image" src="" alt="">
-            </div>
+            <img src="${img.src}" alt="${img.alt || ''}">
         </div>
     `;
-    document.body.appendChild(lightboxOverlay);
-
-    const lightboxModal = lightboxOverlay.querySelector('.lightbox-modal');
-    const lightboxImage = lightboxOverlay.querySelector('.lightbox-image');
-    const closeBtn = lightboxOverlay.querySelector('.lightbox-close');
-    const prevBtn = lightboxOverlay.querySelector('.lightbox-prev');
-    const nextBtn = lightboxOverlay.querySelector('.lightbox-next');
-
-    function openLightbox(index) {
-        currentImageIndex = index;
-        updateLightbox();
-        lightboxOverlay.classList.add('active');
-        document.body.style.overflow = 'hidden';
-    }
-
-    function closeLightbox() {
-        lightboxOverlay.classList.remove('active');
+    document.body.appendChild(modal);
+    document.body.style.overflow = 'hidden';
+    
+    modal.querySelector('.simple-close').onclick = () => {
         document.body.style.overflow = '';
-    }
-
-    function updateLightbox() {
-        const image = images[currentImageIndex];
-        if (image) {
-            lightboxImage.src = image.src;
-            lightboxImage.alt = image.alt;
+        modal.remove();
+    };
+    modal.onclick = (e) => {
+        if (e.target === modal) {
+            document.body.style.overflow = '';
+            modal.remove();
         }
-        updateNavButtons();
-    }
+    };
+}
 
-    function updateNavButtons() {
-        prevBtn.style.display = currentImageIndex > 0 ? 'flex' : 'none';
-        nextBtn.style.display = currentImageIndex < images.length - 1 ? 'flex' : 'none';
+// Handle fullscreen exit (ESC key)
+document.addEventListener('fullscreenchange', function() {
+    if (!document.fullscreenElement) {
+        console.log('Exited fullscreen');
     }
+});
 
-    function nextImage() {
-        if (currentImageIndex < images.length - 1) {
-            currentImageIndex++;
-            updateLightbox();
-        }
-    }
-
-    function prevImage() {
-        if (currentImageIndex > 0) {
-            currentImageIndex--;
-            updateLightbox();
+// ESC exits fullscreen
+document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape' && document.fullscreenElement) {
+        if (document.exitFullscreen) {
+            document.exitFullscreen();
         }
     }
+});
 
-    // Event listeners
-    closeBtn.addEventListener('click', closeLightbox);
-    prevBtn.addEventListener('click', prevImage);
-    nextBtn.addEventListener('click', nextImage);
-    lightboxOverlay.addEventListener('click', function(e) {
-        if (e.target === lightboxOverlay) closeLightbox();
-    });
-
-    document.addEventListener('keydown', function(e) {
-        if (!lightboxOverlay.classList.contains('active')) return;
-        if (e.key === 'Escape') closeLightbox();
-        if (e.key === 'ArrowLeft') prevImage();
-        if (e.key === 'ArrowRight') nextImage();
-    });
-
-    // Touch/swipe support
-    let touchStartX = 0;
-    lightboxModal.addEventListener('touchstart', function(e) {
-        touchStartX = e.touches[0].clientX;
-    });
-    lightboxModal.addEventListener('touchend', function(e) {
-        const touchEndX = e.changedTouches[0].clientX;
-        const diff = touchStartX - touchEndX;
-        if (Math.abs(diff) > 50) {
-            if (diff > 0) nextImage();
-            else prevImage();
-        }
-    });
-
-    // Initialize gallery images
-    document.addEventListener('click', function(e) {
-        const galleryItem = e.target.closest('.gallery-item img');
-        if (galleryItem) {
-            const imgSrc = galleryItem.src;
-            const imgAlt = galleryItem.alt;
-            
-            // Collect all images
-            images.length = 0;
-            document.querySelectorAll('.gallery-item img').forEach((img, index) => {
-                images.push({
-                    src: img.src,
-                    alt: img.alt || 'Gallery image'
-                });
-            });
-
-            const clickedIndex = Array.from(document.querySelectorAll('.gallery-item img')).indexOf(galleryItem);
-            if (clickedIndex !== -1) {
-                openLightbox(clickedIndex);
-            }
-        }
-    });
-
-})();
 
 // ========== UTILITY FUNCTIONS ==========
 function debounce(func, wait) {

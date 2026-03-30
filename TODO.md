@@ -1,36 +1,36 @@
-# Jaiti Foundation Website Improvements - TODO
+# Gallery Fullscreen Fix - TODO
 
-## 📋 Phase 1: Quick Fixes (High Priority)
+## Status: ✅ Completed Steps 1-2
 
-### ✅ Completed
-- [x] Create TODO.md for tracking
-- [x] Plan confirmed by user
+### Step 1: Fix CSS overlay click blocking ✅
+- ✅ Add `pointer-events: none` to `.gallery-overlay` in styles.css
+  - Allows clicks to pass through to img below
+  - Hover opacity still works visually
 
-### 🔄 In Progress  
-- [ ] **Dynamic Stats Update** ← Awaiting current numbers from user
-  - Create stats.json
-  - Update script.js to fetch/parse
-  - Replace hardcoded stats in 9 HTML files
+### Step 2: Implement native fullscreen in script.js ✅
+- ✅ Replace gallery lightbox code with simple img.requestFullscreen()
+- ✅ Add fallback lightbox if fullscreen unsupported  
+- ✅ Handle fullscreenchange event (ESC exit)
+- ✅ Add keyboard support (ESC)
 
-### ⏳ Pending (Quick Wins)
-- [ ] Replace GA `G-XXXXXXXXXX` → Real ID (or remove)
-- [ ] Fix copyright `2026` → `2024` (all footers)
-- [ ] Analyze/fix youtube.html content
-- [ ] Test Formspree `mykbgenw` endpoint
-- [ ] Registration note → Confirm status
+### Step 2: Implement native fullscreen in script.js
+- [ ] Replace gallery lightbox code with simple img.requestFullscreen()
+- [ ] Add fallback lightbox if fullscreen unsupported
+- [ ] Handle fullscreenchange event (ESC exit)
+- [ ] Add keyboard support (ESC, Arrow keys for nav if needed)
 
-## 📊 Phase 2: Enhancements
-- [ ] Testimonials carousel (index.html)
-- [ ] FAQ page creation
-- [ ] Hindi language toggle
-- [ ] Newsletter signup
+### Step 3: Test & Verify
+- [ ] Open gallery.html
+- [ ] Hover: overlay shows (caption visible)
+- [ ] Click img: opens native fullscreen
+- [ ] ESC or fullscreen button: exits
+- [ ] Mobile: touch to fullscreen works
 
-## ⚡ Phase 3: Performance
-- [ ] Image optimization (WebP, lazy)
-- [ ] sitemap.xml + robots.txt
-- [ ] Schema markup
-- [ ] PWA setup
+### Step 4: Polish
+- [ ] Add loading spinner during fullscreen load
+- [ ] Fix duplicate images in gallery.html
+- [ ] Cross-browser test (Chrome, Firefox, Safari, mobile)
 
-**Status: Phase 1 @ 20% | Next: youtube.html analysis → Global search/replace**
+**Next Action: Step 1 (CSS fix)**
 
-**Instructions:** Reply with current stats (students/total impacted) to unlock Step 1.
+Updated: Completed steps will be marked ✅
