@@ -1103,11 +1103,7 @@ p {
     }
 
     /* Reduce border-radius on all social float buttons */
-    .youtube-float,
-    .instagram-float,
-    .whatsapp-float {
-        border-radius: 10px !important;
-    }
+    /* float border-radius handled per-button */
 
     .section { padding: 60px 0; }
     .navbar { padding: 1rem 0; }
@@ -1144,41 +1140,11 @@ p {
     /*   Instagram → bottom: 5rem   (1rem + 52px btn + 12px gap ≈ 4rem) */
     /*   YouTube   → bottom: 9rem   (5rem + same step)                   */
 
-    .whatsapp-float {
-        bottom: 1rem !important;
-        right: 1rem !important;
-        width: var(--float-btn-size) !important;
-        height: var(--float-btn-size) !important;
-    }
-    .whatsapp-float svg {
-        width: var(--float-icon-size) !important;
-        height: var(--float-icon-size) !important;
-    }
-    .whatsapp-tooltip { display: none !important; }
+    /* mobile wa handled in new block */
 
-    .instagram-float {
-        bottom: 3.5rem !important;
-        right: 1rem !important;
-        width: var(--float-btn-size) !important;
-        height: var(--float-btn-size) !important;
-    }
-    .instagram-float svg {
-        width: var(--float-icon-size) !important;
-        height: var(--float-icon-size) !important;
-    }
-    .instagram-tooltip { display: none !important; }
+    
 
-    .youtube-float {
-        bottom: 6rem !important;
-        right: 1rem !important;
-        width: var(--float-btn-size) !important;
-        height: var(--float-btn-size) !important;
-    }
-    .youtube-float svg {
-        width: var(--float-icon-size) !important;
-        height: var(--float-icon-size) !important;
-    }
-    .youtube-tooltip { display: none !important; }
+    
     
     .hero-stats { gap: 2rem; }
     .stat-number { font-size: 2.5rem; }
@@ -1255,179 +1221,11 @@ p {
 .visitor-label { font-size: 1.25rem; font-weight: 600; color: var(--text-primary); margin-bottom: 0.5rem; }
 .visitor-subtext { font-size: 0.9375rem; color: var(--text-secondary); font-style: italic; }
 
-/* ========== YOUTUBE FLOATING BUTTON (TOP) ========== */
+/* YouTube floating button removed — link available in footer */
 
-.youtube-float {
-    position: fixed;
-    bottom: 12.5rem;
-    right: 1rem;
-    width: var(--float-btn-size);
-    height: var(--float-btn-size);
-    background: linear-gradient(135deg, #ff0000, #cc0000);
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: white;
-    box-shadow: 0 4px 12px rgba(255, 0, 0, 0.3);
-    transition: all 0.3s ease;
-    z-index: 99;
-    text-decoration: none;
-    border: none;
-    cursor: pointer;
-}
+/* Instagram floating button removed — link available in footer */
 
-.youtube-float:hover {
-    transform: scale(1.1);
-    box-shadow: 0 6px 20px rgba(255, 0, 0, 0.4);
-}
 
-.youtube-float svg {
-    width: var(--float-icon-size);
-    height: var(--float-icon-size);
-    fill: white;
-}
-
-.youtube-tooltip {
-    position: absolute;
-    right: 100%;
-    margin-right: 15px;
-    background: #333;
-    color: white;
-    padding: 8px 12px;
-    border-radius: 6px;
-    font-size: 0.85rem;
-    white-space: nowrap;
-    opacity: 0;
-    pointer-events: none;
-    transition: all 0.3s ease;
-}
-
-.youtube-float:hover .youtube-tooltip {
-    opacity: 1;
-}
-
-/* ========== INSTAGRAM FLOATING BUTTON (MIDDLE) ========== */
-
-.instagram-float {
-    position: fixed;
-    bottom: 8.5rem;
-    right: 1rem;
-    width: var(--float-btn-size);
-    height: var(--float-btn-size);
-    background: radial-gradient(circle at 30% 107%, #fdf497 0%, #fdf497 5%, #fd5949 45%, #d6249f 60%, #285AEB 90%);
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    box-shadow: 0 4px 20px rgba(212, 50, 149, 0.4);
-    z-index: 1000;
-    transition: all 0.3s ease;
-    text-decoration: none;
-}
-
-.instagram-float svg {
-    width: var(--float-icon-size);
-    height: var(--float-icon-size);
-    color: white;
-}
-
-.instagram-float:hover {
-    transform: translateY(-5px) scale(1.1);
-    box-shadow: 0 8px 30px rgba(212, 50, 149, 0.5);
-}
-
-.instagram-tooltip {
-    position: absolute;
-    right: 70px;
-    background: linear-gradient(135deg, #fd5949, #d6249f);
-    color: white;
-    padding: 0.5rem 1rem;
-    border-radius: var(--radius);
-    font-size: 0.875rem;
-    font-weight: 600;
-    white-space: nowrap;
-    opacity: 0;
-    pointer-events: none;
-    transition: opacity 0.3s ease;
-    font-family: 'Inter', sans-serif;
-}
-
-.instagram-tooltip::after {
-    content: '';
-    position: absolute;
-    right: -6px;
-    top: 50%;
-    transform: translateY(-50%);
-    border: 6px solid transparent;
-    border-right: none;
-    border-left-color: #d6249f;
-}
-
-.instagram-float:hover .instagram-tooltip {
-    opacity: 1;
-}
-
-/* ========== WHATSAPP FLOATING BUTTON (BOTTOM) ========== */
-
-.whatsapp-float {
-    position: fixed;
-    bottom: 4.5rem;
-    right: 1rem;
-    width: var(--float-btn-size);
-    height: var(--float-btn-size);
-    background: #25d366;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    box-shadow: 0 4px 20px rgba(37, 211, 102, 0.4);
-    z-index: 1000;
-    transition: all 0.3s ease;
-    text-decoration: none;
-}
-
-.whatsapp-float svg {
-    width: var(--float-icon-size);
-    height: var(--float-icon-size);
-    color: white;
-}
-
-.whatsapp-float:hover {
-    transform: translateY(-5px) scale(1.1);
-    box-shadow: 0 8px 30px rgba(37, 211, 102, 0.5);
-}
-
-.whatsapp-tooltip {
-    position: absolute;
-    right: 70px;
-    background: #25d366;
-    color: white;
-    padding: 0.5rem 1rem;
-    border-radius: var(--radius);
-    font-size: 0.875rem;
-    font-weight: 600;
-    white-space: nowrap;
-    opacity: 0;
-    pointer-events: none;
-    transition: opacity 0.3s ease;
-    font-family: 'Inter', sans-serif;
-}
-
-.whatsapp-tooltip::after {
-    content: '';
-    position: absolute;
-    right: -6px;
-    top: 50%;
-    transform: translateY(-50%);
-    border: 6px solid transparent;
-    border-right: none;
-    border-left-color: #25d366;
-}
-
-.whatsapp-float:hover .whatsapp-tooltip {
-    opacity: 1;
-}
 
 /* ========== SOCIAL ICONS ========== */
 
@@ -1529,4 +1327,96 @@ p {
 @keyframes fadeInUp {
     from { opacity: 0; transform: translateY(30px); }
     to { opacity: 1; transform: translateY(0); }
+}
+
+/* ========== WHATSAPP FLOATING BUTTON — PROMINENT ========== */
+
+@keyframes waPulse {
+    0%   { box-shadow: 0 0 0 0   rgba(37, 211, 102, 0.55); }
+    70%  { box-shadow: 0 0 0 14px rgba(37, 211, 102, 0);   }
+    100% { box-shadow: 0 0 0 0   rgba(37, 211, 102, 0);    }
+}
+
+.whatsapp-float {
+    position: fixed;
+    bottom: 1.5rem;
+    right: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: #25d366;
+    color: white;
+    padding: 0 18px 0 12px;
+    height: 52px;
+    border-radius: 50px;
+    text-decoration: none;
+    z-index: 1000;
+    cursor: pointer;
+    animation: waPulse 2.2s ease-out infinite;
+    transition: transform 0.35s ease, padding 0.35s ease,
+                width 0.35s ease, border-radius 0.35s ease,
+                box-shadow 0.35s ease;
+    overflow: hidden;
+    white-space: nowrap;
+    box-shadow: 0 4px 18px rgba(37,211,102,0.4);
+    max-width: 220px;
+}
+
+.whatsapp-float:hover {
+    transform: translateY(-3px) scale(1.03);
+    box-shadow: 0 8px 28px rgba(37, 211, 102, 0.55);
+}
+
+.whatsapp-float svg {
+    width: 26px;
+    height: 26px;
+    fill: white;
+    flex-shrink: 0;
+    transition: width 0.35s ease, height 0.35s ease;
+}
+
+.whatsapp-float-text {
+    display: flex;
+    flex-direction: column;
+    line-height: 1.25;
+    transition: opacity 0.25s ease, max-width 0.35s ease;
+    overflow: hidden;
+    max-width: 160px;
+}
+
+.whatsapp-float-text .wa-main {
+    font-size: 13px;
+    font-weight: 700;
+    color: white;
+    font-family: 'Inter', sans-serif;
+}
+
+.whatsapp-float-text .wa-sub {
+    font-size: 10px;
+    color: rgba(255,255,255,0.85);
+    font-family: 'Inter', sans-serif;
+}
+
+/* Scrolled state — shrink to icon only */
+.whatsapp-float.wa-scrolled {
+    padding: 0;
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    justify-content: center;
+}
+
+.whatsapp-float.wa-scrolled .whatsapp-float-text {
+    opacity: 0;
+    max-width: 0;
+}
+
+.whatsapp-float.wa-scrolled svg {
+    width: 24px;
+    height: 24px;
+}
+
+/* ── Mobile ── */
+@media (max-width: 768px) {
+    /* mobile wa handled in new block */
 }
