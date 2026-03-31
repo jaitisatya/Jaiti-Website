@@ -1350,7 +1350,7 @@ p {
     height: 52px;
     border-radius: 50px;
     text-decoration: none;
-    z-index: 1000;
+    z-index: 1200;
     cursor: pointer;
     animation: waPulse 2.2s ease-out infinite;
     transition: transform 0.35s ease, padding 0.35s ease,
