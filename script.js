@@ -43,6 +43,20 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     });
     
+
+    // ========== WHATSAPP BUTTON — SCROLL SHRINK ==========
+    const waBtn = document.querySelector('.whatsapp-float');
+    if (waBtn) {
+        let waScrolled = false;
+        window.addEventListener('scroll', function () {
+            const shouldShrink = window.pageYOffset > 120;
+            if (shouldShrink !== waScrolled) {
+                waScrolled = shouldShrink;
+                waBtn.classList.toggle('wa-scrolled', waScrolled);
+            }
+        }, { passive: true });
+    }
+
     // ========== SMOOTH SCROLLING ==========
     document.querySelectorAll('a[href^="#"]').forEach(anchor => {
         anchor.addEventListener('click', function (e) {
@@ -538,6 +552,72 @@ window.addEventListener('load', function () {
     }
 });
 
+// ========== GALLERY FULLSCREEN ==========
+document.addEventListener('click', function(e) {
+    const galleryImg = e.target.closest('.gallery-item img');
+    if (galleryImg) {
+        e.preventDefault();
+        e.stopPropagation();
+        
+        // Native fullscreen support
+        if (galleryImg.requestFullscreen) {
+            galleryImg.requestFullscreen().catch(err => {
+                console.warn('Fullscreen failed:', err);
+                // Fallback: create simple modal
+                openSimpleModal(galleryImg);
+            });
+        } else {
+            openSimpleModal(galleryImg);
+        }
+    }
+});
+
+function openSimpleModal(img) {
+    const modal = document.createElement('div');
+    modal.className = 'simple-lightbox-overlay';
+    modal.innerHTML = `
+        <div class="simple-lightbox">
+            <button class="simple-close" aria-label="Close">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <line x1="18" y1="6" x2="6" y2="18"></line>
+                    <line x1="6" y1="6" x2="18" y2="18"></line>
+                </svg>
+            </button>
+            <img src="${img.src}" alt="${img.alt || ''}">
+        </div>
+    `;
+    document.body.appendChild(modal);
+    document.body.style.overflow = 'hidden';
+    
+    modal.querySelector('.simple-close').onclick = () => {
+        document.body.style.overflow = '';
+        modal.remove();
+    };
+    modal.onclick = (e) => {
+        if (e.target === modal) {
+            document.body.style.overflow = '';
+            modal.remove();
+        }
+    };
+}
+
+// Handle fullscreen exit (ESC key)
+document.addEventListener('fullscreenchange', function() {
+    if (!document.fullscreenElement) {
+        console.log('Exited fullscreen');
+    }
+});
+
+// ESC exits fullscreen
+document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape' && document.fullscreenElement) {
+        if (document.exitFullscreen) {
+            document.exitFullscreen();
+        }
+    }
+});
+
+
 // ========== UTILITY FUNCTIONS ==========
 function debounce(func, wait) {
     let timeout;
@@ -560,3 +640,4 @@ function throttle(func, limit) {
         }
     };
 }
+
