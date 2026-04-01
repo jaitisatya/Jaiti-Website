@@ -44,17 +44,39 @@ document.addEventListener('DOMContentLoaded', function () {
     });
     
 
-    // ========== WHATSAPP BUTTON — SCROLL SHRINK ==========
-    const waBtn = document.querySelector('.whatsapp-float');
+    // ========== FLOATING BUTTONS — SCROLL BEHAVIOR ==========
+    // WA: shrinks after scroll 120px
+    // Instagram (right, below WA): appears after WA shrinks
+    // YouTube (left, above back-to-top): appears with back-to-top (scroll > 500)
+    const waBtn       = document.querySelector('.whatsapp-float');
+    const instaBtn    = document.querySelector('.instagram-float');
+    const ytFloatBtn  = document.querySelector('.youtube-float');
+
     if (waBtn) {
         let waScrolled = false;
-        window.addEventListener('scroll', function () {
-            const shouldShrink = window.pageYOffset > 120;
+        function updateFloatBtns() {
+            const scrollY     = window.pageYOffset;
+            const shouldShrink = scrollY > 120;
+
+            // WA shrink
             if (shouldShrink !== waScrolled) {
                 waScrolled = shouldShrink;
                 waBtn.classList.toggle('wa-scrolled', waScrolled);
             }
-        }, { passive: true });
+
+            // Instagram: show when WA is shrunk
+            if (instaBtn) {
+                instaBtn.classList.toggle('float-visible', shouldShrink);
+            }
+
+            // YouTube float: show with back-to-top (scroll > 500)
+            if (ytFloatBtn) {
+                ytFloatBtn.classList.toggle('float-visible', scrollY > 500);
+            }
+        }
+
+        window.addEventListener('scroll', updateFloatBtns, { passive: true });
+        updateFloatBtns(); // run once on load
     }
 
     // ========== SMOOTH SCROLLING ==========
@@ -210,7 +232,7 @@ document.addEventListener('DOMContentLoaded', function () {
         backToTopBtn.style.cssText = `
             position: fixed;
             bottom: 1rem;
-            ${mobile ? 'left: 1rem; right: auto;' : 'right: 1rem;'}
+            left: 1rem; right: auto;
             width: 50px;
             height: 50px;
             background: linear-gradient(135deg, #1e40af 0%, #3b82f6 100%);

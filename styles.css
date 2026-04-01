@@ -1416,7 +1416,107 @@ p {
     height: 24px;
 }
 
-/* ── Mobile ── */
-@media (max-width: 768px) {
-    /* mobile wa handled in new block */
+
+
+/* ========== INSTAGRAM FLOATING BUTTON (RIGHT, below WA) ========== */
+
+.instagram-float {
+    position: fixed;
+    bottom: 5.5rem; /* below whatsapp when it shrinks */
+    right: 1rem;
+    width: 48px;
+    height: 48px;
+    background: radial-gradient(circle at 30% 107%, #fdf497 0%, #fdf497 5%, #fd5949 45%, #d6249f 60%, #285AEB 90%);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 16px rgba(214, 36, 159, 0.35);
+    z-index: 999;
+    text-decoration: none;
+    opacity: 0;
+    transform: translateY(10px) scale(0.8);
+    pointer-events: none;
+    transition: opacity 0.3s ease, transform 0.3s ease, box-shadow 0.3s ease;
 }
+
+.instagram-float.float-visible {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+    pointer-events: all;
+}
+
+.instagram-float:hover {
+    transform: translateY(-3px) scale(1.08);
+    box-shadow: 0 8px 24px rgba(214, 36, 159, 0.5);
+}
+
+.instagram-float svg {
+    width: 24px;
+    height: 24px;
+    fill: white;
+}
+
+/* ========== YOUTUBE FLOATING BUTTON (LEFT, above back-to-top) ========== */
+
+.youtube-float {
+    position: fixed;
+    bottom: 4.5rem; /* above back-to-top */
+    left: 1rem;
+    width: 48px;
+    height: 48px;
+    background: #ff0000;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 16px rgba(255, 0, 0, 0.35);
+    z-index: 999;
+    text-decoration: none;
+    opacity: 0;
+    transform: translateY(10px) scale(0.8);
+    pointer-events: none;
+    transition: opacity 0.3s ease, transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.youtube-float.float-visible {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+    pointer-events: all;
+}
+
+.youtube-float:hover {
+    transform: translateY(-3px) scale(1.08);
+    box-shadow: 0 8px 24px rgba(255, 0, 0, 0.5);
+}
+
+.youtube-float svg {
+    width: 24px;
+    height: 24px;
+    fill: white;
+}
+
+/* ── Mobile adjustments ── */
+@media (max-width: 768px) {
+    .instagram-float {
+        width: 40px;
+        height: 40px;
+        right: 0.75rem;
+        bottom: 5rem;
+    }
+    .instagram-float svg { width: 20px; height: 20px; }
+
+    .youtube-float {
+        width: 40px;
+        height: 40px;
+        left: 0.75rem;
+        bottom: 4rem;
+    }
+    .youtube-float svg { width: 20px; height: 20px; }
+
+    .whatsapp-float {
+        bottom: 1rem;
+        right: 0.75rem;
+    }
+}
+
