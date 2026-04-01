@@ -228,13 +228,13 @@ document.addEventListener('DOMContentLoaded', function () {
     document.body.appendChild(backToTopBtn);
 
     function setBackToTopStyle(visible) {
-        const mobile = window.innerWidth <= 768;
         backToTopBtn.style.cssText = `
             position: fixed;
             bottom: 1rem;
-            left: 1rem; right: auto;
-            width: 50px;
-            height: 50px;
+            left: 1rem;
+            right: auto;
+            width: 48px;
+            height: 48px;
             background: linear-gradient(135deg, #1e40af 0%, #3b82f6 100%);
             color: white;
             border: none;
@@ -247,7 +247,7 @@ document.addEventListener('DOMContentLoaded', function () {
             transition: transform 0.3s ease, box-shadow 0.3s ease;
             z-index: 998;
         `;
-        backToTopBtn.querySelector('svg').style.cssText = 'width: 24px; height: 24px;';
+        backToTopBtn.querySelector('svg').style.cssText = 'width: 22px; height: 22px;';
     }
 
     setBackToTopStyle(false);
@@ -662,4 +662,3 @@ function throttle(func, limit) {
         }
     };
 }
-
