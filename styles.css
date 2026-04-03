@@ -1339,7 +1339,7 @@ p {
 
 .whatsapp-float {
     position: fixed;
-    bottom: 4.5rem;
+    bottom: 6rem;
     right: 1rem;
     display: flex;
     align-items: center;
@@ -1372,6 +1372,7 @@ p {
     height: 26px;
     fill: white;
     flex-shrink: 0;
+    display: block;
     transition: width 0.35s ease, height 0.35s ease;
 }
 
@@ -1403,8 +1404,9 @@ p {
     width: 48px;
     height: 48px;
     border-radius: 50%;
-    justify-content: center;
-    align-items: center;
+    justify-content: center !important;
+    align-items: center !important;
+    gap: 0;
 }
 
 .whatsapp-float.wa-scrolled .whatsapp-float-text {
@@ -1461,7 +1463,7 @@ p {
 
 .youtube-float {
     position: fixed;
-    bottom: 4rem;
+    bottom: 5.5rem;
     left: 1rem;
     width: 48px;
     height: 48px;
@@ -1500,7 +1502,7 @@ p {
 @media (max-width: 768px) {
     /* WhatsApp: circle on mobile, positioned above instagram */
     .whatsapp-float {
-        bottom: 4.5rem !important;
+        bottom: 6rem !important;
         right: 0.75rem !important;
         width: 48px !important;
         height: 48px !important;
@@ -1508,6 +1510,7 @@ p {
         border-radius: 50% !important;
         justify-content: center !important;
         align-items: center !important;
+        gap: 0 !important;
         max-width: 48px !important;
     }
     .whatsapp-float-text {
@@ -1532,7 +1535,7 @@ p {
         width: 48px;
         height: 48px;
         left: 0.75rem;
-        bottom: 4rem;
+        bottom: 5.5rem;
     }
     .youtube-float svg { width: 24px; height: 24px; }
 }
