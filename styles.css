@@ -1093,16 +1093,13 @@ p {
 
     /* Back to Top — match social button size & radius */
     .back-to-top {
-        width: 48px !important;
-        height: 48px !important;
-        border-radius: 50% !important;
-        left: 0.75rem !important;
-        right: auto !important;
-        bottom: 1rem !important;
+        width: 36px !important;
+        height: 36px !important;
+        border-radius: 10px !important;
     }
     .back-to-top svg {
-        width: 22px !important;
-        height: 22px !important;
+        width: 16px !important;
+        height: 16px !important;
     }
 
     /* Reduce border-radius on all social float buttons */
@@ -1342,15 +1339,14 @@ p {
 
 .whatsapp-float {
     position: fixed;
-    bottom: 1.5rem;
+    bottom: 4.5rem;
     right: 1rem;
     display: flex;
     align-items: center;
-    justify-content: flex-start;
     gap: 10px;
     background: #25d366;
     color: white;
-    padding: 0 18px 0 14px;
+    padding: 0 18px 0 12px;
     height: 52px;
     border-radius: 50px;
     text-decoration: none;
@@ -1359,7 +1355,7 @@ p {
     animation: waPulse 2.2s ease-out infinite;
     transition: transform 0.35s ease, padding 0.35s ease,
                 width 0.35s ease, border-radius 0.35s ease,
-                box-shadow 0.35s ease, justify-content 0.35s ease;
+                box-shadow 0.35s ease;
     overflow: hidden;
     white-space: nowrap;
     box-shadow: 0 4px 18px rgba(37,211,102,0.4);
@@ -1422,12 +1418,11 @@ p {
 }
 
 
-
 /* ========== INSTAGRAM FLOATING BUTTON (RIGHT, below WA) ========== */
 
 .instagram-float {
     position: fixed;
-    bottom: 5.5rem; /* below whatsapp when it shrinks */
+    bottom: 1.5rem;
     right: 1rem;
     width: 48px;
     height: 48px;
@@ -1466,7 +1461,7 @@ p {
 
 .youtube-float {
     position: fixed;
-    bottom: 4.5rem; /* above back-to-top */
+    bottom: 4rem;
     left: 1rem;
     width: 48px;
     height: 48px;
@@ -1501,23 +1496,18 @@ p {
     fill: white;
 }
 
-/* ── Back-to-top: always LEFT side on all screen sizes ── */
-.back-to-top-override {
-    left: 1rem !important;
-    right: auto !important;
-}
-
-/* ── Mobile adjustments — all buttons same circle size ── */
+/* ── Mobile: all 4 buttons = 48px circles, equal gaps ── */
 @media (max-width: 768px) {
-    /* WhatsApp: always show as circle on mobile (skip pill) */
+    /* WhatsApp: circle on mobile, positioned above instagram */
     .whatsapp-float {
-        bottom: 1rem;
-        right: 0.75rem;
+        bottom: 4.5rem !important;
+        right: 0.75rem !important;
         width: 48px !important;
         height: 48px !important;
         padding: 0 !important;
         border-radius: 50% !important;
         justify-content: center !important;
+        align-items: center !important;
         max-width: 48px !important;
     }
     .whatsapp-float-text {
@@ -1528,19 +1518,21 @@ p {
         height: 26px !important;
     }
 
+    /* Instagram: bottom of right stack */
     .instagram-float {
         width: 48px;
         height: 48px;
         right: 0.75rem;
-        bottom: 5.5rem;
+        bottom: 1rem;
     }
     .instagram-float svg { width: 24px; height: 24px; }
 
+    /* YouTube: above back-to-top, left side */
     .youtube-float {
         width: 48px;
         height: 48px;
         left: 0.75rem;
-        bottom: 4.5rem;
+        bottom: 4rem;
     }
     .youtube-float svg { width: 24px; height: 24px; }
 }
