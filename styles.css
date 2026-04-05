@@ -903,7 +903,7 @@ p {
     .back-to-top {
         width: 44px !important;
         height: 44px !important;
-        border-radius: 50% !important;
+        border-radius: 0 !important;
     }
     .back-to-top svg {
         width: 20px !important;

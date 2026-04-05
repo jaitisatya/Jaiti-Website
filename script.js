@@ -231,22 +231,25 @@ document.addEventListener('DOMContentLoaded', function () {
         backToTopBtn.style.cssText = `
             position: fixed;
             bottom: 1rem;
-            left: 1rem;
-            right: auto;
+            left: 50%;
+            transform: translateX(-50%);
             width: 48px;
             height: 48px;
-            background: linear-gradient(135deg, #1e40af 0%, #3b82f6 100%);
-            color: white;
+            background: transparent;
+            color: var(--primary);
             border: none;
-            border-radius: 50%;
+            border-radius: 0;
             cursor: pointer;
             display: ${visible ? 'flex' : 'none'};
             align-items: center;
             justify-content: center;
-            box-shadow: 0 4px 20px rgba(30, 64, 175, 0.3);
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            box-shadow: none;
+            transition: transform 0.3s ease, opacity 0.3s ease;
             z-index: 998;
+            opacity: 0.7;
         `;
+        backToTopBtn.onmouseover = () => { backToTopBtn.style.opacity = '1'; };
+        backToTopBtn.onmouseout = () => { backToTopBtn.style.opacity = '0.7'; };
         backToTopBtn.querySelector('svg').style.cssText = 'width: 22px; height: 22px;';
     }
 
