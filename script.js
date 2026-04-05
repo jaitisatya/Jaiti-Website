@@ -275,35 +275,6 @@ document.addEventListener('DOMContentLoaded', function () {
         this.style.transform = 'translateY(0)';
         this.style.boxShadow = '0 4px 20px rgba(30, 64, 175, 0.3)';
     });
-    
-    // ========== VISITOR COUNTER ==========
-    const visitorCountEl = document.getElementById('visitorCount');
-    if (visitorCountEl) {
-        const BASE_COUNT = 1000;
-        let count = parseInt(localStorage.getItem('jaiti_visitor_count') || BASE_COUNT);
-        count++;
-        localStorage.setItem('jaiti_visitor_count', count);
-
-        // Show final value immediately — no flash
-        visitorCountEl.textContent = count.toLocaleString();
-        
-        let display = 0;
-        const duration = 2000;
-        const steps = 60;
-        const increment = count / steps;
-        const stepTime = duration / steps;
-        
-        const counterTimer = setInterval(function () {
-            display += increment;
-            if (display >= count) {
-                visitorCountEl.textContent = count.toLocaleString();
-                clearInterval(counterTimer);
-            } else {
-                visitorCountEl.textContent = Math.floor(display).toLocaleString();
-            }
-        }, stepTime);
-    }
-
     // ========== HERO IMAGE SLIDER (AUTO-PLAY + DOTS) ==========
     const heroSlides = document.querySelectorAll('.hero-slide');
     const heroDots   = document.querySelectorAll('.hero-dot');

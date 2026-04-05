@@ -980,16 +980,6 @@ p {
     .section { padding: 2rem 0; page-break-inside: avoid; }
 }
 
-/* ========== VISITOR COUNTER ========== */
-
-.visitor-counter-section { background: var(--lighter-gray); }
-.visitor-counter-box { display: flex; flex-direction: column; align-items: center; justify-content: center; background: var(--white); border-radius: var(--radius-xl); box-shadow: var(--shadow-lg); padding: 3rem 2rem; max-width: 450px; margin: 0 auto; text-align: center; border-top: 5px solid var(--primary); }
-.visitor-icon { width: 70px; height: 70px; background: var(--primary-gradient); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-bottom: 1.5rem; }
-.visitor-icon svg { width: 36px; height: 36px; stroke: var(--white); }
-.visitor-count { font-family: 'Playfair Display', serif; font-size: 5rem; font-weight: 700; color: var(--primary); line-height: 1; margin-bottom: 0.5rem; letter-spacing: -2px; }
-.visitor-label { font-size: 1.25rem; font-weight: 600; color: var(--text-primary); margin-bottom: 0.5rem; }
-.visitor-subtext { font-size: 0.9375rem; color: var(--text-secondary); font-style: italic; }
-
 /* ========== SOCIAL ICONS (FOOTER) ========== */
 
 .footer-social { display: flex; gap: 0.75rem; margin-top: 1.5rem; flex-wrap: wrap; }
@@ -1059,12 +1049,6 @@ p {
 
 .gallery-item { transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.3s ease !important; }
 .gallery-item:hover { transform: scale(1.05) rotate(0.5deg) !important; }
-
-.visitor-count { animation: countPulse 2.5s ease-in-out infinite; }
-@keyframes countPulse {
-    0%, 100% { opacity: 1; }
-    50% { opacity: 0.82; }
-}
 
 /* =====================================================
    FLOATING ACTION BUTTONS
