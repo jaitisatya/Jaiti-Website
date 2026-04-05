@@ -26,7 +26,9 @@
     <meta name="robots" content="index, follow">
     <link rel="canonical" href="https://jaiti.in/">
 
-    <link rel="icon" href="images/logo.jpg">
+    <link rel="icon" type="image/jpeg" href="images/logo.jpg" sizes="32x32">
+    <link rel="apple-touch-icon" href="images/logo.jpg">
+    <meta name="theme-color" content="#3a7260">
     <link rel="stylesheet" href="styles.css">
     
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -77,13 +79,7 @@
 </nav>
 
 <!-- ================= HERO SECTION ================= -->
-<section class="hero">
-    <div class="hero-slider">
-        <div class="hero-slide active" style="background-image: url('images/photo3.jpg')"></div>
-        <div class="hero-slide" style="background-image: url('images/photo10.jpg')"></div>
-        <div class="hero-slide" style="background-image: url('images/photo12.jpg')"></div>
-    </div>
-    <div class="hero-overlay"></div>
+<section class="hero" style="background-image: url('images/photo3.jpg'); background-size: cover; background-position: center;">
     
     <div class="hero-content">
         <h1 class="fade-in">Every Child Deserves a Future.</h1>
@@ -105,12 +101,6 @@
             <a href="volunteer.html" class="btn btn-primary">Join Our Mission</a>
             <a href="about.html" class="btn btn-secondary">Learn More</a>
         </div>
-    </div>
-    
-    <div class="hero-dots">
-        <button class="hero-dot active" data-index="0" aria-label="Slide 1"></button>
-        <button class="hero-dot" data-index="1" aria-label="Slide 2"></button>
-        <button class="hero-dot" data-index="2" aria-label="Slide 3"></button>
     </div>
     
     <div class="hero-scroll-indicator">
@@ -205,7 +195,7 @@
 
                     <div class="program-card">
                         <div class="program-image">
-                            <img src="images/photo1.jpg" alt="Jaiti Foundation volunteer teacher providing free education to underprivileged children in Jaipur">
+                            <img src="images/photo1.jpg" alt="Jaiti Foundation volunteer teacher providing free education to underprivileged children in Jaipur" loading="lazy">
                             <div class="program-overlay">
                                 <span class="program-number">01</span>
                             </div>
@@ -219,7 +209,7 @@
 
                     <div class="program-card">
                         <div class="program-image">
-                            <img src="images/photo2.jpg" alt="Children learning moral values and ethics at Jaiti Foundation Jaipur">
+                            <img src="images/photo2.jpg" alt="Children learning moral values and ethics at Jaiti Foundation Jaipur" loading="lazy">
                             <div class="program-overlay">
                                 <span class="program-number">02</span>
                             </div>
@@ -233,7 +223,7 @@
 
                     <div class="program-card">
                         <div class="program-image">
-                            <img src="images/photo3.jpg" alt="Students learning civic sense and social responsibility at Jaiti Foundation">
+                            <img src="images/photo3.jpg" alt="Students learning civic sense and social responsibility at Jaiti Foundation" loading="lazy">
                             <div class="program-overlay">
                                 <span class="program-number">03</span>
                             </div>
@@ -247,7 +237,7 @@
 
                     <div class="program-card">
                         <div class="program-image">
-                            <img src="images/photo4.jpg" alt="Underprivileged children receiving free nutritious meals at Jaiti Foundation Jaipur">
+                            <img src="images/photo4.jpg" alt="Underprivileged children receiving free nutritious meals at Jaiti Foundation Jaipur" loading="lazy">
                             <div class="program-overlay">
                                 <span class="program-number">04</span>
                             </div>
@@ -279,24 +269,28 @@
         <div class="impact-grid">
 
             <div class="impact-card">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 48px; height: 48px; margin: 0 auto 1rem; opacity: 0.9;"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
                 <div class="impact-number" data-target="70" data-suffix="+">70+</div>
                 <div class="impact-label">Students Currently Studying</div>
                 <div class="impact-description">Children receiving daily education and support</div>
             </div>
 
             <div class="impact-card">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 48px; height: 48px; margin: 0 auto 1rem; opacity: 0.9;"><path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z"/></svg>
                 <div class="impact-number" data-target="160" data-suffix="+">160+</div>
                 <div class="impact-label">Total Children Impacted</div>
                 <div class="impact-description">Lives transformed since we began in 2024</div>
             </div>
 
             <div class="impact-card">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 48px; height: 48px; margin: 0 auto 1rem; opacity: 0.9;"><polyline points="20 6 9 17 4 12"/></svg>
                 <div class="impact-number" data-target="100" data-suffix="%">100%</div>
                 <div class="impact-label">Free Education</div>
                 <div class="impact-description">All our services are completely free</div>
             </div>
 
             <div class="impact-card">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 48px; height: 48px; margin: 0 auto 1rem; opacity: 0.9;"><circle cx="12" cy="12" r="10"/><polyline points="12 6v6l4 2"/></svg>
                 <div class="impact-number" data-target="365" data-suffix="">365</div>
                 <div class="impact-label">Days of Support</div>
                 <div class="impact-description">Year-round commitment to every child</div>
@@ -352,7 +346,7 @@
                 </div>
             </div>
             <div class="approach-image">
-                <img src="images/photo5.jpg" alt="Jaiti Foundation educators teaching underprivileged children in Jaipur Rajasthan">
+                <img src="images/photo5.jpg" alt="Jaiti Foundation educators teaching underprivileged children in Jaipur Rajasthan" loading="lazy">
                 <div class="image-decoration"></div>
             </div>
         </div>
@@ -379,6 +373,66 @@
 
 
 
+<section class="section testimonials-section">
+    <div class="container">
+        <div class="section-header text-center">
+            <span class="section-label">Impact Stories</span>
+            <h2>What People Say</h2>
+            <p class="section-description">Hear from students, parents, and volunteers about their experience with Jaiti Foundation</p>
+        </div>
+
+        <div class="testimonials-grid">
+            <div class="testimonial-card">
+                <div class="stars">★★★★★</div>
+                <p class="testimonial-text">"Jaiti Foundation changed my life! I learned so much and made wonderful friends. The teachers are so caring and patient."</p>
+                <div class="testimonial-author">
+                    <div class="author-avatar" style="background: linear-gradient(135deg, #3a7260 0%, #5e8a7a 100%);"></div>
+                    <div>
+                        <p class="author-name">Priya Sharma</p>
+                        <p class="author-role">Student, Class 6</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="testimonial-card">
+                <div class="stars">★★★★★</div>
+                <p class="testimonial-text">"We're grateful for the free meals and education. Our daughter is now confident and dreams of becoming a teacher!"</p>
+                <div class="testimonial-author">
+                    <div class="author-avatar" style="background: linear-gradient(135deg, #dd6c4a 0%, #e8866a 100%);"></div>
+                    <div>
+                        <p class="author-name">Mrs. Rajkumari</p>
+                        <p class="author-role">Parent</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="testimonial-card">
+                <div class="stars">★★★★★</div>
+                <p class="testimonial-text">"Volunteering at Jaiti Foundation was the most rewarding experience. The children's enthusiasm and growth is incredible!"</p>
+                <div class="testimonial-author">
+                    <div class="author-avatar" style="background: linear-gradient(135deg, #5e8a7a 0%, #3a7260 100%);"></div>
+                    <div>
+                        <p class="author-name">Arjun Desai</p>
+                        <p class="author-role">Volunteer Educator</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="testimonial-card">
+                <div class="stars">★★★★★</div>
+                <p class="testimonial-text">"The holistic approach is amazing - education, values, nutrition, everything! My son's confidence has grown so much."</p>
+                <div class="testimonial-author">
+                    <div class="author-avatar" style="background: linear-gradient(135deg, #e8866a 0%, #dd6c4a 100%);"></div>
+                    <div>
+                        <p class="author-name">Mr. Vikram Singh</p>
+                        <p class="author-role">Parent</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
 <!-- ================= SUPPORT US ================= -->
 <section class="section support-section" style="background: linear-gradient(135deg, #f0ebe3 0%, #e8e2da 100%); padding: 60px 0;">
     <div class="container">
@@ -390,30 +444,33 @@
         <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 24px; max-width: 900px; margin: 0 auto 2.5rem;">
             <div style="background: white; border-radius: 16px; padding: 28px; text-align: center; box-shadow: 0 4px 20px rgba(0,0,0,0.07); border: 2px solid #d4c9bc;">
                 <div style="width: 56px; height: 56px; background: #e8f2ee; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 1rem;">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="#3a7260" stroke-width="2" style="width:26px;height:26px;"><rect x="2" y="5" width="20" height="14" rx="3"/><path d="M2 10h20"/></svg>
+                    <svg viewBox="0 0 24 24" fill="none" stroke="var(--primary)" stroke-width="2" style="width:26px;height:26px;"><rect x="2" y="5" width="20" height="14" rx="3"/><path d="M2 10h20"/></svg>
                 </div>
-                <h3 style="font-size: 1.1rem; margin-bottom: 0.5rem; color: #1e293b;">UPI / Bank Transfer</h3>
-                <p style="color: #64748b; font-size: 0.9rem; margin-bottom: 1rem;">Send directly via UPI or bank transfer. Contact us for account details.</p>
-                <a href="https://wa.me/916367916384?text=Hi%2C%20I%20want%20to%20support%20Jaiti%20Foundation.%20Please%20share%20payment%20details." target="_blank" rel="noopener" class="btn btn-primary" style="width: 100%; display: block; text-align: center;">Get Details on WhatsApp</a>
+                <h3 style="font-size: 1.1rem; margin-bottom: 0.5rem; color: var(--text-primary);">Direct UPI Transfer</h3>
+                <p style="color: var(--text-secondary); font-size: 0.9rem; margin-bottom: 1.2rem;">Use any UPI app (Google Pay, PhonePe, PayTM)</p>
+                <div style="background: #f8f8f8; padding: 12px; border-radius: 8px; margin-bottom: 1rem; border: 1px solid var(--light-gray);">
+                    <p style="color: var(--text-primary); font-family: monospace; font-weight: 600; font-size: 1rem; margin: 0;">jaitifoundation@upi</p>
+                </div>
+                <button onclick="copyToClipboard('jaitifoundation@upi')" class="btn btn-primary" style="width: 100%; display: block; text-align: center; cursor: pointer;">Copy UPI ID</button>
             </div>
             <div style="background: white; border-radius: 16px; padding: 28px; text-align: center; box-shadow: 0 4px 20px rgba(0,0,0,0.07); border: 2px solid #d4c9bc;">
                 <div style="width: 56px; height: 56px; background: #f0fdf4; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 1rem;">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="#16a34a" stroke-width="2" style="width:26px;height:26px;"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+                    <svg viewBox="0 0 24 24" fill="none" stroke="var(--primary)" stroke-width="2" style="width:26px;height:26px;"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
                 </div>
-                <h3 style="font-size: 1.1rem; margin-bottom: 0.5rem; color: #1e293b;">Volunteer Your Time</h3>
-                <p style="color: #64748b; font-size: 0.9rem; margin-bottom: 1rem;">Teach, mentor, or support our programs. No formal qualifications needed — just passion.</p>
-                <a href="volunteer.html" class="btn btn-primary" style="width: 100%; display: block; text-align: center; background: #16a34a; border-color: #16a34a;">Join as Volunteer</a>
+                <h3 style="font-size: 1.1rem; margin-bottom: 0.5rem; color: var(--text-primary);">Volunteer Your Time</h3>
+                <p style="color: var(--text-secondary); font-size: 0.9rem; margin-bottom: 1rem;">Teach, mentor, or support our programs. No formal qualifications needed — just passion.</p>
+                <a href="volunteer.html" class="btn btn-primary" style="width: 100%; display: block; text-align: center;">Join as Volunteer</a>
             </div>
             <div style="background: white; border-radius: 16px; padding: 28px; text-align: center; box-shadow: 0 4px 20px rgba(0,0,0,0.07); border: 2px solid #d4c9bc;">
                 <div style="width: 56px; height: 56px; background: #fff7ed; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 1rem;">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="#ea580c" stroke-width="2" style="width:26px;height:26px;"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+                    <svg viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2" style="width:26px;height:26px;"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
                 </div>
-                <h3 style="font-size: 1.1rem; margin-bottom: 0.5rem; color: #1e293b;">Share &amp; Spread the Word</h3>
-                <p style="color: #64748b; font-size: 0.9rem; margin-bottom: 1rem;">Share our mission with friends, family, and on social media. Awareness creates change.</p>
-                <a href="contact.html" class="btn btn-primary" style="width: 100%; display: block; text-align: center; background: #ea580c; border-color: #ea580c;">Get in Touch</a>
+                <h3 style="font-size: 1.1rem; margin-bottom: 0.5rem; color: var(--text-primary);">Share &amp; Spread the Word</h3>
+                <p style="color: var(--text-secondary); font-size: 0.9rem; margin-bottom: 1rem;">Share our mission with friends, family, and on social media. Awareness creates change.</p>
+                <a href="contact.html" class="btn btn-primary" style="width: 100%; display: block; text-align: center; background: var(--accent); border-color: var(--accent);">Get in Touch</a>
             </div>
         </div>
-        <p style="text-align: center; color: #94a3b8; font-size: 0.85rem;">All contributions go directly to children's education, meals, and materials. We operate with 100% transparency.</p>
+        <p style="text-align: center; color: var(--text-secondary); font-size: 0.85rem;">All contributions go directly to children's education, meals, and materials. We operate with 100% transparency.</p>
     </div>
 </section>
 

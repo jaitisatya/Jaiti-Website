@@ -2,6 +2,20 @@
 // JAITI FOUNDATION - JAVASCRIPT (MOBILE OPTIMIZED)
 // ==========================================
 
+// Copy to clipboard function
+function copyToClipboard(text) {
+    navigator.clipboard.writeText(text).then(() => {
+        const button = event.target;
+        const originalText = button.textContent;
+        button.textContent = '✓ Copied!';
+        setTimeout(() => {
+            button.textContent = originalText;
+        }, 2000);
+    }).catch(err => {
+        alert('Failed to copy: ' + text);
+    });
+}
+
 document.addEventListener('DOMContentLoaded', function () {
     
     // ========== MOBILE MENU TOGGLE ==========
@@ -47,36 +61,14 @@ document.addEventListener('DOMContentLoaded', function () {
     // ========== FLOATING BUTTONS — SCROLL BEHAVIOR ==========
     // WA: shrinks after scroll 120px
     // Instagram (right, below WA): appears after WA shrinks
-    // YouTube (left, above back-to-top): appears with back-to-top (scroll > 500)
-    const waBtn       = document.querySelector('.whatsapp-float');
-    const instaBtn    = document.querySelector('.instagram-float');
-    const ytFloatBtn  = document.querySelector('.youtube-float');
+    // WhatsApp button scroll behavior
+    const waBtn = document.querySelector('.whatsapp-float');
 
     if (waBtn) {
-        let waScrolled = false;
-        function updateFloatBtns() {
-            const scrollY     = window.pageYOffset;
-            const shouldShrink = scrollY > 120;
-
-            // WA shrink
-            if (shouldShrink !== waScrolled) {
-                waScrolled = shouldShrink;
-                waBtn.classList.toggle('wa-scrolled', waScrolled);
-            }
-
-            // Instagram: show when WA is shrunk
-            if (instaBtn) {
-                instaBtn.classList.toggle('float-visible', shouldShrink);
-            }
-
-            // YouTube float: show with back-to-top (scroll > 500)
-            if (ytFloatBtn) {
-                ytFloatBtn.classList.toggle('float-visible', scrollY > 500);
-            }
-        }
-
-        window.addEventListener('scroll', updateFloatBtns, { passive: true });
-        updateFloatBtns(); // run once on load
+        window.addEventListener('scroll', () => {
+            // Currently WhatsApp is always visible and doesn't change
+            // Can add scroll-based behavior here if needed
+        }, { passive: true });
     }
 
     // ========== SMOOTH SCROLLING ==========
@@ -278,43 +270,7 @@ document.addEventListener('DOMContentLoaded', function () {
         this.style.transform = 'translateY(0)';
         this.style.boxShadow = '0 4px 20px rgba(30, 64, 175, 0.3)';
     });
-    // ========== HERO IMAGE SLIDER (AUTO-PLAY + DOTS) ==========
-    const heroSlides = document.querySelectorAll('.hero-slide');
-    const heroDots   = document.querySelectorAll('.hero-dot');
-
-    if (heroSlides.length > 0 && heroDots.length > 0) {
-        let currentSlide = 0;
-        let heroTimer;
-        const SLIDE_INTERVAL = 5000;
-
-        function goToSlide(index) {
-            heroSlides.forEach(slide => slide.classList.remove('active'));
-            heroDots.forEach(dot   => dot.classList.remove('active'));
-            currentSlide = (index + heroSlides.length) % heroSlides.length;
-            heroSlides[currentSlide].classList.add('active');
-            heroDots[currentSlide].classList.add('active');
-        }
-
-        function nextSlide()   { goToSlide(currentSlide + 1); }
-        function startHeroTimer() { heroTimer = setInterval(nextSlide, SLIDE_INTERVAL); }
-        function resetTimer()  { clearInterval(heroTimer); startHeroTimer(); }
-
-        heroDots.forEach((dot, index) => {
-            dot.addEventListener('click', function (e) {
-                e.preventDefault();
-                goToSlide(index);
-                resetTimer();
-            });
-        });
-
-        const heroSection = document.querySelector('.hero');
-        if (heroSection) {
-            heroSection.addEventListener('mouseenter', () => clearInterval(heroTimer));
-            heroSection.addEventListener('mouseleave', () => startHeroTimer());
-        }
-
-        startHeroTimer();
-    }
+    // Hero image carousel removed - using static background image
 
     // ========== CAROUSEL SLIDER (MOBILE OPTIMIZED) ==========
     function initCarousel(trackId, dotsContainerId) {
