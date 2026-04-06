@@ -504,70 +504,126 @@ window.addEventListener('load', function () {
     }
 });
 
-// ========== GALLERY FULLSCREEN ==========
+// ========== ENHANCED GALLERY LIGHTBOX ==========
+let currentLightboxIndex = 0;
+let galleryImages = [];
+
 document.addEventListener('click', function(e) {
-    const galleryImg = e.target.closest('.gallery-item img');
-    if (galleryImg) {
-        e.preventDefault();
-        e.stopPropagation();
-        
-        // Native fullscreen support
-        if (galleryImg.requestFullscreen) {
-            galleryImg.requestFullscreen().catch(err => {
-                console.warn('Fullscreen failed:', err);
-                // Fallback: create simple modal
-                openSimpleModal(galleryImg);
-            });
-        } else {
-            openSimpleModal(galleryImg);
+    const galleryItem = e.target.closest('.gallery-item');
+    if (galleryItem) {
+        const galleryGrid = galleryItem.closest('.gallery-grid');
+        if (galleryGrid) {
+            const items = galleryGrid.querySelectorAll('.gallery-item img');
+            galleryImages = Array.from(items).map(img => ({
+                src: img.src,
+                alt: img.alt
+            }));
+            currentLightboxIndex = Array.from(items).indexOf(e.target.closest('.gallery-item img'));
+            openLightbox(currentLightboxIndex);
         }
     }
 });
 
-function openSimpleModal(img) {
-    const modal = document.createElement('div');
-    modal.className = 'simple-lightbox-overlay';
-    modal.innerHTML = `
-        <div class="simple-lightbox">
-            <button class="simple-close" aria-label="Close">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <line x1="18" y1="6" x2="6" y2="18"></line>
-                    <line x1="6" y1="6" x2="18" y2="18"></line>
-                </svg>
-            </button>
-            <img src="${img.src}" alt="${img.alt || ''}">
-        </div>
-    `;
-    document.body.appendChild(modal);
-    document.body.style.overflow = 'hidden';
+function openLightbox(index) {
+    if (index < 0) return;
+    if (index >= galleryImages.length) return;
     
-    modal.querySelector('.simple-close').onclick = () => {
-        document.body.style.overflow = '';
-        modal.remove();
-    };
-    modal.onclick = (e) => {
-        if (e.target === modal) {
-            document.body.style.overflow = '';
-            modal.remove();
-        }
-    };
+    currentLightboxIndex = index;
+    
+    let lightboxOverlay = document.getElementById('lightbox-overlay');
+    
+    if (!lightboxOverlay) {
+        lightboxOverlay = document.createElement('div');
+        lightboxOverlay.id = 'lightbox-overlay';
+        lightboxOverlay.className = 'lightbox-overlay';
+        lightboxOverlay.innerHTML = `
+            <div class="lightbox-modal">
+                <button class="lightbox-close" aria-label="Close" title="Close (ESC)">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <line x1="18" y1="6" x2="6" y2="18"></line>
+                        <line x1="6" y1="6" x2="18" y2="18"></line>
+                    </svg>
+                </button>
+                <button class="lightbox-prev" aria-label="Previous" title="Previous">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <polyline points="15 18 9 12 15 6"></polyline>
+                    </svg>
+                </button>
+                <div class="lightbox-image-container">
+                    <img class="lightbox-image" src="" alt="">
+                </div>
+                <button class="lightbox-next" aria-label="Next" title="Next">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <polyline points="9 18 15 12 9 6"></polyline>
+                    </svg>
+                </button>
+                <div class="lightbox-counter">
+                    <span class="current">1</span> / <span class="total">1</span>
+                </div>
+            </div>
+        `;
+        document.body.appendChild(lightboxOverlay);
+        
+        // Event listeners
+        lightboxOverlay.querySelector('.lightbox-close').addEventListener('click', closeLightbox);
+        lightboxOverlay.querySelector('.lightbox-prev').addEventListener('click', () => showPrevious());
+        lightboxOverlay.querySelector('.lightbox-next').addEventListener('click', () => showNext());
+        
+        lightboxOverlay.addEventListener('click', function(e) {
+            if (e.target === lightboxOverlay) {
+                closeLightbox();
+            }
+        });
+        
+        document.addEventListener('keydown', handleLightboxKeyboard);
+    }
+    
+    // Update image and counter
+    const img = lightboxOverlay.querySelector('.lightbox-image');
+    img.src = galleryImages[index].src;
+    img.alt = galleryImages[index].alt;
+    
+    lightboxOverlay.querySelector('.current').textContent = index + 1;
+    lightboxOverlay.querySelector('.total').textContent = galleryImages.length;
+    
+    // Update nav buttons visibility
+    const lightboxOverlay_el = document.getElementById('lightbox-overlay');
+    lightboxOverlay_el.classList.add('active');
+    document.body.style.overflow = 'hidden';
 }
 
-// Handle fullscreen exit (ESC key)
-document.addEventListener('fullscreenchange', function() {
-    if (!document.fullscreenElement) {
-        console.log('Exited fullscreen');
+function closeLightbox() {
+    const lightboxOverlay = document.getElementById('lightbox-overlay');
+    if (lightboxOverlay) {
+        lightboxOverlay.classList.remove('active');
+        document.body.style.overflow = '';
+        document.removeEventListener('keydown', handleLightboxKeyboard);
     }
-});
+}
 
-// ESC exits fullscreen
-document.addEventListener('keydown', function(e) {
-    if (e.key === 'Escape' && document.fullscreenElement) {
-        if (document.exitFullscreen) {
-            document.exitFullscreen();
-        }
+function showNext() {
+    if (currentLightboxIndex < galleryImages.length - 1) {
+        openLightbox(currentLightboxIndex + 1);
     }
-});
+}
+
+function showPrevious() {
+    if (currentLightboxIndex > 0) {
+        openLightbox(currentLightboxIndex - 1);
+    }
+}
+
+function handleLightboxKeyboard(e) {
+    if (!document.getElementById('lightbox-overlay')?.classList.contains('active')) return;
+    
+    if (e.key === 'Escape') {
+        closeLightbox();
+    } else if (e.key === 'ArrowRight') {
+        showNext();
+    } else if (e.key === 'ArrowLeft') {
+        showPrevious();
+    }
+}
 
 
 // ========== UTILITY FUNCTIONS ==========
