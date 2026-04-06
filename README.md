@@ -188,11 +188,10 @@ Each page includes:
 
 1. **Blog Section** - Share stories and updates
 2. **Newsletter Signup** - Collect email subscribers
-3. **Testimonials** - Add parent/volunteer testimonials
-4. **Social Media Integration** - Add social media links
-5. **Multi-language Support** - Hindi/English toggle
-6. **Video Integration** - Embed YouTube videos
-7. **Events Calendar** - Upcoming events and activities
+3. **Social Media Integration** - Add social media links
+4. **Multi-language Support** - Hindi/English toggle
+5. **Video Integration** - Embed YouTube videos
+6. **Events Calendar** - Upcoming events and activities
 
 ---
 
