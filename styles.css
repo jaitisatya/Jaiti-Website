@@ -281,29 +281,6 @@ p {
 .nav-links a:hover::after,
 .nav-links a.active::after { width: 100%; }
 
-/* YouTube Button in Navbar */
-.nav-youtube-btn {
-    background: linear-gradient(135deg, #ff0000, #cc0000) !important;
-    color: var(--white) !important;
-    padding: 0.6rem 1.2rem !important;
-    border-radius: 50px !important;
-    font-weight: 600 !important;
-    font-size: 1rem !important;
-    box-shadow: 0 4px 15px rgba(255, 0, 0, 0.3) !important;
-    transition: all var(--transition) !important;
-}
-
-.nav-youtube-btn::after {
-    display: none !important;
-}
-
-.nav-youtube-btn:hover {
-    background: linear-gradient(135deg, #cc0000, #990000) !important;
-    transform: translateY(-2px) !important;
-    box-shadow: 0 6px 25px rgba(255, 0, 0, 0.5) !important;
-    color: var(--white) !important;
-}
-
 .mobile-menu-btn {
     display: none;
     flex-direction: column;
