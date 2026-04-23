@@ -1143,6 +1143,7 @@ p {
     .difference-content .difference-image { order: -1; }
     .footer-content { grid-template-columns: 1fr; gap: 2rem; }
     .carousel-container { padding: 0 !important; overflow: hidden !important; }
+    .carousel-track { gap: 0 !important; }
     .carousel-track-wrapper { overflow: hidden; width: 100%; }
     .why-grid.carousel-track, .programs-grid.carousel-track { 
         display: flex !important;
