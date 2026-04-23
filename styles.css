@@ -1142,21 +1142,33 @@ p {
     .difference-content { grid-template-columns: 1fr; }
     .difference-content .difference-image { order: -1; }
     .footer-content { grid-template-columns: 1fr; gap: 2rem; }
-    .carousel-container { padding: 0 !important; overflow: hidden !important; }
-    .carousel-track { gap: 0 !important; }
-    .carousel-track-wrapper { overflow: hidden; width: 100%; }
-    .why-grid.carousel-track, .programs-grid.carousel-track { 
+    .carousel-container {
+        padding: 0 !important;
+        overflow: hidden !important;
+        width: 100vw !important;
+        margin-left: calc(-1 * (100vw - 100%) / 2) !important;
+    }
+    .carousel-track-wrapper {
+        overflow: hidden;
+        width: 100vw !important;
+    }
+    .carousel-track {
+        gap: 0 !important;
+        width: 100vw !important;
+    }
+    .why-grid.carousel-track, .programs-grid.carousel-track {
         display: flex !important;
         flex-direction: row !important;
         gap: 0 !important;
+        width: 100vw !important;
     }
     .why-grid.carousel-track > .why-card,
     .programs-grid.carousel-track > .program-card {
-        min-width: 100% !important;
-        max-width: 100% !important;
+        min-width: 100vw !important;
+        max-width: 100vw !important;
         flex-shrink: 0 !important;
         box-sizing: border-box !important;
-        width: 100% !important;
+        width: 100vw !important;
     }
     .why-card p, .program-content p { -webkit-line-clamp: unset; line-clamp: unset; overflow: visible; display: block; }
     .carousel-prev { left: 0.5rem !important; width: 40px !important; height: 40px !important; }

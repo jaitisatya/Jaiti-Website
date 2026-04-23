@@ -317,8 +317,15 @@ document.addEventListener('DOMContentLoaded', function () {
             const max = items.length - getVisibleCount();
             current = Math.max(0, Math.min(index, max));
 
-            const gap       = parseFloat(window.getComputedStyle(track).gap) || 32;
-            const itemWidth = items[0].offsetWidth + gap;
+
+            let itemWidth;
+            if (window.innerWidth <= 768) {
+                // On mobile, use viewport width for each slide
+                itemWidth = window.innerWidth;
+            } else {
+                const gap = parseFloat(window.getComputedStyle(track).gap) || 32;
+                itemWidth = items[0].offsetWidth + gap;
+            }
 
             track.style.transition = 'transform 0.4s ease';
             track.style.transform  = `translateX(-${current * itemWidth}px)`;
