@@ -46,7 +46,7 @@ document.addEventListener('DOMContentLoaded', function () {
     
     // ========== NAVBAR SCROLL EFFECT ==========
     const navbar = document.querySelector('.navbar');
-    window.addEventListener('scroll', function () {
+    const updateNavbarScroll = throttle(function () {
         const currentScroll = window.pageYOffset;
         if (currentScroll > 50) {
             navbar.classList.add('scrolled');
@@ -55,7 +55,8 @@ document.addEventListener('DOMContentLoaded', function () {
             navbar.classList.remove('scrolled');
             navbar.style.boxShadow = '0 2px 10px rgba(0, 0, 0, 0.05)';
         }
-    });
+    }, 100);
+    window.addEventListener('scroll', updateNavbarScroll, { passive: true });
     
 
     // ========== FLOATING BUTTONS — SCROLL BEHAVIOR ==========
@@ -247,9 +248,9 @@ document.addEventListener('DOMContentLoaded', function () {
 
     setBackToTopStyle(false);
 
-    window.addEventListener('scroll', function () {
+    window.addEventListener('scroll', throttle(function () {
         setBackToTopStyle(window.pageYOffset > 500);
-    });
+    }, 100), { passive: true });
 
     window.addEventListener('resize', debounce(function () {
         if (backToTopBtn.style.display !== 'none') {
