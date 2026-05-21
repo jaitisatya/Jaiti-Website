@@ -1,0 +1,421 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Jaiti Foundation | Daily Drive Update | Login</title>
+    <meta name="description" content="Login to Daily Drive Update - Track teaching sessions at Jaiti Foundation">
+    <link rel="icon" type="image/webp" href="images/logo.webp" sizes="32x32">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: linear-gradient(135deg, #2f5f4f 0%, #3a7260 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 450px;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            padding: 40px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .logo {
+            width: 60px;
+            height: 60px;
+            margin: 0 auto 15px;
+            background: #3a7260;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            color: white;
+            font-size: 24px;
+        }
+
+        .header h1 {
+            font-size: 28px;
+            color: #2c1a0e;
+            margin-bottom: 8px;
+            font-family: 'Playfair Display', serif;
+        }
+
+        .header p {
+            color: #7a6b5d;
+            font-size: 14px;
+        }
+
+        .tabs {
+            display: flex;
+            gap: 0;
+            margin-bottom: 30px;
+            border-bottom: 2px solid #f0ebe3;
+        }
+
+        .tab-btn {
+            flex: 1;
+            padding: 12px;
+            border: none;
+            background: none;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            color: #7a6b5d;
+            border-bottom: 2px solid transparent;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .tab-btn.active {
+            color: #3a7260;
+            border-bottom-color: #3a7260;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #2c1a0e;
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        input, textarea {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #d4c9bc;
+            border-radius: 6px;
+            font-family: inherit;
+            font-size: 14px;
+            transition: border-color 0.3s ease;
+        }
+
+        input:focus, textarea:focus {
+            outline: none;
+            border-color: #3a7260;
+            box-shadow: 0 0 0 3px rgba(58, 114, 96, 0.1);
+        }
+
+        .btn {
+            width: 100%;
+            padding: 12px;
+            background: linear-gradient(135deg, #2f5f4f 0%, #3a7260 100%);
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 16px;
+            margin-top: 10px;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(58, 114, 96, 0.3);
+        }
+
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .error {
+            color: #ef4444;
+            font-size: 13px;
+            margin-top: 5px;
+            display: none;
+        }
+
+        .error.show {
+            display: block;
+        }
+
+        .success {
+            background: #f0fdf4;
+            border: 1px solid #10b981;
+            color: #047857;
+            padding: 12px;
+            border-radius: 6px;
+            margin-bottom: 15px;
+            display: none;
+        }
+
+        .success.show {
+            display: block;
+        }
+
+        .info-box {
+            background: #f0f9ff;
+            border-left: 4px solid #3a7260;
+            padding: 12px;
+            border-radius: 4px;
+            margin-top: 15px;
+            font-size: 13px;
+            color: #0c5460;
+            line-height: 1.6;
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            margin-top: 10px;
+        }
+
+        .badge-pending {
+            background: #fef3c7;
+            color: #92400e;
+        }
+
+        .badge-approved {
+            background: #d1fae5;
+            color: #065f46;
+        }
+
+        .badge-rejected {
+            background: #fee2e2;
+            color: #7f1d1d;
+        }
+
+        @media (max-width: 480px) {
+            .container {
+                padding: 25px;
+            }
+
+            .header h1 {
+                font-size: 24px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="header">
+        <div class="logo">J</div>
+        <h1>Daily Drive Update</h1>
+        <p>Jaiti Foundation - Track Teaching Sessions</p>
+    </div>
+
+    <div class="tabs">
+        <button class="tab-btn active" onclick="switchTab('login')">Login</button>
+        <button class="tab-btn" onclick="switchTab('signup')">Sign Up</button>
+    </div>
+
+    <!-- LOGIN TAB -->
+    <div id="login" class="tab-content active">
+        <div class="success" id="loginSuccess">✓ Logged in successfully! Redirecting...</div>
+        <form id="loginForm">
+            <div class="form-group">
+                <label for="loginEmail">Email Address</label>
+                <input type="email" id="loginEmail" required placeholder="your@email.com">
+                <div class="error" id="loginEmailError"></div>
+            </div>
+
+            <div class="form-group">
+                <label for="loginPassword">Password</label>
+                <input type="password" id="loginPassword" required placeholder="Enter your password">
+                <div class="error" id="loginPasswordError"></div>
+            </div>
+
+            <button type="submit" class="btn">Login</button>
+
+            <div class="info-box" style="margin-top: 20px;">
+                <strong>Demo Credentials:</strong><br>
+                Email: demo@jaiti.in<br>
+                Password: demo1234
+            </div>
+        </form>
+    </div>
+
+    <!-- SIGNUP TAB -->
+    <div id="signup" class="tab-content">
+        <div class="success" id="signupSuccess">✓ Sign up successful! Waiting for admin approval...</div>
+        <form id="signupForm">
+            <div class="form-group">
+                <label for="signupName">Full Name</label>
+                <input type="text" id="signupName" required placeholder="Your full name">
+                <div class="error" id="signupNameError"></div>
+            </div>
+
+            <div class="form-group">
+                <label for="signupEmail">Email Address</label>
+                <input type="email" id="signupEmail" required placeholder="your@email.com">
+                <div class="error" id="signupEmailError"></div>
+            </div>
+
+            <div class="form-group">
+                <label for="signupPhone">Phone Number</label>
+                <input type="tel" id="signupPhone" placeholder="10-digit phone number">
+                <div class="error" id="signupPhoneError"></div>
+            </div>
+
+            <div class="form-group">
+                <label for="signupPassword">Password</label>
+                <input type="password" id="signupPassword" required placeholder="Minimum 8 characters">
+                <div class="error" id="signupPasswordError"></div>
+            </div>
+
+            <div class="form-group">
+                <label for="signupConfirmPassword">Confirm Password</label>
+                <input type="password" id="signupConfirmPassword" required placeholder="Confirm password">
+                <div class="error" id="signupConfirmPasswordError"></div>
+            </div>
+
+            <button type="submit" class="btn">Sign Up</button>
+
+            <div class="info-box">
+                <strong>Note:</strong> After signing up, your account will need approval from the admin (jaitifoundation@gmail.com) before you can access the Daily Drive Update form.
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+    // Tab switching
+    function switchTab(tabName) {
+        document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+        document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
+        document.getElementById(tabName).classList.add('active');
+        event.target.classList.add('active');
+    }
+
+    // Login form
+    document.getElementById('loginForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+        const email = document.getElementById('loginEmail').value;
+        const password = document.getElementById('loginPassword').value;
+
+        // Validate
+        let isValid = true;
+        if (!email) {
+            showError('loginEmailError', 'Email is required');
+            isValid = false;
+        }
+        if (!password) {
+            showError('loginPasswordError', 'Password is required');
+            isValid = false;
+        }
+
+        if (!isValid) return;
+
+        // Demo login (for testing)
+        if (email === 'demo@jaiti.in' && password === 'demo1234') {
+            showSuccess('loginSuccess', 'Logged in successfully!');
+            localStorage.setItem('userEmail', email);
+            localStorage.setItem('userName', 'Demo User');
+            localStorage.setItem('userStatus', 'approved');
+            setTimeout(() => {
+                window.location.href = 'daily-drive-update.html';
+            }, 1500);
+            return;
+        }
+
+        // Real authentication would call Google Apps Script here
+        alert('Demo mode: Use email: demo@jaiti.in, password: demo1234');
+    });
+
+    // Signup form
+    document.getElementById('signupForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+        const name = document.getElementById('signupName').value;
+        const email = document.getElementById('signupEmail').value;
+        const phone = document.getElementById('signupPhone').value;
+        const password = document.getElementById('signupPassword').value;
+        const confirmPassword = document.getElementById('signupConfirmPassword').value;
+
+        // Validate
+        let isValid = true;
+        if (!name || name.trim().length < 2) {
+            showError('signupNameError', 'Please enter your full name');
+            isValid = false;
+        }
+        if (!email || !email.includes('@')) {
+            showError('signupEmailError', 'Please enter a valid email');
+            isValid = false;
+        }
+        if (phone && phone.replace(/\D/g, '').length !== 10) {
+            showError('signupPhoneError', 'Phone must be 10 digits');
+            isValid = false;
+        }
+        if (!password || password.length < 8) {
+            showError('signupPasswordError', 'Password must be at least 8 characters');
+            isValid = false;
+        }
+        if (password !== confirmPassword) {
+            showError('signupConfirmPasswordError', 'Passwords do not match');
+            isValid = false;
+        }
+
+        if (!isValid) return;
+
+        // Would call Google Apps Script here in real implementation
+        showSuccess('signupSuccess', 'Sign up successful! Waiting for admin approval...');
+        document.getElementById('signupForm').reset();
+        clearAllErrors();
+    });
+
+    function showError(elementId, message) {
+        const el = document.getElementById(elementId);
+        el.textContent = message;
+        el.classList.add('show');
+    }
+
+    function clearError(elementId) {
+        document.getElementById(elementId).classList.remove('show');
+    }
+
+    function clearAllErrors() {
+        document.querySelectorAll('.error').forEach(el => el.classList.remove('show'));
+    }
+
+    function showSuccess(elementId, message) {
+        const el = document.getElementById(elementId);
+        el.textContent = '✓ ' + message;
+        el.classList.add('show');
+    }
+
+    // Clear error on input
+    ['loginEmail', 'loginPassword', 'signupName', 'signupEmail', 'signupPhone', 'signupPassword', 'signupConfirmPassword'].forEach(id => {
+        document.getElementById(id)?.addEventListener('focus', function() {
+            clearError(id + 'Error');
+        });
+    });
+</script>
+
+</body>
+</html>

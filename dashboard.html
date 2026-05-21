@@ -1,0 +1,499 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Jaiti Foundation | Daily Drive Update | Dashboard</title>
+    <meta name="description" content="View all daily check-in submissions for Jaiti Foundation">
+    <link rel="icon" type="image/webp" href="images/logo.webp" sizes="32x32">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: #f8f8f8;
+            min-height: 100vh;
+            padding: 20px;
+            padding-top: 80px;
+        }
+
+        header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            background: white;
+            border-bottom: 1px solid #e0e0e0;
+            padding: 15px 20px;
+            z-index: 100;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        }
+
+        .header-title {
+            font-size: 18px;
+            font-weight: 700;
+            color: #2c1a0e;
+        }
+
+        .header-actions {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+        }
+
+        .btn-logout {
+            padding: 8px 16px;
+            background: #f0ebe3;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 13px;
+            color: #3a7260;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .btn-logout:hover {
+            background: #e8e2da;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .page-header {
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .page-header h1 {
+            font-size: 28px;
+            font-family: 'Playfair Display', serif;
+            color: #2c1a0e;
+        }
+
+        .btn-new {
+            padding: 10px 20px;
+            background: linear-gradient(135deg, #2f5f4f 0%, #3a7260 100%);
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            text-decoration: none;
+            transition: all 0.3s ease;
+        }
+
+        .btn-new:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(58, 114, 96, 0.3);
+        }
+
+        .filters {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            display: grid;
+            grid-template-columns: 1fr 1fr auto;
+            gap: 15px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        }
+
+        .filter-group label {
+            display: block;
+            font-size: 12px;
+            font-weight: 600;
+            color: #7a6b5d;
+            margin-bottom: 5px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .filter-group input, .filter-group select {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #d4c9bc;
+            border-radius: 4px;
+            font-size: 13px;
+        }
+
+        .btn-filter {
+            align-self: flex-end;
+            padding: 8px 16px;
+            background: #3a7260;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .btn-filter:hover {
+            background: #2f5f4f;
+        }
+
+        .table-container {
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        thead {
+            background: #f0ebe3;
+            border-bottom: 2px solid #d4c9bc;
+        }
+
+        th {
+            padding: 15px;
+            text-align: left;
+            font-weight: 600;
+            font-size: 13px;
+            color: #2c1a0e;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        td {
+            padding: 15px;
+            border-bottom: 1px solid #e0e0e0;
+            font-size: 13px;
+            color: #5c4a38;
+        }
+
+        tbody tr:hover {
+            background: #fafafa;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 600;
+        }
+
+        .badge-success {
+            background: #d1fae5;
+            color: #065f46;
+        }
+
+        .badge-pending {
+            background: #fef3c7;
+            color: #92400e;
+        }
+
+        .photo-link {
+            color: #3a7260;
+            text-decoration: none;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        .photo-link:hover {
+            text-decoration: underline;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #7a6b5d;
+        }
+
+        .empty-state-icon {
+            font-size: 48px;
+            margin-bottom: 15px;
+        }
+
+        .empty-state p {
+            font-size: 14px;
+        }
+
+        .export-btn {
+            padding: 10px 20px;
+            background: #dd6c4a;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 13px;
+            transition: all 0.3s ease;
+        }
+
+        .export-btn:hover {
+            background: #c45535;
+        }
+
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        }
+
+        .stat-label {
+            font-size: 12px;
+            color: #7a6b5d;
+            text-transform: uppercase;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        .stat-value {
+            font-size: 28px;
+            font-weight: 700;
+            color: #3a7260;
+        }
+
+        @media (max-width: 768px) {
+            body {
+                padding-top: 90px;
+            }
+
+            .page-header {
+                flex-direction: column;
+                gap: 15px;
+                align-items: flex-start;
+            }
+
+            .filters {
+                grid-template-columns: 1fr;
+            }
+
+            table {
+                font-size: 12px;
+            }
+
+            th, td {
+                padding: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<header>
+    <div class="header-title">Daily Drive Update - Dashboard</div>
+    <div class="header-actions">
+        <button class="btn-logout" onclick="logout()">Logout</button>
+    </div>
+</header>
+
+<div class="container">
+    <div class="page-header">
+        <h1>All Submissions</h1>
+        <a href="daily-drive-update.html" class="btn-new">+ New Check-in</a>
+    </div>
+
+    <!-- Stats -->
+    <div class="stats">
+        <div class="stat-card">
+            <div class="stat-label">Total Submissions</div>
+            <div class="stat-value" id="totalSubmissions">0</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-label">Total Children Taught</div>
+            <div class="stat-value" id="totalChildren">0</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-label">Average Class Duration</div>
+            <div class="stat-value" id="avgDuration">--</div>
+        </div>
+    </div>
+
+    <!-- Filters -->
+    <div class="filters">
+        <div class="filter-group">
+            <label>From Date</label>
+            <input type="date" id="filterFromDate">
+        </div>
+        <div class="filter-group">
+            <label>To Date</label>
+            <input type="date" id="filterToDate">
+        </div>
+        <button class="btn-filter" onclick="applyFilters()">Filter</button>
+        <button class="export-btn" onclick="exportToCSV()" style="margin-left: auto; align-self: flex-end;">📥 Export CSV</button>
+    </div>
+
+    <!-- Table -->
+    <div class="table-container">
+        <table id="submissionsTable">
+            <thead>
+                <tr>
+                    <th>Date</th>
+                    <th>Submitted By</th>
+                    <th>Children</th>
+                    <th>Classes</th>
+                    <th>Teachers</th>
+                    <th>Timing</th>
+                    <th>Activities</th>
+                    <th>Visitors</th>
+                    <th>Photo</th>
+                </tr>
+            </thead>
+            <tbody id="tableBody">
+                <tr>
+                    <td colspan="9" style="text-align: center; padding: 40px;">
+                        <div class="empty-state">
+                            <div class="empty-state-icon">📋</div>
+                            <p>No submissions yet. Create your first check-in!</p>
+                        </div>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<script>
+    function initializeDashboard() {
+        const userEmail = localStorage.getItem('userEmail');
+        if (!userEmail) {
+            window.location.href = 'login.html';
+            return;
+        }
+
+        // Load sample data (in real implementation, fetch from Google Sheet)
+        loadSampleData();
+    }
+
+    function loadSampleData() {
+        const sampleData = [
+            {
+                date: '2026-05-21',
+                submitter: 'demo@jaiti.in',
+                children: 25,
+                classes: 3,
+                teachers: 'Rahul, Priya',
+                timing: '5:00 PM - 7:00 PM',
+                activities: 'Math lesson, Drawing, Games',
+                visitors: 2,
+                visitorNames: 'John, Sarah',
+                photo: '[View Photo]'
+            },
+            {
+                date: '2026-05-20',
+                submitter: 'demo@jaiti.in',
+                children: 30,
+                classes: 4,
+                teachers: 'Amit, Priya, Rahul',
+                timing: '4:00 PM - 6:30 PM',
+                activities: 'Science experiment, Discussion, Craft',
+                visitors: 1,
+                visitorNames: 'Mike',
+                photo: '[View Photo]'
+            }
+        ];
+
+        renderTable(sampleData);
+        updateStats(sampleData);
+    }
+
+    function renderTable(data) {
+        const tbody = document.getElementById('tableBody');
+        if (data.length === 0) {
+            tbody.innerHTML = `<tr><td colspan="9" style="text-align: center; padding: 40px;"><div class="empty-state"><div class="empty-state-icon">📋</div><p>No submissions found.</p></div></td></tr>`;
+            return;
+        }
+
+        tbody.innerHTML = data.map(row => `
+            <tr>
+                <td>${row.date}</td>
+                <td>${row.submitter}</td>
+                <td><strong>${row.children}</strong></td>
+                <td>${row.classes}</td>
+                <td>${row.teachers}</td>
+                <td>${row.timing}</td>
+                <td>${row.activities}</td>
+                <td>${row.visitors}</td>
+                <td><a href="#" class="photo-link">${row.photo}</a></td>
+            </tr>
+        `).join('');
+    }
+
+    function updateStats(data) {
+        document.getElementById('totalSubmissions').textContent = data.length;
+        
+        const totalChildren = data.reduce((sum, row) => sum + parseInt(row.children || 0), 0);
+        document.getElementById('totalChildren').textContent = totalChildren;
+
+        const avgDuration = data.length > 0 ? '2h 30m' : '--';
+        document.getElementById('avgDuration').textContent = avgDuration;
+    }
+
+    function applyFilters() {
+        const fromDate = document.getElementById('filterFromDate').value;
+        const toDate = document.getElementById('filterToDate').value;
+        
+        console.log('Filtering from', fromDate, 'to', toDate);
+        // In real implementation, filter the data
+    }
+
+    function exportToCSV() {
+        const table = document.getElementById('submissionsTable');
+        let csv = [];
+        
+        // Get headers
+        const headers = Array.from(table.querySelectorAll('th')).map(th => th.textContent);
+        csv.push(headers.join(','));
+        
+        // Get rows
+        Array.from(table.querySelectorAll('tbody tr')).forEach(tr => {
+            if (tr.querySelector('td').colSpan !== '9') {
+                const cells = Array.from(tr.querySelectorAll('td')).map(td => `"${td.textContent}"`);
+                csv.push(cells.join(','));
+            }
+        });
+        
+        // Download
+        const csvContent = csv.join('\n');
+        const blob = new Blob([csvContent], { type: 'text/csv' });
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'daily-drive-update-' + new Date().toISOString().split('T')[0] + '.csv';
+        a.click();
+    }
+
+    function logout() {
+        localStorage.removeItem('userEmail');
+        localStorage.removeItem('userName');
+        localStorage.removeItem('userStatus');
+        window.location.href = 'login.html';
+    }
+
+    initializeDashboard();
+</script>
+
+</body>
+</html>
