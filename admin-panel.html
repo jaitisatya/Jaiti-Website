@@ -299,6 +299,163 @@
             color: #047857;
         }
 
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+        }
+
+        .modal.show {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-content {
+            background-color: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            max-width: 400px;
+            width: 90%;
+        }
+
+        .modal-header {
+            font-size: 20px;
+            font-weight: 700;
+            color: #2c1a0e;
+            margin-bottom: 20px;
+        }
+
+        .modal-close {
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+            color: #7a6b5d;
+            cursor: pointer;
+            line-height: 1;
+        }
+
+        .modal-close:hover {
+            color: #2c1a0e;
+        }
+
+        .form-group-modal {
+            margin-bottom: 15px;
+        }
+
+        .form-group-modal label {
+            display: block;
+            margin-bottom: 5px;
+            color: #2c1a0e;
+            font-weight: 600;
+            font-size: 13px;
+        }
+
+        .form-group-modal input {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #d4c9bc;
+            border-radius: 6px;
+            font-size: 13px;
+            font-family: inherit;
+        }
+
+        .form-group-modal input:focus {
+            outline: none;
+            border-color: #3a7260;
+            box-shadow: 0 0 0 3px rgba(58, 114, 96, 0.1);
+        }
+
+        .modal-error {
+            background: #fee2e2;
+            border: 1px solid #ef4444;
+            color: #7f1d1d;
+            padding: 10px;
+            border-radius: 6px;
+            margin-bottom: 15px;
+            font-size: 13px;
+            display: none;
+        }
+
+        .modal-error.show {
+            display: block;
+        }
+
+        .modal-success {
+            background: #d1fae5;
+            border: 1px solid #10b981;
+            color: #065f46;
+            padding: 10px;
+            border-radius: 6px;
+            margin-bottom: 15px;
+            font-size: 13px;
+            display: none;
+        }
+
+        .modal-success.show {
+            display: block;
+        }
+
+        .modal-buttons {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .btn-save {
+            flex: 1;
+            padding: 10px;
+            background: #3a7260;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .btn-save:hover {
+            background: #2f5f4f;
+        }
+
+        .btn-cancel {
+            flex: 1;
+            padding: 10px;
+            background: #f0ebe3;
+            color: #7a6b5d;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .btn-cancel:hover {
+            background: #e8e2da;
+        }
+
+        .btn-change-password {
+            padding: 8px 16px;
+            background: #dd6c4a;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 13px;
+            color: white;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .btn-change-password:hover {
+            background: #c45535;
+        }
+
         @media (max-width: 768px) {
             body {
                 padding-top: 90px;
@@ -330,6 +487,8 @@
     <div class="header-title">Admin Panel - Daily Drive Update</div>
     <div class="header-actions">
         <div class="user-role">👤 Admin</div>
+        <button class="btn-change-password" onclick="openPasswordModal()">🔐 Change Password</button>
+        <button class="btn-change-password" onclick="resetAllData()" style="background: #ef4444;">🔄 Reset Data</button>
         <button class="btn-logout" onclick="logout()">Logout</button>
     </div>
 </header>
@@ -379,6 +538,39 @@
     </div>
 </div>
 
+<!-- Password Change Modal -->
+<div id="passwordModal" class="modal">
+    <div class="modal-content">
+        <span class="modal-close" onclick="closePasswordModal()">&times;</span>
+        <div class="modal-header">🔐 Change Password</div>
+        
+        <div class="modal-error" id="passwordError"></div>
+        <div class="modal-success" id="passwordSuccess">✓ Password changed successfully!</div>
+        
+        <form id="changePasswordForm" onsubmit="handlePasswordChange(event)">
+            <div class="form-group-modal">
+                <label for="currentPassword">Current Password</label>
+                <input type="password" id="currentPassword" required placeholder="Enter current password">
+            </div>
+            
+            <div class="form-group-modal">
+                <label for="newPassword">New Password</label>
+                <input type="password" id="newPassword" required placeholder="Enter new password (min 8 characters)">
+            </div>
+            
+            <div class="form-group-modal">
+                <label for="confirmPassword">Confirm New Password</label>
+                <input type="password" id="confirmPassword" required placeholder="Confirm new password">
+            </div>
+            
+            <div class="modal-buttons">
+                <button type="submit" class="btn-save">✓ Save Password</button>
+                <button type="button" class="btn-cancel" onclick="closePasswordModal()">Cancel</button>
+            </div>
+        </form>
+    </div>
+</div>
+
 <script>
     function initializeAdmin() {
         const userEmail = localStorage.getItem('userEmail');
@@ -393,43 +585,34 @@
     }
 
     function loadAdminData() {
-        // Sample pending users
-        const pendingUsers = [
-            {
-                name: 'John Doe',
-                email: 'john@jaiti.in',
-                phone: '9876543210',
-                signupDate: '2026-05-20',
-                organization: 'Jaiti School Branch A'
-            },
-            {
-                name: 'Sarah Kumar',
-                email: 'sarah@jaiti.in',
-                phone: '9876543211',
-                signupDate: '2026-05-21',
-                organization: 'Jaiti School Branch B'
-            }
-        ];
-
-        // Sample approved users
-        const approvedUsers = [
-            {
-                name: 'Demo User',
-                email: 'demo@jaiti.in',
-                phone: '9876543212',
-                approvalDate: '2026-05-15',
-                organization: 'Jaiti Foundation',
-                submissions: 5
-            },
-            {
-                name: 'Priya Singh',
-                email: 'priya@jaiti.in',
-                phone: '9876543213',
-                approvalDate: '2026-05-10',
-                organization: 'Jaiti School Branch C',
-                submissions: 8
-            }
-        ];
+        // Load pending users from localStorage
+        const pendingUsers = JSON.parse(localStorage.getItem('pendingUsers') || '[]');
+        
+        // Load approved users from localStorage
+        let approvedUsers = JSON.parse(localStorage.getItem('approvedUsers') || '[]');
+        
+        // If no approved users, add demo user
+        if (approvedUsers.length === 0) {
+            approvedUsers = [
+                {
+                    name: 'Demo User',
+                    email: 'demo@jaiti.in',
+                    phone: '9876543212',
+                    approvalDate: '2026-05-15',
+                    organization: 'Jaiti Foundation',
+                    submissions: 5
+                },
+                {
+                    name: 'Priya Singh',
+                    email: 'priya@jaiti.in',
+                    phone: '9876543213',
+                    approvalDate: '2026-05-10',
+                    organization: 'Jaiti School Branch C',
+                    submissions: 8
+                }
+            ];
+            localStorage.setItem('approvedUsers', JSON.stringify(approvedUsers));
+        }
 
         // Sample submissions
         const submissions = [
@@ -555,19 +738,43 @@
     }
 
     function approveUser(email, index) {
-        alert(`User ${email} has been approved!`);
-        // In real implementation, this would call Google Apps Script
+        // Move from pending to approved
+        const pendingUsers = JSON.parse(localStorage.getItem('pendingUsers') || '[]');
+        let approvedUsers = JSON.parse(localStorage.getItem('approvedUsers') || '[]');
+        
+        const userToApprove = pendingUsers.find(u => u.email === email);
+        if (userToApprove) {
+            userToApprove.approvalDate = new Date().toISOString().split('T')[0];
+            userToApprove.submissions = 0;
+            
+            approvedUsers.push(userToApprove);
+            const updatedPending = pendingUsers.filter(u => u.email !== email);
+            
+            localStorage.setItem('pendingUsers', JSON.stringify(updatedPending));
+            localStorage.setItem('approvedUsers', JSON.stringify(approvedUsers));
+            
+            alert(`✓ User ${email} has been approved!`);
+            location.reload();
+        }
     }
 
     function rejectUser(email, index) {
-        alert(`User ${email} has been rejected!`);
-        // In real implementation, this would call Google Apps Script
+        const pendingUsers = JSON.parse(localStorage.getItem('pendingUsers') || '[]');
+        const updatedPending = pendingUsers.filter(u => u.email !== email);
+        localStorage.setItem('pendingUsers', JSON.stringify(updatedPending));
+        
+        alert(`✗ User ${email} has been rejected!`);
+        location.reload();
     }
 
     function removeUser(email, index) {
         if (confirm(`Remove access for ${email}?`)) {
-            alert(`Access removed for ${email}`);
-            // In real implementation, this would call Google Apps Script
+            let approvedUsers = JSON.parse(localStorage.getItem('approvedUsers') || '[]');
+            const updatedApproved = approvedUsers.filter(u => u.email !== email);
+            localStorage.setItem('approvedUsers', JSON.stringify(updatedApproved));
+            
+            alert(`✗ Access removed for ${email}`);
+            location.reload();
         }
     }
 
@@ -577,6 +784,83 @@
         localStorage.removeItem('userRole');
         localStorage.removeItem('userStatus');
         window.location.href = 'login.html';
+    }
+
+    // Password Change Functions
+    function openPasswordModal() {
+        document.getElementById('passwordModal').classList.add('show');
+        document.getElementById('passwordError').classList.remove('show');
+        document.getElementById('passwordSuccess').classList.remove('show');
+        document.getElementById('changePasswordForm').reset();
+    }
+
+    function closePasswordModal() {
+        document.getElementById('passwordModal').classList.remove('show');
+        document.getElementById('changePasswordForm').reset();
+    }
+
+    function handlePasswordChange(event) {
+        event.preventDefault();
+        
+        const currentPassword = document.getElementById('currentPassword').value;
+        const newPassword = document.getElementById('newPassword').value;
+        const confirmPassword = document.getElementById('confirmPassword').value;
+        const errorEl = document.getElementById('passwordError');
+        const successEl = document.getElementById('passwordSuccess');
+        
+        // Clear previous messages
+        errorEl.classList.remove('show');
+        successEl.classList.remove('show');
+        
+        // Validation
+        const storedAdminPassword = localStorage.getItem('adminPassword') || 'admin1234';
+        
+        if (currentPassword !== storedAdminPassword) {
+            errorEl.textContent = '❌ Current password is incorrect';
+            errorEl.classList.add('show');
+            return;
+        }
+        
+        if (newPassword.length < 8) {
+            errorEl.textContent = '❌ New password must be at least 8 characters';
+            errorEl.classList.add('show');
+            return;
+        }
+        
+        if (newPassword !== confirmPassword) {
+            errorEl.textContent = '❌ Passwords do not match';
+            errorEl.classList.add('show');
+            return;
+        }
+        
+        // Save new password
+        localStorage.setItem('adminPassword', newPassword);
+        successEl.classList.add('show');
+        
+        // Clear form and close after 2 seconds
+        setTimeout(() => {
+            closePasswordModal();
+        }, 2000);
+    }
+
+    // Close modal when clicking outside
+    window.onclick = function(event) {
+        const modal = document.getElementById('passwordModal');
+        if (event.target == modal) {
+            closePasswordModal();
+        }
+    }
+
+    // Reset All Data Function
+    function resetAllData() {
+        if (confirm('⚠️ Are you sure? This will delete ALL pending users, approved users, and submissions!\n\nThis action cannot be undone.')) {
+            if (confirm('🔴 Final confirmation: Delete all data?')) {
+                localStorage.removeItem('pendingUsers');
+                localStorage.removeItem('approvedUsers');
+                alert('✓ All data has been reset! Page will refresh now.');
+                location.reload();
+            }
+        }
     }
 
     initializeAdmin();

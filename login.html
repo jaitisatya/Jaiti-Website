@@ -256,8 +256,8 @@
 
             <div class="info-box" style="margin-top: 20px;">
                 <strong>Demo Credentials:</strong><br>
-                Email: demo@jaiti.in<br>
-                Password: demo1234
+                <span style="color: #3a7260; font-weight: 600;">👤 User:</span> demo@jaiti.in / demo1234<br>
+                <span style="color: #dd6c4a; font-weight: 600;">👨‍💼 Admin:</span> jaitifoundation@gmail.com / admin1234
             </div>
         </form>
     </div>
@@ -282,6 +282,11 @@
                 <label for="signupPhone">Phone Number</label>
                 <input type="tel" id="signupPhone" placeholder="10-digit phone number">
                 <div class="error" id="signupPhoneError"></div>
+            </div>
+
+            <div class="form-group">
+                <label for="signupOrganization">Organization</label>
+                <input type="text" id="signupOrganization" placeholder="Your organization name">
             </div>
 
             <div class="form-group">
@@ -334,11 +339,27 @@
         if (!isValid) return;
 
         // Demo login (for testing)
+        // Admin account
+        if (email === 'jaitifoundation@gmail.com' && password === 'admin1234') {
+            showSuccess('loginSuccess', 'Logged in successfully as Admin!');
+            localStorage.setItem('userEmail', email);
+            localStorage.setItem('userName', 'Admin');
+            localStorage.setItem('userStatus', 'approved');
+            localStorage.setItem('userRole', 'admin');
+            localStorage.setItem('adminPassword', password);
+            setTimeout(() => {
+                window.location.href = 'admin-panel.html';
+            }, 1500);
+            return;
+        }
+
+        // Regular user account
         if (email === 'demo@jaiti.in' && password === 'demo1234') {
             showSuccess('loginSuccess', 'Logged in successfully!');
             localStorage.setItem('userEmail', email);
             localStorage.setItem('userName', 'Demo User');
             localStorage.setItem('userStatus', 'approved');
+            localStorage.setItem('userRole', 'user');
             setTimeout(() => {
                 window.location.href = 'daily-drive-update.html';
             }, 1500);
@@ -346,7 +367,7 @@
         }
 
         // Real authentication would call Google Apps Script here
-        alert('Demo mode: Use email: demo@jaiti.in, password: demo1234');
+        alert('Demo mode:\nUser: demo@jaiti.in, password: demo1234\nAdmin: jaitifoundation@gmail.com, password: admin1234');
     });
 
     // Signup form
@@ -383,6 +404,24 @@
 
         if (!isValid) return;
 
+        // Save to localStorage (temporary storage for testing)
+        const pendingUsers = JSON.parse(localStorage.getItem('pendingUsers') || '[]');
+        const newUser = {
+            name: name,
+            email: email,
+            phone: phone,
+            signupDate: new Date().toISOString().split('T')[0],
+            organization: document.getElementById('signupOrganization')?.value || 'Not specified',
+            status: 'pending'
+        };
+        
+        // Check if user already exists
+        const exists = pendingUsers.some(u => u.email === email);
+        if (!exists) {
+            pendingUsers.push(newUser);
+            localStorage.setItem('pendingUsers', JSON.stringify(pendingUsers));
+        }
+
         // Would call Google Apps Script here in real implementation
         showSuccess('signupSuccess', 'Sign up successful! Waiting for admin approval...');
         document.getElementById('signupForm').reset();
@@ -410,7 +449,7 @@
     }
 
     // Clear error on input
-    ['loginEmail', 'loginPassword', 'signupName', 'signupEmail', 'signupPhone', 'signupPassword', 'signupConfirmPassword'].forEach(id => {
+    ['loginEmail', 'loginPassword', 'signupName', 'signupEmail', 'signupPhone', 'signupOrganization', 'signupPassword', 'signupConfirmPassword'].forEach(id => {
         document.getElementById(id)?.addEventListener('focus', function() {
             clearError(id + 'Error');
         });
