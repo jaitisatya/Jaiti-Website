@@ -304,11 +304,11 @@ document.addEventListener('DOMContentLoaded', function () {
         }
 
         function updateButtons() {
-            const max = items.length - getVisibleCount();
-            prevBtn.style.opacity      = current <= 0   ? '0.4' : '1';
-            nextBtn.style.opacity      = current >= max ? '0.4' : '1';
-            prevBtn.style.pointerEvents = current <= 0   ? 'none' : 'auto';
-            nextBtn.style.pointerEvents = current >= max ? 'none' : 'auto';
+            // Buttons always enabled for infinite loop
+            prevBtn.style.opacity = '1';
+            nextBtn.style.opacity = '1';
+            prevBtn.style.pointerEvents = 'auto';
+            nextBtn.style.pointerEvents = 'auto';
         }
 
         function goTo(index) {
@@ -316,7 +316,14 @@ document.addEventListener('DOMContentLoaded', function () {
             isTransitioning = true;
 
             const max = items.length - getVisibleCount();
-            current = Math.max(0, Math.min(index, max));
+            // Enable infinite looping
+            if (index < 0) {
+                current = max;
+            } else if (index > max) {
+                current = 0;
+            } else {
+                current = index;
+            }
 
 
             let itemWidth;
@@ -332,12 +339,20 @@ document.addEventListener('DOMContentLoaded', function () {
             track.style.transform  = `translateX(-${current * itemWidth}px)`;
 
             updateDots();
-            updateButtons();
+            updateButtonsForInfiniteLoop();
             setTimeout(() => { isTransitioning = false; }, 400);
         }
 
         prevBtn.addEventListener('click', () => goTo(current - 1));
         nextBtn.addEventListener('click', () => goTo(current + 1));
+        
+        // Update button visibility for infinite loop
+        function updateButtonsForInfiniteLoop() {
+            prevBtn.style.opacity = '1';
+            nextBtn.style.opacity = '1';
+            prevBtn.style.pointerEvents = 'auto';
+            nextBtn.style.pointerEvents = 'auto';
+        }
 
         let touchStartX = 0;
         track.addEventListener('touchstart', (e) => {
@@ -353,7 +368,7 @@ document.addEventListener('DOMContentLoaded', function () {
             goTo(current);
         }, 250));
 
-        updateButtons();
+        updateButtonsForInfiniteLoop();
     }
 
     initCarousel('purposeTrack', 'purposeDots');

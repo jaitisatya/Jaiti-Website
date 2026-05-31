@@ -264,6 +264,8 @@ p {
     padding: 0.75rem 0;
     position: relative;
     transition: var(--transition);
+    display: block;
+    width: 100%;
 }
 
 .nav-links a::after {
@@ -1102,7 +1104,8 @@ p {
         display: none; 
         position: fixed; 
         top: 70px; 
-        right: 1rem; 
+        left: 50%; 
+        transform: translateX(-50%); 
         flex-direction: column; 
         background: var(--white); 
         padding: 1.5rem; 
@@ -1113,6 +1116,8 @@ p {
         max-width: 300px; 
         z-index: 999;
         animation: slideDown 0.3s ease-out;
+        align-items: center;
+        text-align: center;
     }
     .nav-links.active { display: flex; animation: slideDown 0.3s ease-out; }
     
