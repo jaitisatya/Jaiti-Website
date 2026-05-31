@@ -48,7 +48,7 @@ function getUsersSheet() {
 }
 
 function getPhotosFolder() {
-  const folderName = 'Jaiti_Daily_Drive_Photos';
+  const folderName = 'Daily Drive Update';
   const folders = DriveApp.getFoldersByName(folderName);
   if (folders.hasNext()) {
     return folders.next();

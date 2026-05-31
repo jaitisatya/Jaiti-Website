@@ -79,10 +79,8 @@
             font-size: 14px;
             font-weight: 600;
             color: #7a6b5d;
-            border-bottom: 2px solid transparent;
+            border-bottom: 3px solid transparent;
             transition: all 0.3s ease;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
         }
 
         .tab-btn.active {
@@ -104,23 +102,23 @@
 
         label {
             display: block;
-            margin-bottom: 8px;
-            color: #2c1a0e;
+            font-size: 13px;
             font-weight: 600;
-            font-size: 14px;
+            color: #2c1a0e;
+            margin-bottom: 8px;
         }
 
-        input, textarea {
+        input, select {
             width: 100%;
             padding: 12px;
-            border: 1px solid #d4c9bc;
+            border: 1px solid #e0e0e0;
             border-radius: 6px;
-            font-family: inherit;
             font-size: 14px;
-            transition: border-color 0.3s ease;
+            font-family: inherit;
+            transition: all 0.3s ease;
         }
 
-        input:focus, textarea:focus {
+        input:focus, select:focus {
             outline: none;
             border-color: #3a7260;
             box-shadow: 0 0 0 3px rgba(58, 114, 96, 0.1);
@@ -129,33 +127,33 @@
         .btn {
             width: 100%;
             padding: 12px;
-            background: linear-gradient(135deg, #2f5f4f 0%, #3a7260 100%);
+            background: #3a7260;
             color: white;
             border: none;
             border-radius: 6px;
+            font-size: 14px;
             font-weight: 600;
             cursor: pointer;
             transition: all 0.3s ease;
-            font-size: 16px;
             margin-top: 10px;
         }
 
-        .btn:hover {
+        .btn:hover:not(:disabled) {
+            background: #2f5f4f;
             transform: translateY(-2px);
-            box-shadow: 0 10px 25px rgba(58, 114, 96, 0.3);
+            box-shadow: 0 8px 16px rgba(58, 114, 96, 0.2);
         }
 
         .btn:disabled {
             opacity: 0.6;
             cursor: not-allowed;
-            transform: none;
         }
 
         .error {
-            color: #ef4444;
-            font-size: 13px;
-            margin-top: 5px;
             display: none;
+            color: #dc2626;
+            font-size: 12px;
+            margin-top: 4px;
         }
 
         .error.show {
@@ -163,13 +161,10 @@
         }
 
         .success {
-            background: #f0fdf4;
-            border: 1px solid #10b981;
-            color: #047857;
-            padding: 12px;
-            border-radius: 6px;
-            margin-bottom: 15px;
             display: none;
+            color: #16a34a;
+            font-size: 12px;
+            margin-top: 4px;
         }
 
         .success.show {
@@ -177,43 +172,23 @@
         }
 
         .info-box {
-            background: #f0f9ff;
-            border-left: 4px solid #3a7260;
+            background: #fef3c7;
+            border-left: 4px solid #f59e0b;
             padding: 12px;
             border-radius: 4px;
-            margin-top: 15px;
-            font-size: 13px;
-            color: #0c5460;
-            line-height: 1.6;
-        }
-
-        .status-badge {
-            display: inline-block;
-            padding: 4px 12px;
-            border-radius: 20px;
             font-size: 12px;
-            font-weight: 600;
-            margin-top: 10px;
-        }
-
-        .badge-pending {
-            background: #fef3c7;
             color: #92400e;
+            margin-top: 15px;
         }
 
-        .badge-approved {
-            background: #d1fae5;
-            color: #065f46;
-        }
-
-        .badge-rejected {
-            background: #fee2e2;
-            color: #7f1d1d;
+        .info-box strong {
+            display: block;
+            margin-bottom: 4px;
         }
 
         @media (max-width: 480px) {
             .container {
-                padding: 25px;
+                padding: 30px 20px;
             }
 
             .header h1 {
@@ -228,78 +203,78 @@
     <div class="header">
         <div class="logo">J</div>
         <h1>Daily Drive Update</h1>
-        <p>Jaiti Foundation - Track Teaching Sessions</p>
+        <p>Jaiti Foundation</p>
     </div>
 
     <div class="tabs">
-        <button class="tab-btn active" onclick="switchTab('login')">Login</button>
+        <button class="tab-btn active" onclick="switchTab('login')">Sign In</button>
         <button class="tab-btn" onclick="switchTab('signup')">Sign Up</button>
     </div>
 
-    <!-- LOGIN TAB -->
+    <!-- Login Tab -->
     <div id="login" class="tab-content active">
-        <div class="success" id="loginSuccess">✓ Logged in successfully! Redirecting...</div>
         <form id="loginForm">
             <div class="form-group">
                 <label for="loginEmail">Email Address</label>
-                <input type="email" id="loginEmail" required placeholder="your@email.com">
+                <input type="email" id="loginEmail" placeholder="your@email.com" required>
                 <div class="error" id="loginEmailError"></div>
             </div>
 
             <div class="form-group">
                 <label for="loginPassword">Password</label>
-                <input type="password" id="loginPassword" required placeholder="Enter your password">
+                <input type="password" id="loginPassword" placeholder="••••••••" required>
                 <div class="error" id="loginPasswordError"></div>
             </div>
 
-            <button type="submit" class="btn">Login</button>
+            <div class="success" id="loginSuccess"></div>
 
-            <div class="info-box" style="margin-top: 20px;">
-                <strong>Demo Credentials:</strong><br>
-                <span style="color: #3a7260; font-weight: 600;">👤 User:</span> demo@jaiti.in / demo1234<br>
-                <span style="color: #dd6c4a; font-weight: 600;">👨‍💼 Admin:</span> jaitifoundation@gmail.com / admin1234
+            <button type="submit" class="btn">Sign In</button>
+
+            <div class="info-box">
+                <strong>Note:</strong> Only approved users can sign in. If your account is pending approval, please wait for admin confirmation.
             </div>
         </form>
     </div>
 
-    <!-- SIGNUP TAB -->
+    <!-- Signup Tab -->
     <div id="signup" class="tab-content">
-        <div class="success" id="signupSuccess">✓ Sign up successful! Waiting for admin approval...</div>
         <form id="signupForm">
             <div class="form-group">
                 <label for="signupName">Full Name</label>
-                <input type="text" id="signupName" required placeholder="Your full name">
+                <input type="text" id="signupName" placeholder="Your full name" required>
                 <div class="error" id="signupNameError"></div>
             </div>
 
             <div class="form-group">
                 <label for="signupEmail">Email Address</label>
-                <input type="email" id="signupEmail" required placeholder="your@email.com">
+                <input type="email" id="signupEmail" placeholder="your@email.com" required>
                 <div class="error" id="signupEmailError"></div>
             </div>
 
             <div class="form-group">
                 <label for="signupPhone">Phone Number</label>
-                <input type="tel" id="signupPhone" placeholder="10-digit phone number">
+                <input type="tel" id="signupPhone" placeholder="10-digit number" required>
                 <div class="error" id="signupPhoneError"></div>
             </div>
 
             <div class="form-group">
-                <label for="signupOrganization">Organization</label>
-                <input type="text" id="signupOrganization" placeholder="Your organization name">
+                <label for="signupOrganization">Organization/Role (Optional)</label>
+                <input type="text" id="signupOrganization" placeholder="e.g., Teacher, Volunteer">
             </div>
 
             <div class="form-group">
                 <label for="signupPassword">Password</label>
-                <input type="password" id="signupPassword" required placeholder="Minimum 8 characters">
+                <input type="password" id="signupPassword" placeholder="Min 8 characters" required>
                 <div class="error" id="signupPasswordError"></div>
             </div>
 
             <div class="form-group">
                 <label for="signupConfirmPassword">Confirm Password</label>
-                <input type="password" id="signupConfirmPassword" required placeholder="Confirm password">
+                <input type="password" id="signupConfirmPassword" placeholder="Confirm password" required>
                 <div class="error" id="signupConfirmPasswordError"></div>
             </div>
+
+            <div class="success" id="signupSuccess"></div>
 
             <button type="submit" class="btn">Sign Up</button>
 
@@ -311,6 +286,9 @@
 </div>
 
 <script>
+    // Configuration - Replace with your actual Google Apps Script URL
+    const APPS_SCRIPT_URL = 'https://script.google.com/macros/d/YOUR_SCRIPT_ID/usercallback';
+
     // Tab switching
     function switchTab(tabName) {
         document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
@@ -324,6 +302,7 @@
         e.preventDefault();
         const email = document.getElementById('loginEmail').value;
         const password = document.getElementById('loginPassword').value;
+        const button = this.querySelector('button[type="submit"]');
 
         // Validate
         let isValid = true;
@@ -338,36 +317,48 @@
 
         if (!isValid) return;
 
-        // Demo login (for testing)
-        // Admin account
-        if (email === 'jaitifoundation@gmail.com' && password === 'admin1234') {
-            showSuccess('loginSuccess', 'Logged in successfully as Admin!');
-            localStorage.setItem('userEmail', email);
-            localStorage.setItem('userName', 'Admin');
-            localStorage.setItem('userStatus', 'approved');
-            localStorage.setItem('userRole', 'admin');
-            localStorage.setItem('adminPassword', password);
-            setTimeout(() => {
-                window.location.href = 'admin-panel.html';
-            }, 1500);
-            return;
-        }
+        // Disable button and show loading state
+        button.disabled = true;
+        button.textContent = 'Signing in...';
 
-        // Regular user account
-        if (email === 'demo@jaiti.in' && password === 'demo1234') {
-            showSuccess('loginSuccess', 'Logged in successfully!');
-            localStorage.setItem('userEmail', email);
-            localStorage.setItem('userName', 'Demo User');
-            localStorage.setItem('userStatus', 'approved');
-            localStorage.setItem('userRole', 'user');
-            setTimeout(() => {
-                window.location.href = 'daily-drive-update.html';
-            }, 1500);
-            return;
-        }
+        // Call Google Apps Script for authentication
+        fetch(APPS_SCRIPT_URL + '?action=login', {
+            method: 'POST',
+            body: JSON.stringify({
+                email: email,
+                password: password
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            button.disabled = false;
+            button.textContent = 'Sign In';
 
-        // Real authentication would call Google Apps Script here
-        alert('Demo mode:\nUser: demo@jaiti.in, password: demo1234\nAdmin: jaitifoundation@gmail.com, password: admin1234');
+            if (data.success) {
+                showSuccess('loginSuccess', 'Logged in successfully!');
+                localStorage.setItem('userEmail', data.email);
+                localStorage.setItem('userName', data.name);
+                localStorage.setItem('userStatus', data.status);
+                localStorage.setItem('userRole', data.role);
+                localStorage.setItem('sessionToken', data.token);
+                
+                setTimeout(() => {
+                    if (data.role === 'admin') {
+                        window.location.href = 'admin-panel.html';
+                    } else {
+                        window.location.href = 'daily-drive-update.html';
+                    }
+                }, 1500);
+            } else {
+                showError('loginEmailError', data.message || 'Login failed');
+            }
+        })
+        .catch(error => {
+            button.disabled = false;
+            button.textContent = 'Sign In';
+            showError('loginEmailError', 'Network error. Please try again.');
+            console.error('Login error:', error);
+        });
     });
 
     // Signup form
@@ -378,6 +369,7 @@
         const phone = document.getElementById('signupPhone').value;
         const password = document.getElementById('signupPassword').value;
         const confirmPassword = document.getElementById('signupConfirmPassword').value;
+        const button = this.querySelector('button[type="submit"]');
 
         // Validate
         let isValid = true;
@@ -404,28 +396,40 @@
 
         if (!isValid) return;
 
-        // Save to localStorage (temporary storage for testing)
-        const pendingUsers = JSON.parse(localStorage.getItem('pendingUsers') || '[]');
-        const newUser = {
-            name: name,
-            email: email,
-            phone: phone,
-            signupDate: new Date().toISOString().split('T')[0],
-            organization: document.getElementById('signupOrganization')?.value || 'Not specified',
-            status: 'pending'
-        };
-        
-        // Check if user already exists
-        const exists = pendingUsers.some(u => u.email === email);
-        if (!exists) {
-            pendingUsers.push(newUser);
-            localStorage.setItem('pendingUsers', JSON.stringify(pendingUsers));
-        }
+        // Disable button and show loading state
+        button.disabled = true;
+        button.textContent = 'Creating account...';
 
-        // Would call Google Apps Script here in real implementation
-        showSuccess('signupSuccess', 'Sign up successful! Waiting for admin approval...');
-        document.getElementById('signupForm').reset();
-        clearAllErrors();
+        // Call Google Apps Script for signup
+        fetch(APPS_SCRIPT_URL + '?action=signup', {
+            method: 'POST',
+            body: JSON.stringify({
+                name: name,
+                email: email,
+                phone: phone,
+                password: password,
+                organization: document.getElementById('signupOrganization').value || 'Not specified'
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            button.disabled = false;
+            button.textContent = 'Sign Up';
+
+            if (data.success) {
+                showSuccess('signupSuccess', 'Sign up successful! Waiting for admin approval...');
+                document.getElementById('signupForm').reset();
+                clearAllErrors();
+            } else {
+                showError('signupEmailError', data.message || 'Signup failed');
+            }
+        })
+        .catch(error => {
+            button.disabled = false;
+            button.textContent = 'Sign Up';
+            showError('signupEmailError', 'Network error. Please try again.');
+            console.error('Signup error:', error);
+        });
     });
 
     function showError(elementId, message) {

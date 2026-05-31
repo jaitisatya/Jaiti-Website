@@ -432,8 +432,25 @@
     }
 
     function checkDailySubmission(date) {
-        // This would check Google Sheet for existing submission
-        // For now, just allow submission
+        // Check if user has already submitted today
+        const APPS_SCRIPT_URL = 'https://script.google.com/macros/d/YOUR_SCRIPT_ID/usercallback';
+        const userEmail = localStorage.getItem('userEmail');
+        
+        fetch(APPS_SCRIPT_URL + '?action=checkDailySubmission', {
+            method: 'POST',
+            body: JSON.stringify({
+                email: userEmail,
+                date: date
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.hasSubmitted) {
+                document.getElementById('submitBtn').textContent = 'Update Submission';
+                showAlert('You have already submitted today. You can update your submission until midnight.', 'info');
+            }
+        })
+        .catch(error => console.error('Error checking submission:', error));
     }
 
     // Photo upload handling
@@ -550,6 +567,7 @@
     // Form submission
     document.getElementById('driveUpdateForm').addEventListener('submit', function(e) {
         e.preventDefault();
+        const APPS_SCRIPT_URL = 'https://script.google.com/macros/d/YOUR_SCRIPT_ID/usercallback';
 
         // Validation
         let isValid = true;
@@ -558,6 +576,7 @@
         const teachers = document.getElementById('teachersInput').value;
         const timing = document.getElementById('timingInput').value;
         const activities = document.getElementById('activitiesInput').value;
+        const photoInput = document.getElementById('photoInput');
 
         if (!childrenCount || childrenCount < 0) {
             showFieldError('childrenCountError', 'Please enter number of children');
@@ -579,25 +598,60 @@
             showFieldError('activitiesInputError', 'Please enter activities');
             isValid = false;
         }
+        if (!photoInput.files.length) {
+            showAlert('Please upload a photo', 'error');
+            isValid = false;
+        }
 
         if (!isValid) return;
 
-        // Submit form
-        showAlert('Form submitted successfully! Your data will be saved.', 'success');
-        document.getElementById('submitBtn').disabled = true;
+        // Disable button and show loading state
+        const submitBtn = document.getElementById('submitBtn');
+        submitBtn.disabled = true;
+        submitBtn.textContent = 'Submitting...';
 
-        // In real implementation, this would call Google Apps Script
-        console.log('Form data to be submitted:', {
+        // Prepare form data
+        const formData = new FormData();
+        formData.append('action', 'submitForm');
+        formData.append('data', JSON.stringify({
             date: document.getElementById('dateInput').value,
             email: document.getElementById('emailInput').value,
-            childrenCount,
-            classesCount,
-            teachers,
-            timing,
-            activities,
-            visitorCount: document.getElementById('visitorCount').value,
-            visitorNames: document.getElementById('visitorNames').value,
-            visitorContact: document.getElementById('visitorContact').value
+            childrenCount: parseInt(childrenCount),
+            classesCount: parseInt(classesCount),
+            teachers: teachers,
+            timing: timing,
+            activities: activities,
+            visitorCount: document.getElementById('visitorCount').value || 0,
+            visitorNames: document.getElementById('visitorNames').value || '',
+            visitorContact: document.getElementById('visitorContact').value || ''
+        }));
+        formData.append('photo', photoInput.files[0]);
+
+        // Submit to Google Apps Script
+        fetch(APPS_SCRIPT_URL, {
+            method: 'POST',
+            body: formData
+        })
+        .then(response => response.json())
+        .then(data => {
+            submitBtn.disabled = false;
+            submitBtn.textContent = 'Submit';
+
+            if (data.success) {
+                showAlert('Form submitted successfully! Your data has been saved.', 'success');
+                document.getElementById('driveUpdateForm').reset();
+                const today = new Date().toISOString().split('T')[0];
+                document.getElementById('dateInput').value = today;
+                submitBtn.textContent = 'Update Submission';
+            } else {
+                showAlert(data.message || 'Submission failed. Please try again.', 'error');
+            }
+        })
+        .catch(error => {
+            submitBtn.disabled = false;
+            submitBtn.textContent = 'Submit';
+            showAlert('Network error. Please try again.', 'error');
+            console.error('Submission error:', error);
         });
     });
 
