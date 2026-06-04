@@ -92,7 +92,7 @@ body {
     color: var(--text-primary);
     line-height: 1.6;
     overflow-x: hidden;
-    padding-top: 70px;
+    padding-top: 60px;
     background: var(--white);
 }
 
@@ -220,7 +220,7 @@ p {
     position: fixed;
     top: 0; left: 0; right: 0;
     background: var(--white);
-    padding: 1rem 0;
+    padding: 0.6rem 0;
     z-index: 1000;
     box-shadow: var(--shadow-md);
     transition: all var(--transition);
@@ -1097,13 +1097,13 @@ p {
     }
 
     .section { padding: 60px 0; }
-    .navbar { padding: 1rem 0; }
+    .navbar { padding: 0.6rem 0; }
     .logo img { width: 40px; height: 40px; }
     .logo span { font-size: 1.25rem; }
     .nav-links { 
         display: none; 
         position: fixed; 
-        top: 70px; 
+        top: 60px; 
         left: 50%; 
         transform: translateX(-50%); 
         flex-direction: column; 
