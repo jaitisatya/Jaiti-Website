@@ -120,7 +120,7 @@ h1, h2, h3, h4, h5, h6 {
     color: var(--text-primary);
 }
 
-h1 { font-size: clamp(1.8rem, 4vw, 3rem); margin-bottom: 1rem; }
+h1 { font-size: clamp(1.8rem, 3.5vw, 2.2rem); margin-bottom: 1rem; }
 h2 { font-size: clamp(2rem, 4vw, 3rem); margin-bottom: 1rem; }
 h3 { font-size: clamp(1.5rem, 3vw, 2rem); margin-bottom: 0.75rem; }
 h4 { font-size: 1.25rem; margin-bottom: 0.5rem; }
@@ -360,7 +360,7 @@ p {
     position: relative; z-index: 2;
     max-width: 900px;
     padding: 0 2rem 0 2rem;
-    margin-top: -60px;
+    margin-top: 20px;
     animation: fadeInUp 0.8s ease-out;
 }
 
