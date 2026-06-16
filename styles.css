@@ -705,6 +705,10 @@ p {
     align-items: stretch;
 }
 
+.team-carousel .carousel-track {
+    gap: 1.5rem;
+}
+
 .team-card {
     background: var(--white);
     border-radius: var(--radius-lg);
@@ -739,6 +743,11 @@ p {
     font-size: 1.35rem;
     margin-bottom: 0;
     color: var(--text-primary);
+}
+
+.team-grid.carousel-track > .team-card {
+    flex: 0 0 calc((100% - 4.5rem) / 4);
+    min-width: calc((100% - 4.5rem) / 4);
 }
 
 /* ========== DIFFERENCE SECTION ========== */
@@ -1208,14 +1217,15 @@ p {
         gap: 0 !important;
         width: 100vw !important;
     }
-    .why-grid.carousel-track, .programs-grid.carousel-track {
+    .why-grid.carousel-track, .programs-grid.carousel-track, .team-grid.carousel-track {
         display: flex !important;
         flex-direction: row !important;
         gap: 0 !important;
         width: 100vw !important;
     }
     .why-grid.carousel-track > .why-card,
-    .programs-grid.carousel-track > .program-card {
+    .programs-grid.carousel-track > .program-card,
+    .team-grid.carousel-track > .team-card {
         min-width: 100vw !important;
         max-width: 100vw !important;
         flex-shrink: 0 !important;

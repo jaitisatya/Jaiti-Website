@@ -274,7 +274,7 @@ document.addEventListener('DOMContentLoaded', function () {
     // Hero image carousel removed - using static background image
 
     // ========== CAROUSEL SLIDER (MOBILE OPTIMIZED) ==========
-    function initCarousel(trackId, dotsContainerId) {
+    function initCarousel(trackId, dotsContainerId, desktopVisibleCount = 3) {
         const track = document.getElementById(trackId);
         if (!track) return;
 
@@ -286,19 +286,28 @@ document.addEventListener('DOMContentLoaded', function () {
         let current        = 0;
         let isTransitioning = false;
 
-        items.forEach((_, i) => {
-            const dot = document.createElement('button');
-            dot.className = 'carousel-dot' + (i === 0 ? ' active' : '');
-            dot.setAttribute('aria-label', 'Go to slide ' + (i + 1));
-            dot.addEventListener('click', () => goTo(i));
-            dotsContainer.appendChild(dot);
-        });
-
         function getVisibleCount() {
-            return window.innerWidth <= 768 ? 1 : 3;
+            return window.innerWidth <= 768 ? 1 : desktopVisibleCount;
+        }
+
+        function getMaxIndex() {
+            return Math.max(0, items.length - getVisibleCount());
+        }
+
+        function buildDots() {
+            if (!dotsContainer) return;
+            dotsContainer.innerHTML = '';
+            for (let i = 0; i <= getMaxIndex(); i++) {
+                const dot = document.createElement('button');
+                dot.className = 'carousel-dot' + (i === current ? ' active' : '');
+                dot.setAttribute('aria-label', 'Go to slide ' + (i + 1));
+                dot.addEventListener('click', () => goTo(i));
+                dotsContainer.appendChild(dot);
+            }
         }
 
         function updateDots() {
+            if (!dotsContainer) return;
             dotsContainer.querySelectorAll('.carousel-dot')
                 .forEach((d, i) => d.classList.toggle('active', i === current));
         }
@@ -315,7 +324,7 @@ document.addEventListener('DOMContentLoaded', function () {
             if (isTransitioning) return;
             isTransitioning = true;
 
-            const max = items.length - getVisibleCount();
+            const max = getMaxIndex();
             // Enable infinite looping
             if (index < 0) {
                 current = max;
@@ -364,15 +373,18 @@ document.addEventListener('DOMContentLoaded', function () {
         }, { passive: true });
 
         window.addEventListener('resize', debounce(() => {
-            current = Math.min(current, items.length - getVisibleCount());
+            current = Math.min(current, getMaxIndex());
+            buildDots();
             goTo(current);
         }, 250));
 
+        buildDots();
         updateButtonsForInfiniteLoop();
     }
 
     initCarousel('purposeTrack', 'purposeDots');
     initCarousel('workTrack',    'workDots');
+    initCarousel('teamTrack',    'teamDots', 4);
 
     // ========== CONTACT FORM VALIDATION & SUBMISSION ==========
     const contactForm = document.getElementById('contactForm');
