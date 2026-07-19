@@ -150,8 +150,8 @@ The website automatically adapts to:
 Update these numbers in your HTML files:
 
 **In index.html:**
-- 60+ students currently enrolled
-- 150+ children impacted since 2024
+- 100+ students currently enrolled
+- 200+ children impacted since 2024
 
 **In about.html, programs.html, gallery.html:**
 - Same statistics appear - update all occurrences
