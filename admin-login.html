@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Login | Jaiti Foundation</title>
+    <link rel="icon" href="images/logo.webp">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #1a3d32 0%, #2f5f4f 50%, #3a7260 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 1rem;
+        }
+
+        .login-card {
+            background: #ffffff;
+            border-radius: 20px;
+            padding: 2.5rem 2rem;
+            width: 100%;
+            max-width: 400px;
+            box-shadow: 0 25px 60px rgba(0,0,0,0.3);
+        }
+
+        .logo-section {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .logo-section img {
+            width: 64px;
+            height: 64px;
+            border-radius: 12px;
+            object-fit: cover;
+            margin-bottom: 0.75rem;
+        }
+
+        .logo-section h1 {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.4rem;
+            color: #2f5f4f;
+            margin-bottom: 0.25rem;
+        }
+
+        .logo-section p {
+            font-size: 0.8rem;
+            color: #7a6b5d;
+            background: #f0ebe3;
+            display: inline-block;
+            padding: 3px 10px;
+            border-radius: 20px;
+        }
+
+        .form-group {
+            margin-bottom: 1.25rem;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: #2c1a0e;
+            margin-bottom: 0.4rem;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            border: 2px solid #d4c9bc;
+            border-radius: 10px;
+            font-size: 0.95rem;
+            font-family: 'Inter', sans-serif;
+            color: #2c1a0e;
+            transition: border-color 0.2s;
+            outline: none;
+        }
+
+        .form-group input:focus {
+            border-color: #3a7260;
+            box-shadow: 0 0 0 3px rgba(58,114,96,0.1);
+        }
+
+        .btn-login {
+            width: 100%;
+            padding: 0.85rem;
+            background: linear-gradient(135deg, #2f5f4f, #3a7260);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 1rem;
+            font-weight: 600;
+            font-family: 'Inter', sans-serif;
+            cursor: pointer;
+            transition: all 0.2s;
+            margin-top: 0.5rem;
+        }
+
+        .btn-login:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(47,95,79,0.35);
+        }
+
+        .btn-login:disabled {
+            opacity: 0.7;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .error-msg {
+            display: none;
+            background: #FCEBEB;
+            color: #A32D2D;
+            border: 1px solid #f5c6c6;
+            border-radius: 8px;
+            padding: 0.6rem 1rem;
+            font-size: 0.85rem;
+            margin-bottom: 1rem;
+            text-align: center;
+        }
+
+        .error-msg.show { display: block; }
+
+        .loading {
+            display: none;
+            text-align: center;
+            color: #5c4a38;
+            font-size: 0.85rem;
+            margin-top: 0.75rem;
+        }
+
+        .loading.show { display: block; }
+
+        .footer-note {
+            text-align: center;
+            margin-top: 1.5rem;
+            font-size: 0.75rem;
+            color: #a08878;
+        }
+
+        .spinner {
+            display: inline-block;
+            width: 14px;
+            height: 14px;
+            border: 2px solid #d4c9bc;
+            border-top-color: #3a7260;
+            border-radius: 50%;
+            animation: spin 0.7s linear infinite;
+            margin-right: 6px;
+            vertical-align: middle;
+        }
+
+        @keyframes spin { to { transform: rotate(360deg); } }
+    </style>
+</head>
+<body>
+
+<div class="login-card">
+    <div class="logo-section">
+        <img src="images/logo.webp" alt="Jaiti Foundation" onerror="this.style.display='none'">
+        <h1>Jaiti Foundation</h1>
+        <p>🔐 Admin Portal</p>
+    </div>
+
+    <div class="error-msg" id="errorMsg"></div>
+
+    <div class="form-group">
+        <label for="email">Email Address</label>
+        <input type="email" id="email" placeholder="your@email.com" autocomplete="email">
+    </div>
+
+    <div class="form-group">
+        <label for="password">Password</label>
+        <input type="password" id="password" placeholder="Enter password" autocomplete="current-password">
+    </div>
+
+    <button class="btn-login" id="loginBtn" onclick="handleLogin()">
+        Login to Dashboard
+    </button>
+
+    <div class="loading" id="loadingMsg">
+        <span class="spinner"></span> Logging in...
+    </div>
+
+    <p class="footer-note">Only authorized team members can access this portal.</p>
+</div>
+
+<!-- Firebase -->
+<script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+    import { getAuth, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+
+    const firebaseConfig = {
+        apiKey: "AIzaSyDCBb_tYSVUHHP46zYmspItDcJJPlUfuYk",
+        authDomain: "jaiti-foundation-3b174.firebaseapp.com",
+        projectId: "jaiti-foundation-3b174",
+        storageBucket: "jaiti-foundation-3b174.firebasestorage.app",
+        messagingSenderId: "407186839433",
+        appId: "1:407186839433:web:e39c8a4e6b2dccf35a3358"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+
+    // Check if already logged in
+    auth.onAuthStateChanged((user) => {
+        if (user) {
+            window.location.href = 'admin-dashboard.html';
+        }
+    });
+
+    window.handleLogin = async function() {
+        const email = document.getElementById('email').value.trim();
+        const password = document.getElementById('password').value;
+        const btn = document.getElementById('loginBtn');
+        const errorMsg = document.getElementById('errorMsg');
+        const loadingMsg = document.getElementById('loadingMsg');
+
+        // Validation
+        if (!email || !password) {
+            errorMsg.textContent = 'Please enter both email and password.';
+            errorMsg.classList.add('show');
+            return;
+        }
+
+        // Show loading
+        btn.disabled = true;
+        loadingMsg.classList.add('show');
+        errorMsg.classList.remove('show');
+
+        try {
+            await signInWithEmailAndPassword(auth, email, password);
+            window.location.href = 'admin-dashboard.html';
+        } catch (error) {
+            let msg = 'Login failed. Please try again.';
+            if (error.code === 'auth/invalid-credential' || error.code === 'auth/wrong-password') {
+                msg = 'Incorrect email or password.';
+            } else if (error.code === 'auth/user-not-found') {
+                msg = 'No account found with this email.';
+            } else if (error.code === 'auth/too-many-requests') {
+                msg = 'Too many attempts. Please try again later.';
+            }
+            errorMsg.textContent = msg;
+            errorMsg.classList.add('show');
+            btn.disabled = false;
+            loadingMsg.classList.remove('show');
+        }
+    };
+
+    // Enter key support
+    document.getElementById('password').addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') window.handleLogin();
+    });
+</script>
+
+</body>
+</html>

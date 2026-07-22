@@ -1,0 +1,1158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard | Jaiti Foundation</title>
+    <link rel="icon" href="images/logo.webp">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: #f0ebe3;
+            min-height: 100vh;
+            color: #2c1a0e;
+        }
+
+        /* ── NAVBAR ── */
+        .navbar {
+            background: linear-gradient(135deg, #2f5f4f, #3a7260);
+            padding: 0.75rem 1.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .nav-left {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .nav-left img {
+            width: 36px;
+            height: 36px;
+            border-radius: 8px;
+            object-fit: cover;
+        }
+
+        .nav-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.1rem;
+            color: white;
+        }
+
+        .nav-title span {
+            font-family: 'Inter', sans-serif;
+            font-size: 0.7rem;
+            background: rgba(255,255,255,0.2);
+            padding: 2px 8px;
+            border-radius: 20px;
+            margin-left: 6px;
+            vertical-align: middle;
+        }
+
+        .nav-right {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .user-badge {
+            font-size: 0.8rem;
+            color: rgba(255,255,255,0.85);
+            background: rgba(255,255,255,0.15);
+            padding: 4px 10px;
+            border-radius: 20px;
+        }
+
+        .btn-logout {
+            background: rgba(255,255,255,0.15);
+            color: white;
+            border: 1px solid rgba(255,255,255,0.3);
+            padding: 5px 14px;
+            border-radius: 8px;
+            font-size: 0.8rem;
+            cursor: pointer;
+            font-family: 'Inter', sans-serif;
+            transition: background 0.2s;
+        }
+
+        .btn-logout:hover { background: rgba(255,255,255,0.25); }
+
+        /* ── TABS ── */
+        .tabs {
+            display: flex;
+            gap: 0;
+            background: white;
+            border-bottom: 1px solid #d4c9bc;
+            padding: 0 1.5rem;
+        }
+
+        .tab {
+            padding: 0.85rem 1.25rem;
+            font-size: 0.875rem;
+            font-weight: 500;
+            color: #7a6b5d;
+            cursor: pointer;
+            border-bottom: 3px solid transparent;
+            transition: all 0.2s;
+            white-space: nowrap;
+        }
+
+        .tab.active {
+            color: #2f5f4f;
+            border-bottom-color: #3a7260;
+            font-weight: 600;
+        }
+
+        .tab:hover { color: #3a7260; }
+
+        /* ── MAIN ── */
+        .main {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 1.5rem 1rem;
+        }
+
+        /* ── PANEL ── */
+        .panel { display: none; }
+        .panel.active { display: block; }
+
+        /* ── CARD ── */
+        .card {
+            background: white;
+            border-radius: 16px;
+            padding: 1.5rem;
+            box-shadow: 0 2px 12px rgba(42,30,18,0.08);
+            margin-bottom: 1.25rem;
+        }
+
+        .card-title {
+            font-size: 1rem;
+            font-weight: 600;
+            color: #2f5f4f;
+            margin-bottom: 1.25rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        /* ── FORM ELEMENTS ── */
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        @media (max-width: 600px) {
+            .form-row { grid-template-columns: 1fr; }
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.4rem;
+        }
+
+        .form-group label {
+            font-size: 0.825rem;
+            font-weight: 600;
+            color: #5c4a38;
+        }
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            padding: 0.65rem 0.875rem;
+            border: 2px solid #d4c9bc;
+            border-radius: 10px;
+            font-size: 0.9rem;
+            font-family: 'Inter', sans-serif;
+            color: #2c1a0e;
+            transition: border-color 0.2s;
+            outline: none;
+            background: #fdf9f4;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            border-color: #3a7260;
+            box-shadow: 0 0 0 3px rgba(58,114,96,0.1);
+            background: white;
+        }
+
+        .form-group textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        /* ── ATTENDANCE ── */
+        .attendance-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 0.75rem;
+            margin-bottom: 1rem;
+        }
+
+        @media (max-width: 500px) {
+            .attendance-grid { grid-template-columns: 1fr 1fr; }
+        }
+
+        .att-card {
+            background: #f0ebe3;
+            border-radius: 10px;
+            padding: 0.75rem;
+            text-align: center;
+        }
+
+        .att-card label {
+            font-size: 0.75rem;
+            color: #7a6b5d;
+            display: block;
+            margin-bottom: 0.3rem;
+        }
+
+        .att-card input {
+            width: 100%;
+            padding: 0.5rem;
+            border: 2px solid #d4c9bc;
+            border-radius: 8px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            text-align: center;
+            color: #2f5f4f;
+            background: white;
+            outline: none;
+        }
+
+        .att-card input:focus {
+            border-color: #3a7260;
+        }
+
+        /* ── PHOTO UPLOAD ── */
+        .photo-drop {
+            border: 2px dashed #d4c9bc;
+            border-radius: 12px;
+            padding: 2rem;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s;
+            background: #fdf9f4;
+            position: relative;
+        }
+
+        .photo-drop:hover, .photo-drop.dragover {
+            border-color: #3a7260;
+            background: #e8f2ee;
+        }
+
+        .photo-drop input[type="file"] {
+            position: absolute;
+            inset: 0;
+            opacity: 0;
+            cursor: pointer;
+            width: 100%;
+            height: 100%;
+        }
+
+        .photo-drop-icon { font-size: 2rem; margin-bottom: 0.5rem; }
+        .photo-drop p { font-size: 0.875rem; color: #7a6b5d; }
+        .photo-drop strong { color: #3a7260; }
+
+        /* ── PHOTO PREVIEW ── */
+        .photo-preview-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(90px, 1fr));
+            gap: 0.5rem;
+            margin-top: 0.75rem;
+        }
+
+        .preview-item {
+            position: relative;
+            aspect-ratio: 1;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .preview-item img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .preview-item .remove-btn {
+            position: absolute;
+            top: 3px;
+            right: 3px;
+            width: 20px;
+            height: 20px;
+            background: rgba(163,45,45,0.85);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            font-size: 11px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            line-height: 1;
+        }
+
+        .upload-progress {
+            display: none;
+            margin-top: 0.5rem;
+        }
+
+        .upload-progress.show { display: block; }
+
+        .progress-bar {
+            background: #d4c9bc;
+            border-radius: 10px;
+            height: 6px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #2f5f4f, #3a7260);
+            border-radius: 10px;
+            width: 0%;
+            transition: width 0.3s;
+        }
+
+        .progress-text {
+            font-size: 0.75rem;
+            color: #7a6b5d;
+            margin-top: 4px;
+        }
+
+        /* ── MOOD SELECTOR ── */
+        .mood-row {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+        }
+
+        .mood-btn {
+            padding: 6px 14px;
+            border: 2px solid #d4c9bc;
+            border-radius: 20px;
+            font-size: 0.825rem;
+            cursor: pointer;
+            background: white;
+            transition: all 0.15s;
+            font-family: 'Inter', sans-serif;
+        }
+
+        .mood-btn.selected {
+            border-color: #3a7260;
+            background: #e8f2ee;
+            color: #2f5f4f;
+            font-weight: 600;
+        }
+
+        /* ── SUBMIT BUTTON ── */
+        .btn-save {
+            width: 100%;
+            padding: 0.9rem;
+            background: linear-gradient(135deg, #2f5f4f, #3a7260);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 1rem;
+            font-weight: 600;
+            font-family: 'Inter', sans-serif;
+            cursor: pointer;
+            transition: all 0.2s;
+            margin-top: 0.5rem;
+        }
+
+        .btn-save:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(47,95,79,0.35);
+        }
+
+        .btn-save:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        /* ── SUCCESS / ERROR ── */
+        .alert {
+            display: none;
+            padding: 0.75rem 1rem;
+            border-radius: 10px;
+            font-size: 0.875rem;
+            margin-bottom: 1rem;
+            text-align: center;
+            font-weight: 500;
+        }
+
+        .alert.show { display: block; }
+        .alert.success { background: #EAF3DE; color: #3B6D11; border: 1px solid #c0dd97; }
+        .alert.error { background: #FCEBEB; color: #A32D2D; border: 1px solid #f5c6c6; }
+
+        /* ── ENTRIES LIST ── */
+        .entry-card {
+            background: white;
+            border-radius: 14px;
+            padding: 1.25rem;
+            margin-bottom: 1rem;
+            box-shadow: 0 2px 10px rgba(42,30,18,0.07);
+            border-left: 4px solid #3a7260;
+        }
+
+        .entry-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 0.75rem;
+        }
+
+        .entry-date {
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: #3a7260;
+            background: #e8f2ee;
+            padding: 3px 10px;
+            border-radius: 20px;
+        }
+
+        .entry-mood {
+            font-size: 0.8rem;
+            color: #7a6b5d;
+        }
+
+        .entry-stats {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 0.75rem;
+            flex-wrap: wrap;
+        }
+
+        .entry-stat {
+            font-size: 0.8rem;
+            color: #5c4a38;
+            background: #f0ebe3;
+            padding: 3px 10px;
+            border-radius: 6px;
+        }
+
+        .entry-stat strong { color: #2f5f4f; }
+
+        .entry-notes {
+            font-size: 0.875rem;
+            color: #5c4a38;
+            line-height: 1.6;
+            margin-bottom: 0.75rem;
+        }
+
+        .entry-photos {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+            gap: 0.4rem;
+        }
+
+        .entry-photos img {
+            width: 100%;
+            aspect-ratio: 1;
+            object-fit: cover;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+
+        .entry-photos img:hover { transform: scale(1.05); }
+
+        .entry-delete {
+            background: none;
+            border: 1px solid #d4c9bc;
+            color: #A32D2D;
+            padding: 4px 10px;
+            border-radius: 6px;
+            font-size: 0.75rem;
+            cursor: pointer;
+            font-family: 'Inter', sans-serif;
+            transition: all 0.15s;
+        }
+
+        .entry-delete:hover { background: #FCEBEB; border-color: #f5c6c6; }
+
+        /* ── STATS SUMMARY ── */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 0.75rem;
+            margin-bottom: 1.25rem;
+        }
+
+        .stat-box {
+            background: linear-gradient(135deg, #2f5f4f, #3a7260);
+            color: white;
+            border-radius: 12px;
+            padding: 1rem;
+            text-align: center;
+        }
+
+        .stat-box .val {
+            font-size: 1.75rem;
+            font-weight: 700;
+            font-family: 'Playfair Display', serif;
+        }
+
+        .stat-box .lbl {
+            font-size: 0.75rem;
+            opacity: 0.85;
+            margin-top: 2px;
+        }
+
+        /* ── LOADING SPINNER ── */
+        .spinner {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 2px solid rgba(255,255,255,0.4);
+            border-top-color: white;
+            border-radius: 50%;
+            animation: spin 0.7s linear infinite;
+            margin-right: 6px;
+            vertical-align: middle;
+        }
+
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        /* ── LIGHTBOX ── */
+        .lightbox {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.92);
+            z-index: 9999;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .lightbox.show { display: flex; }
+
+        .lightbox img {
+            max-width: 92vw;
+            max-height: 88vh;
+            object-fit: contain;
+            border-radius: 8px;
+        }
+
+        .lightbox-close {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            background: rgba(255,255,255,0.15);
+            border: none;
+            color: white;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            font-size: 1.25rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 3rem 1rem;
+            color: #a08878;
+        }
+
+        .empty-state .icon { font-size: 3rem; margin-bottom: 0.75rem; }
+        .empty-state p { font-size: 0.9rem; }
+
+        .section-title {
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: #a08878;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 0.5rem;
+        }
+
+        .char-count {
+            font-size: 0.75rem;
+            color: #a08878;
+            text-align: right;
+            margin-top: 2px;
+        }
+    </style>
+</head>
+<body>
+
+<!-- NAVBAR -->
+<nav class="navbar">
+    <div class="nav-left">
+        <img src="images/logo.webp" alt="Jaiti Foundation" onerror="this.style.display='none'">
+        <div class="nav-title">
+            Jaiti Foundation
+            <span>Admin</span>
+        </div>
+    </div>
+    <div class="nav-right">
+        <span class="user-badge" id="userEmail">Loading...</span>
+        <button class="btn-logout" onclick="handleLogout()">Logout</button>
+    </div>
+</nav>
+
+<!-- TABS -->
+<div class="tabs">
+    <div class="tab active" onclick="switchTab('new-entry')">📝 New Entry</div>
+    <div class="tab" onclick="switchTab('all-entries')">📋 All Entries</div>
+    <div class="tab" onclick="switchTab('summary')">📊 Summary</div>
+</div>
+
+<!-- MAIN CONTENT -->
+<div class="main">
+
+    <!-- ── TAB 1: NEW ENTRY ── -->
+    <div class="panel active" id="panel-new-entry">
+
+        <div class="alert" id="formAlert"></div>
+
+        <!-- Date & Session -->
+        <div class="card">
+            <div class="card-title">📅 Date & Session</div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Date *</label>
+                    <input type="date" id="entryDate">
+                </div>
+                <div class="form-group">
+                    <label>Session Type</label>
+                    <select id="sessionType">
+                        <option value="regular">Regular Class</option>
+                        <option value="special">Special Activity</option>
+                        <option value="exam">Exam / Test</option>
+                        <option value="event">Event / Celebration</option>
+                        <option value="outing">Outing / Field Trip</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <!-- Attendance -->
+        <div class="card">
+            <div class="card-title">👦 Attendance</div>
+            <div class="attendance-grid">
+                <div class="att-card">
+                    <label>Boys Present</label>
+                    <input type="number" id="attBoys" min="0" max="200" value="0" placeholder="0">
+                </div>
+                <div class="att-card">
+                    <label>Girls Present</label>
+                    <input type="number" id="attGirls" min="0" max="200" value="0" placeholder="0">
+                </div>
+                <div class="att-card">
+                    <label>Total Present</label>
+                    <input type="number" id="attTotal" min="0" max="200" value="0" placeholder="0" readonly style="background:#e8f2ee;color:#2f5f4f;font-weight:700">
+                </div>
+            </div>
+        </div>
+
+        <!-- Today's Mood -->
+        <div class="card">
+            <div class="card-title">😊 Today's Vibe</div>
+            <div class="mood-row" id="moodRow">
+                <button class="mood-btn" onclick="selectMood(this, '🌟 Excellent')">🌟 Excellent</button>
+                <button class="mood-btn" onclick="selectMood(this, '😊 Good')">😊 Good</button>
+                <button class="mood-btn" onclick="selectMood(this, '😐 Average')">😐 Average</button>
+                <button class="mood-btn" onclick="selectMood(this, '😔 Challenging')">😔 Challenging</button>
+                <button class="mood-btn" onclick="selectMood(this, '🎉 Special Day')">🎉 Special Day</button>
+            </div>
+        </div>
+
+        <!-- Activities & Notes -->
+        <div class="card">
+            <div class="card-title">📝 Activities & Notes</div>
+
+            <div class="form-group" style="margin-bottom:1rem">
+                <label>What did we do today? *</label>
+                <textarea id="activities" placeholder="Describe today's activities, subjects taught, games played, meals given..." maxlength="1000" oninput="updateCharCount(this, 'activitiesCount')"></textarea>
+                <div class="char-count" id="activitiesCount">0 / 1000</div>
+            </div>
+
+            <div class="form-group" style="margin-bottom:1rem">
+                <label>Highlights / Special Moments</label>
+                <textarea id="highlights" placeholder="Any special achievement, funny moment, or milestone worth remembering..." maxlength="500" style="min-height:75px" oninput="updateCharCount(this, 'highlightsCount')"></textarea>
+                <div class="char-count" id="highlightsCount">0 / 500</div>
+            </div>
+
+            <div class="form-group">
+                <label>Challenges / Needs Attention</label>
+                <textarea id="challenges" placeholder="Any child needing extra support, supplies needed, issues faced..." maxlength="500" style="min-height:75px" oninput="updateCharCount(this, 'challengesCount')"></textarea>
+                <div class="char-count" id="challengesCount">0 / 500</div>
+            </div>
+        </div>
+
+        <!-- Photo Upload -->
+        <div class="card">
+            <div class="card-title">📸 Photos</div>
+            <div class="photo-drop" id="photoDrop">
+                <input type="file" id="photoInput" accept="image/*" multiple onchange="handlePhotoSelect(event)">
+                <div class="photo-drop-icon">📷</div>
+                <p><strong>Click to select photos</strong> or drag & drop</p>
+                <p style="font-size:0.75rem;margin-top:4px;color:#a08878">JPG, PNG, WEBP • Max 5MB each • Up to 10 photos</p>
+            </div>
+
+            <div class="upload-progress" id="uploadProgress">
+                <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
+                <div class="progress-text" id="progressText">Uploading...</div>
+            </div>
+
+            <div class="photo-preview-grid" id="photoPreviewGrid"></div>
+        </div>
+
+        <!-- Save Button -->
+        <button class="btn-save" id="saveBtn" onclick="saveEntry()">
+            ✅ Save Today's Entry
+        </button>
+
+    </div>
+
+    <!-- ── TAB 2: ALL ENTRIES ── -->
+    <div class="panel" id="panel-all-entries">
+
+        <div class="card" style="padding:1rem">
+            <div style="display:flex;gap:0.75rem;flex-wrap:wrap;align-items:center">
+                <input type="month" id="filterMonth" style="padding:0.5rem 0.75rem;border:2px solid #d4c9bc;border-radius:8px;font-family:Inter,sans-serif;font-size:0.875rem;outline:none;color:#2c1a0e;background:#fdf9f4" onchange="loadEntries()">
+                <button onclick="loadEntries()" style="padding:0.5rem 1rem;background:#3a7260;color:white;border:none;border-radius:8px;font-family:Inter,sans-serif;font-size:0.875rem;cursor:pointer">🔄 Refresh</button>
+            </div>
+        </div>
+
+        <div id="entriesList">
+            <div class="empty-state">
+                <div class="icon">📋</div>
+                <p>Loading entries...</p>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- ── TAB 3: SUMMARY ── -->
+    <div class="panel" id="panel-summary">
+
+        <div class="card">
+            <div class="card-title">📊 Overall Summary</div>
+            <div class="stats-grid" id="summaryStats">
+                <div class="stat-box"><div class="val" id="totalDays">-</div><div class="lbl">Total Days</div></div>
+                <div class="stat-box"><div class="val" id="avgAttendance">-</div><div class="lbl">Avg. Attendance</div></div>
+                <div class="stat-box"><div class="val" id="totalPhotos">-</div><div class="lbl">Photos Saved</div></div>
+                <div class="stat-box"><div class="val" id="thisMonth">-</div><div class="lbl">This Month</div></div>
+            </div>
+        </div>
+
+        <div class="card" id="recentActivity">
+            <div class="card-title">📅 Recent Activity</div>
+            <div id="recentList">Loading...</div>
+        </div>
+
+    </div>
+
+</div>
+
+<!-- LIGHTBOX -->
+<div class="lightbox" id="lightbox" onclick="closeLightbox()">
+    <button class="lightbox-close" onclick="closeLightbox()">✕</button>
+    <img id="lightboxImg" src="" alt="Photo">
+</div>
+
+<!-- Firebase + App Script -->
+<script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+    import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+    import { getFirestore, collection, addDoc, getDocs, deleteDoc, doc, query, orderBy, where, Timestamp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+    const firebaseConfig = {
+        apiKey: "AIzaSyDCBb_tYSVUHHP46zYmspItDcJJPlUfuYk",
+        authDomain: "jaiti-foundation-3b174.firebaseapp.com",
+        projectId: "jaiti-foundation-3b174",
+        storageBucket: "jaiti-foundation-3b174.firebasestorage.app",
+        messagingSenderId: "407186839433",
+        appId: "1:407186839433:web:e39c8a4e6b2dccf35a3358"
+    };
+
+    const CLOUDINARY_CLOUD = 'rcehtxux';
+    const CLOUDINARY_PRESET = 'jaiti_unsigned';
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+
+    // ── AUTH CHECK ──
+    onAuthStateChanged(auth, (user) => {
+        if (!user) {
+            window.location.href = 'admin-login.html';
+        } else {
+            document.getElementById('userEmail').textContent = user.email;
+            // Set today's date
+            const today = new Date().toISOString().split('T')[0];
+            document.getElementById('entryDate').value = today;
+            // Set filter month
+            const ym = today.substring(0, 7);
+            document.getElementById('filterMonth').value = ym;
+            // Load entries for all-entries tab
+            loadEntries();
+            loadSummary();
+        }
+    });
+
+    // ── LOGOUT ──
+    window.handleLogout = async () => {
+        if (confirm('Are you sure you want to logout?')) {
+            await signOut(auth);
+            window.location.href = 'admin-login.html';
+        }
+    };
+
+    // ── TAB SWITCH ──
+    window.switchTab = (tabId) => {
+        document.querySelectorAll('.tab').forEach((t, i) => {
+            t.classList.toggle('active', ['new-entry','all-entries','summary'][i] === tabId);
+        });
+        document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+        document.getElementById('panel-' + tabId).classList.add('active');
+        if (tabId === 'all-entries') loadEntries();
+        if (tabId === 'summary') loadSummary();
+    };
+
+    // ── MOOD ──
+    let selectedMood = '😊 Good';
+    window.selectMood = (el, mood) => {
+        document.querySelectorAll('.mood-btn').forEach(b => b.classList.remove('selected'));
+        el.classList.add('selected');
+        selectedMood = mood;
+    };
+
+    // ── CHAR COUNT ──
+    window.updateCharCount = (el, countId) => {
+        document.getElementById(countId).textContent = el.value.length + ' / ' + el.maxLength;
+    };
+
+    // ── ATTENDANCE AUTO-TOTAL ──
+    ['attBoys','attGirls'].forEach(id => {
+        document.getElementById(id).addEventListener('input', () => {
+            const b = parseInt(document.getElementById('attBoys').value) || 0;
+            const g = parseInt(document.getElementById('attGirls').value) || 0;
+            document.getElementById('attTotal').value = b + g;
+        });
+    });
+
+    // ── PHOTO HANDLING ──
+    let selectedFiles = [];
+
+    window.handlePhotoSelect = (e) => {
+        const files = Array.from(e.target.files);
+        const maxFiles = 10;
+        const maxSize = 5 * 1024 * 1024;
+        const remaining = maxFiles - selectedFiles.length;
+
+        files.slice(0, remaining).forEach(file => {
+            if (file.size > maxSize) {
+                showAlert(`"${file.name}" is too large (max 5MB).`, 'error');
+                return;
+            }
+            selectedFiles.push(file);
+        });
+
+        renderPreviews();
+    };
+
+    function renderPreviews() {
+        const grid = document.getElementById('photoPreviewGrid');
+        grid.innerHTML = '';
+        selectedFiles.forEach((file, i) => {
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                const div = document.createElement('div');
+                div.className = 'preview-item';
+                div.innerHTML = `
+                    <img src="${e.target.result}" alt="Preview">
+                    <button class="remove-btn" onclick="removePhoto(${i})">✕</button>
+                `;
+                grid.appendChild(div);
+            };
+            reader.readAsDataURL(file);
+        });
+    }
+
+    window.removePhoto = (index) => {
+        selectedFiles.splice(index, 1);
+        renderPreviews();
+    };
+
+    // ── UPLOAD TO CLOUDINARY ──
+    async function uploadToCloudinary(file, index, total) {
+        const formData = new FormData();
+        formData.append('file', file);
+        formData.append('upload_preset', CLOUDINARY_PRESET);
+        formData.append('folder', 'jaiti-foundation/daily-updates');
+
+        const res = await fetch(`https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD}/image/upload`, {
+            method: 'POST',
+            body: formData
+        });
+
+        if (!res.ok) throw new Error('Upload failed');
+        const data = await res.json();
+
+        // Update progress
+        const pct = Math.round(((index + 1) / total) * 100);
+        document.getElementById('progressFill').style.width = pct + '%';
+        document.getElementById('progressText').textContent = `Uploading photo ${index + 1} of ${total}...`;
+
+        return data.secure_url;
+    }
+
+    // ── SAVE ENTRY ──
+    window.saveEntry = async () => {
+        const date = document.getElementById('entryDate').value;
+        const activities = document.getElementById('activities').value.trim();
+
+        if (!date) { showAlert('Please select a date.', 'error'); return; }
+        if (!activities) { showAlert('Please describe today\'s activities.', 'error'); return; }
+
+        const btn = document.getElementById('saveBtn');
+        btn.disabled = true;
+        btn.innerHTML = '<span class="spinner"></span> Saving...';
+
+        try {
+            // Upload photos
+            let photoUrls = [];
+            if (selectedFiles.length > 0) {
+                document.getElementById('uploadProgress').classList.add('show');
+                document.getElementById('progressFill').style.width = '0%';
+
+                for (let i = 0; i < selectedFiles.length; i++) {
+                    const url = await uploadToCloudinary(selectedFiles[i], i, selectedFiles.length);
+                    photoUrls.push(url);
+                }
+
+                document.getElementById('uploadProgress').classList.remove('show');
+            }
+
+            // Save to Firestore
+            const entry = {
+                date: date,
+                sessionType: document.getElementById('sessionType').value,
+                mood: selectedMood,
+                attendance: {
+                    boys: parseInt(document.getElementById('attBoys').value) || 0,
+                    girls: parseInt(document.getElementById('attGirls').value) || 0,
+                    total: parseInt(document.getElementById('attTotal').value) || 0,
+                },
+                activities: activities,
+                highlights: document.getElementById('highlights').value.trim(),
+                challenges: document.getElementById('challenges').value.trim(),
+                photos: photoUrls,
+                createdAt: Timestamp.now(),
+                createdBy: auth.currentUser?.email || 'unknown',
+            };
+
+            await addDoc(collection(db, 'daily-updates'), entry);
+
+            showAlert('✅ Entry saved successfully!', 'success');
+            resetForm();
+
+        } catch (err) {
+            console.error(err);
+            showAlert('❌ Error saving. Please try again. ' + err.message, 'error');
+        } finally {
+            btn.disabled = false;
+            btn.innerHTML = '✅ Save Today\'s Entry';
+        }
+    };
+
+    function resetForm() {
+        const today = new Date().toISOString().split('T')[0];
+        document.getElementById('entryDate').value = today;
+        document.getElementById('sessionType').value = 'regular';
+        document.getElementById('attBoys').value = 0;
+        document.getElementById('attGirls').value = 0;
+        document.getElementById('attTotal').value = 0;
+        document.getElementById('activities').value = '';
+        document.getElementById('highlights').value = '';
+        document.getElementById('challenges').value = '';
+        document.querySelectorAll('.char-count').forEach(el => el.textContent = el.textContent.split('/')[1] ? '0 /' + el.textContent.split('/')[1] : '0');
+        document.querySelectorAll('.mood-btn').forEach(b => b.classList.remove('selected'));
+        selectedFiles = [];
+        document.getElementById('photoPreviewGrid').innerHTML = '';
+        document.getElementById('photoInput').value = '';
+        selectedMood = '😊 Good';
+    }
+
+    // ── LOAD ENTRIES ──
+    window.loadEntries = async () => {
+        const list = document.getElementById('entriesList');
+        list.innerHTML = '<div class="empty-state"><div class="icon">⏳</div><p>Loading...</p></div>';
+
+        try {
+            const month = document.getElementById('filterMonth').value;
+            let q;
+
+            if (month) {
+                const start = month + '-01';
+                const end = month + '-31';
+                q = query(collection(db, 'daily-updates'), orderBy('date', 'desc'));
+            } else {
+                q = query(collection(db, 'daily-updates'), orderBy('date', 'desc'));
+            }
+
+            const snap = await getDocs(q);
+            const entries = [];
+            snap.forEach(d => entries.push({ id: d.id, ...d.data() }));
+
+            // Filter by month
+            const filtered = month ? entries.filter(e => e.date && e.date.startsWith(month)) : entries;
+
+            if (filtered.length === 0) {
+                list.innerHTML = '<div class="empty-state"><div class="icon">📭</div><p>No entries found for this month.</p></div>';
+                return;
+            }
+
+            list.innerHTML = filtered.map(entry => `
+                <div class="entry-card" id="entry-${entry.id}">
+                    <div class="entry-header">
+                        <span class="entry-date">📅 ${formatDate(entry.date)}</span>
+                        <div style="display:flex;gap:6px;align-items:center">
+                            <span class="entry-mood">${entry.mood || ''}</span>
+                            <button class="entry-delete" onclick="deleteEntry('${entry.id}')">🗑 Delete</button>
+                        </div>
+                    </div>
+                    <div class="entry-stats">
+                        <span class="entry-stat">👦 Boys: <strong>${entry.attendance?.boys || 0}</strong></span>
+                        <span class="entry-stat">👧 Girls: <strong>${entry.attendance?.girls || 0}</strong></span>
+                        <span class="entry-stat">✅ Total: <strong>${entry.attendance?.total || 0}</strong></span>
+                        <span class="entry-stat">📚 ${capitalize(entry.sessionType || 'regular')}</span>
+                        ${entry.photos?.length ? `<span class="entry-stat">📸 ${entry.photos.length} photo${entry.photos.length > 1 ? 's' : ''}</span>` : ''}
+                    </div>
+                    ${entry.activities ? `<div class="entry-notes">${entry.activities}</div>` : ''}
+                    ${entry.highlights ? `<div class="entry-notes" style="color:#2f5f4f;font-size:0.8rem">⭐ ${entry.highlights}</div>` : ''}
+                    ${entry.challenges ? `<div class="entry-notes" style="color:#854F0B;font-size:0.8rem">⚠️ ${entry.challenges}</div>` : ''}
+                    ${entry.photos?.length ? `
+                        <div class="entry-photos">
+                            ${entry.photos.map(url => `<img src="${url}" alt="Photo" onclick="openLightbox('${url}')" loading="lazy">`).join('')}
+                        </div>
+                    ` : ''}
+                    <div style="margin-top:0.5rem;font-size:0.7rem;color:#a08878">Added by: ${entry.createdBy || 'unknown'}</div>
+                </div>
+            `).join('');
+
+        } catch (err) {
+            list.innerHTML = '<div class="empty-state"><div class="icon">❌</div><p>Error loading entries. Check connection.</p></div>';
+            console.error(err);
+        }
+    };
+
+    // ── DELETE ENTRY ──
+    window.deleteEntry = async (id) => {
+        if (!confirm('Delete this entry permanently?')) return;
+        try {
+            await deleteDoc(doc(db, 'daily-updates', id));
+            document.getElementById('entry-' + id)?.remove();
+        } catch (err) {
+            alert('Error deleting entry.');
+        }
+    };
+
+    // ── LOAD SUMMARY ──
+    window.loadSummary = async () => {
+        try {
+            const snap = await getDocs(query(collection(db, 'daily-updates'), orderBy('date', 'desc')));
+            const entries = [];
+            snap.forEach(d => entries.push({ id: d.id, ...d.data() }));
+
+            const thisMonth = new Date().toISOString().substring(0, 7);
+            const thisMonthEntries = entries.filter(e => e.date?.startsWith(thisMonth));
+            const totalPhotos = entries.reduce((sum, e) => sum + (e.photos?.length || 0), 0);
+            const avgAtt = entries.length > 0
+                ? Math.round(entries.reduce((s, e) => s + (e.attendance?.total || 0), 0) / entries.length)
+                : 0;
+
+            document.getElementById('totalDays').textContent = entries.length;
+            document.getElementById('avgAttendance').textContent = avgAtt;
+            document.getElementById('totalPhotos').textContent = totalPhotos;
+            document.getElementById('thisMonth').textContent = thisMonthEntries.length;
+
+            const recentList = document.getElementById('recentList');
+            if (entries.length === 0) {
+                recentList.innerHTML = '<p style="color:#a08878;font-size:0.875rem">No entries yet.</p>';
+                return;
+            }
+
+            recentList.innerHTML = entries.slice(0, 5).map(e => `
+                <div style="display:flex;justify-content:space-between;align-items:center;padding:0.6rem 0;border-bottom:0.5px solid #f0ebe3">
+                    <div>
+                        <div style="font-size:0.875rem;font-weight:500;color:#2c1a0e">${formatDate(e.date)}</div>
+                        <div style="font-size:0.75rem;color:#7a6b5d">${e.mood || ''} • ${e.attendance?.total || 0} students</div>
+                    </div>
+                    <span style="font-size:0.75rem;background:#e8f2ee;color:#2f5f4f;padding:2px 8px;border-radius:4px">${capitalize(e.sessionType || 'regular')}</span>
+                </div>
+            `).join('');
+
+        } catch (err) {
+            console.error(err);
+        }
+    };
+
+    // ── LIGHTBOX ──
+    window.openLightbox = (url) => {
+        document.getElementById('lightboxImg').src = url;
+        document.getElementById('lightbox').classList.add('show');
+    };
+
+    window.closeLightbox = () => {
+        document.getElementById('lightbox').classList.remove('show');
+    };
+
+    // ── HELPERS ──
+    function showAlert(msg, type) {
+        const el = document.getElementById('formAlert');
+        el.textContent = msg;
+        el.className = 'alert show ' + type;
+        setTimeout(() => el.classList.remove('show'), 5000);
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function formatDate(dateStr) {
+        if (!dateStr) return '';
+        const d = new Date(dateStr + 'T00:00:00');
+        return d.toLocaleDateString('en-IN', { weekday: 'short', day: 'numeric', month: 'long', year: 'numeric' });
+    }
+
+    function capitalize(str) {
+        return str ? str.charAt(0).toUpperCase() + str.slice(1) : '';
+    }
+
+    // Drag & drop
+    const drop = document.getElementById('photoDrop');
+    drop.addEventListener('dragover', (e) => { e.preventDefault(); drop.classList.add('dragover'); });
+    drop.addEventListener('dragleave', () => drop.classList.remove('dragover'));
+    drop.addEventListener('drop', (e) => {
+        e.preventDefault();
+        drop.classList.remove('dragover');
+        const files = Array.from(e.dataTransfer.files).filter(f => f.type.startsWith('image/'));
+        const fakeEvent = { target: { files } };
+        window.handlePhotoSelect(fakeEvent);
+    });
+</script>
+
+</body>
+</html>
