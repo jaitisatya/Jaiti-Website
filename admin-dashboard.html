@@ -479,7 +479,7 @@
         </div>
     </div>
     <div class="nav-right">
-        <span class="user-badge" id="userEmail">Admin</span>
+        <span class="user-badge" id="userEmail">Loading...</span>
         <button class="btn-logout" onclick="handleLogout()">Logout</button>
     </div>
 </nav>
@@ -604,7 +604,7 @@
                 <div class="photo-preview-grid" id="edPhotoPreview"></div>
             </div>
 
-            <button class="btn-save" onclick="saveEducator()">💾 Save Educator</button>
+            <button class="btn-save" id="edSaveBtn" onclick="saveEducator()">💾 Save Educator</button>
         </div>
 
         <!-- Educators List -->
@@ -613,7 +613,7 @@
             <div id="educatorsList">
                 <div class="empty-state">
                     <div class="icon">👥</div>
-                    <p>No educators added yet</p>
+                    <p>Loading educators...</p>
                 </div>
             </div>
         </div>
@@ -678,7 +678,7 @@
                 <div class="photo-preview-grid" id="chPhotoPreview"></div>
             </div>
 
-            <button class="btn-save" onclick="saveChild()">💾 Save Child</button>
+            <button class="btn-save" id="chSaveBtn" onclick="saveChild()">💾 Save Child</button>
         </div>
 
         <!-- Children List -->
@@ -687,7 +687,7 @@
             <div id="childrenList">
                 <div class="empty-state">
                     <div class="icon">👨‍👩‍👧‍👦</div>
-                    <p>No children added yet</p>
+                    <p>Loading children...</p>
                 </div>
             </div>
         </div>
@@ -712,17 +712,58 @@
     <img id="lightboxImg" src="" alt="Photo">
 </div>
 
-<script>
-    // Data Storage
-    let educators = JSON.parse(localStorage.getItem('educators')) || [];
-    let children = JSON.parse(localStorage.getItem('children')) || [];
-    let editingEducatorId = null;
-    let editingChildId = null;
+<!-- Firebase -->
+<script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+    import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+    import { getFirestore, collection, addDoc, getDocs, deleteDoc, doc, query, orderBy, updateDoc, Timestamp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+    const firebaseConfig = {
+        apiKey: "AIzaSyDCBb_tYSVUHHP46zYmspItDcJJPlUfuYk",
+        authDomain: "jaiti-foundation-3b174.firebaseapp.com",
+        projectId: "jaiti-foundation-3b174",
+        storageBucket: "jaiti-foundation-3b174.firebasestorage.app",
+        messagingSenderId: "407186839433",
+        appId: "1:407186839433:web:e39c8a4e6b2dccf35a3358"
+    };
+
+    const CLOUDINARY_CLOUD = 'rcehtxux';
+    const CLOUDINARY_PRESET = 'jaiti_unsigned';
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+
+    let currentUser = null;
     let educatorPhotoData = null;
     let childPhotoData = null;
+    let editingEducatorId = null;
+    let editingChildId = null;
+
+    // ── AUTH CHECK ──
+    onAuthStateChanged(auth, (user) => {
+        if (!user) {
+            window.location.href = 'admin-login.html';
+        } else {
+            currentUser = user;
+            document.getElementById('userEmail').textContent = user.email;
+            const today = new Date().toISOString().split('T')[0];
+            document.getElementById('entryDate').value = today;
+            loadEducatorsList();
+            loadChildrenList();
+        }
+    });
+
+    // ── LOGOUT ──
+    window.handleLogout = async () => {
+        if (confirm('Are you sure you want to logout?')) {
+            await signOut(auth);
+            window.location.href = 'admin-login.html';
+        }
+    };
 
     // ── TAB SWITCH ──
-    function switchTab(tabId) {
+    window.switchTab = (tabId) => {
         document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
         event.target.classList.add('active');
         
@@ -731,7 +772,7 @@
 
         if (tabId === 'educators') loadEducatorsList();
         if (tabId === 'children') loadChildrenList();
-    }
+    };
 
     // ── ALERTS ──
     function showAlert(type, message, elementId) {
@@ -741,44 +782,61 @@
         setTimeout(() => alert.classList.remove('show'), 3000);
     }
 
+    // ── UPLOAD TO CLOUDINARY ──
+    async function uploadToCloudinary(file) {
+        const formData = new FormData();
+        formData.append('file', file);
+        formData.append('upload_preset', CLOUDINARY_PRESET);
+        formData.append('folder', 'jaiti-foundation/admin-data');
+
+        const res = await fetch(`https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD}/image/upload`, {
+            method: 'POST',
+            body: formData
+        });
+
+        if (!res.ok) throw new Error('Upload failed');
+        const data = await res.json();
+        return data.secure_url;
+    }
+
     // ── EDUCATOR PHOTO ──
-    function handleEducatorPhotoSelect(e) {
+    window.handleEducatorPhotoSelect = (e) => {
         const file = e.target.files[0];
         if (file) {
             const reader = new FileReader();
             reader.onload = (event) => {
-                educatorPhotoData = event.target.result;
+                educatorPhotoData = { file, base64: event.target.result };
                 document.getElementById('edPhotoPreview').innerHTML = `
                     <div class="preview-item">
-                        <img src="${educatorPhotoData}" alt="Preview">
+                        <img src="${event.target.result}" alt="Preview">
                         <button class="remove-btn" onclick="educatorPhotoData=null; document.getElementById('edPhotoPreview').innerHTML=''; document.getElementById('edPhotoInput').value='';">✕</button>
                     </div>
                 `;
             };
             reader.readAsDataURL(file);
         }
-    }
+    };
 
     // ── CHILD PHOTO ──
-    function handleChildPhotoSelect(e) {
+    window.handleChildPhotoSelect = (e) => {
         const file = e.target.files[0];
         if (file) {
             const reader = new FileReader();
             reader.onload = (event) => {
-                childPhotoData = event.target.result;
+                childPhotoData = { file, base64: event.target.result };
                 document.getElementById('chPhotoPreview').innerHTML = `
                     <div class="preview-item">
-                        <img src="${childPhotoData}" alt="Preview">
+                        <img src="${event.target.result}" alt="Preview">
                         <button class="remove-btn" onclick="childPhotoData=null; document.getElementById('chPhotoPreview').innerHTML=''; document.getElementById('chPhotoInput').value='';">✕</button>
                     </div>
                 `;
             };
             reader.readAsDataURL(file);
         }
-    }
+    };
 
     // ── SAVE EDUCATOR ──
-    function saveEducator() {
+    window.saveEducator = async () => {
         const name = document.getElementById('edName').value.trim();
         const phone = document.getElementById('edPhone').value.trim();
         const address = document.getElementById('edAddress').value.trim();
@@ -791,143 +849,172 @@
             return;
         }
 
-        if (editingEducatorId) {
-            // Update existing
-            const idx = educators.findIndex(e => e.id === editingEducatorId);
-            if (idx !== -1) {
-                educators[idx] = {
-                    id: editingEducatorId,
-                    name, phone, address, joiningDate, qualification, professional,
-                    photo: educatorPhotoData || educators[idx].photo
-                };
+        const btn = document.getElementById('edSaveBtn');
+        btn.disabled = true;
+        btn.innerHTML = '<span class="spinner"></span> Saving...';
+
+        try {
+            let photoUrl = null;
+            if (educatorPhotoData) {
+                photoUrl = await uploadToCloudinary(educatorPhotoData.file);
             }
-            editingEducatorId = null;
-            closeEditModal();
-        } else {
-            // Add new
-            educators.push({
-                id: Date.now(),
+
+            const educatorData = {
                 name, phone, address, joiningDate, qualification, professional,
-                photo: educatorPhotoData
-            });
+                photo: photoUrl,
+                createdBy: currentUser.email,
+                createdAt: Timestamp.now()
+            };
+
+            if (editingEducatorId) {
+                await updateDoc(doc(db, 'educators', editingEducatorId), {
+                    ...educatorData,
+                    updatedAt: Timestamp.now()
+                });
+                showAlert('success', '✅ Educator updated!', 'educatorsAlert');
+                editingEducatorId = null;
+                closeEditModal();
+            } else {
+                await addDoc(collection(db, 'educators'), educatorData);
+                showAlert('success', '✅ Educator saved!', 'educatorsAlert');
+            }
+
+            // Reset form
+            document.getElementById('edName').value = '';
+            document.getElementById('edPhone').value = '';
+            document.getElementById('edAddress').value = '';
+            document.getElementById('edJoiningDate').value = '';
+            document.getElementById('edQualification').value = '';
+            document.getElementById('edProfessional').value = '';
+            document.getElementById('edPhotoPreview').innerHTML = '';
+            document.getElementById('edPhotoInput').value = '';
+            educatorPhotoData = null;
+
+            loadEducatorsList();
+        } catch (err) {
+            console.error(err);
+            showAlert('error', '❌ Error: ' + err.message, 'educatorsAlert');
+        } finally {
+            btn.disabled = false;
+            btn.innerHTML = '💾 Save Educator';
         }
-
-        localStorage.setItem('educators', JSON.stringify(educators));
-        showAlert('success', '✅ Educator saved successfully!', 'educatorsAlert');
-        
-        // Reset form
-        document.getElementById('edName').value = '';
-        document.getElementById('edPhone').value = '';
-        document.getElementById('edAddress').value = '';
-        document.getElementById('edJoiningDate').value = '';
-        document.getElementById('edQualification').value = '';
-        document.getElementById('edProfessional').value = '';
-        document.getElementById('edPhotoPreview').innerHTML = '';
-        document.getElementById('edPhotoInput').value = '';
-        educatorPhotoData = null;
-
-        loadEducatorsList();
-    }
+    };
 
     // ── LOAD EDUCATORS LIST ──
-    function loadEducatorsList() {
+    window.loadEducatorsList = async () => {
         const list = document.getElementById('educatorsList');
-        if (educators.length === 0) {
-            list.innerHTML = '<div class="empty-state"><div class="icon">👥</div><p>No educators added yet</p></div>';
-            return;
+        try {
+            const q = query(collection(db, 'educators'), orderBy('createdAt', 'desc'));
+            const snap = await getDocs(q);
+            
+            if (snap.empty) {
+                list.innerHTML = '<div class="empty-state"><div class="icon">👥</div><p>No educators added yet</p></div>';
+                return;
+            }
+
+            let html = '<table class="data-table"><thead><tr><th>S.No</th><th>Name</th><th>Photo</th><th>Phone</th><th>Address</th><th>Joining Date</th><th>Qualification</th><th>Professional</th><th>Actions</th></tr></thead><tbody>';
+            
+            let idx = 1;
+            snap.forEach((doc) => {
+                const ed = doc.data();
+                html += `<tr>
+                    <td>${idx++}</td>
+                    <td>${ed.name}</td>
+                    <td>${ed.photo ? `<img src="${ed.photo}" onclick="showLightbox('${ed.photo}')">` : '-'}</td>
+                    <td>${ed.phone}</td>
+                    <td>${ed.address}</td>
+                    <td>${ed.joiningDate}</td>
+                    <td>${ed.qualification}</td>
+                    <td>${ed.professional}</td>
+                    <td>
+                        <button class="action-btn edit" onclick="editEducator('${doc.id}')">✏️ Edit</button>
+                        <button class="action-btn delete" onclick="deleteEducator('${doc.id}')">🗑 Delete</button>
+                    </td>
+                </tr>`;
+            });
+
+            html += '</tbody></table>';
+            list.innerHTML = html;
+        } catch (err) {
+            console.error(err);
+            list.innerHTML = '<div class="empty-state"><div class="icon">⚠️</div><p>Error loading educators</p></div>';
         }
-
-        let html = '<table class="data-table"><thead><tr><th>S.No</th><th>Name</th><th>Photo</th><th>Phone</th><th>Address</th><th>Joining Date</th><th>Qualification</th><th>Professional</th><th>Actions</th></tr></thead><tbody>';
-        
-        educators.forEach((ed, idx) => {
-            html += `<tr>
-                <td>${idx + 1}</td>
-                <td>${ed.name}</td>
-                <td>${ed.photo ? `<img src="${ed.photo}" onclick="showLightbox('${ed.photo}')">` : '-'}</td>
-                <td>${ed.phone}</td>
-                <td>${ed.address}</td>
-                <td>${ed.joiningDate}</td>
-                <td>${ed.qualification}</td>
-                <td>${ed.professional}</td>
-                <td>
-                    <button class="action-btn edit" onclick="editEducator(${ed.id})">✏️ Edit</button>
-                    <button class="action-btn delete" onclick="deleteEducator(${ed.id})">🗑 Delete</button>
-                </td>
-            </tr>`;
-        });
-
-        html += '</tbody></table>';
-        list.innerHTML = html;
-    }
+    };
 
     // ── EDIT EDUCATOR ──
-    function editEducator(id) {
-        const educator = educators.find(e => e.id === id);
-        if (!educator) return;
+    window.editEducator = async (id) => {
+        try {
+            const doc_ref = doc(db, 'educators', id);
+            const snap = await (await import('https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js')).getDoc(doc_ref);
+            const educator = snap.data();
 
-        editingEducatorId = id;
-        educatorPhotoData = educator.photo;
+            editingEducatorId = id;
+            educatorPhotoData = null;
 
-        document.getElementById('editTitle').textContent = 'Edit Educator';
-        document.getElementById('editFormContainer').innerHTML = `
-            <div class="form-row">
-                <div class="form-group">
-                    <label>Name *</label>
-                    <input type="text" id="editEdName" value="${educator.name}">
+            document.getElementById('editTitle').textContent = 'Edit Educator';
+            document.getElementById('editFormContainer').innerHTML = `
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Name *</label>
+                        <input type="text" id="editEdName" value="${educator.name}">
+                    </div>
+                    <div class="form-group">
+                        <label>Phone Number *</label>
+                        <input type="tel" id="editEdPhone" value="${educator.phone}">
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Address *</label>
+                        <input type="text" id="editEdAddress" value="${educator.address}">
+                    </div>
+                    <div class="form-group">
+                        <label>Joining Date *</label>
+                        <input type="date" id="editEdJoiningDate" value="${educator.joiningDate}">
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Qualification *</label>
+                        <select id="editEdQualification">
+                            <option value="">Select Qualification</option>
+                            <option value="10th pass" ${educator.qualification === '10th pass' ? 'selected' : ''}>10th pass</option>
+                            <option value="12th pass" ${educator.qualification === '12th pass' ? 'selected' : ''}>12th pass</option>
+                            <option value="Graduate" ${educator.qualification === 'Graduate' ? 'selected' : ''}>Graduate</option>
+                            <option value="PG" ${educator.qualification === 'PG' ? 'selected' : ''}>PG</option>
+                            <option value="PhD" ${educator.qualification === 'PhD' ? 'selected' : ''}>PhD</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Professional Status *</label>
+                        <select id="editEdProfessional">
+                            <option value="">Select Status</option>
+                            <option value="Private Job" ${educator.professional === 'Private Job' ? 'selected' : ''}>Private Job</option>
+                            <option value="Govt. Job" ${educator.professional === 'Govt. Job' ? 'selected' : ''}>Govt. Job</option>
+                        </select>
+                    </div>
                 </div>
                 <div class="form-group">
-                    <label>Phone Number *</label>
-                    <input type="tel" id="editEdPhone" value="${educator.phone}">
+                    <label>Photo</label>
+                    <div class="photo-drop">
+                        <input type="file" accept="image/*" onchange="handleEducatorPhotoSelect(event)">
+                        <div class="photo-drop-icon">📷</div>
+                        <p><strong>Click to change photo</strong></p>
+                    </div>
+                    ${educator.photo ? `<div class="photo-preview-grid"><div class="preview-item"><img src="${educator.photo}"></div></div>` : ''}
                 </div>
-            </div>
-            <div class="form-row">
-                <div class="form-group">
-                    <label>Address *</label>
-                    <input type="text" id="editEdAddress" value="${educator.address}">
-                </div>
-                <div class="form-group">
-                    <label>Joining Date *</label>
-                    <input type="date" id="editEdJoiningDate" value="${educator.joiningDate}">
-                </div>
-            </div>
-            <div class="form-row">
-                <div class="form-group">
-                    <label>Qualification *</label>
-                    <select id="editEdQualification">
-                        <option value="">Select Qualification</option>
-                        <option value="10th pass" ${educator.qualification === '10th pass' ? 'selected' : ''}>10th pass</option>
-                        <option value="12th pass" ${educator.qualification === '12th pass' ? 'selected' : ''}>12th pass</option>
-                        <option value="Graduate" ${educator.qualification === 'Graduate' ? 'selected' : ''}>Graduate</option>
-                        <option value="PG" ${educator.qualification === 'PG' ? 'selected' : ''}>PG</option>
-                        <option value="PhD" ${educator.qualification === 'PhD' ? 'selected' : ''}>PhD</option>
-                    </select>
-                </div>
-                <div class="form-group">
-                    <label>Professional Status *</label>
-                    <select id="editEdProfessional">
-                        <option value="">Select Status</option>
-                        <option value="Private Job" ${educator.professional === 'Private Job' ? 'selected' : ''}>Private Job</option>
-                        <option value="Govt. Job" ${educator.professional === 'Govt. Job' ? 'selected' : ''}>Govt. Job</option>
-                    </select>
-                </div>
-            </div>
-            <div class="form-group">
-                <label>Photo</label>
-                <div class="photo-drop">
-                    <input type="file" accept="image/*" onchange="handleEducatorPhotoSelect(event)">
-                    <div class="photo-drop-icon">📷</div>
-                    <p><strong>Click to change photo</strong></p>
-                </div>
-                ${educator.photo ? `<div class="photo-preview-grid"><div class="preview-item"><img src="${educator.photo}"></div></div>` : ''}
-            </div>
-            <button class="btn-save" onclick="updateEducatorFromModal()">💾 Update Educator</button>
-        `;
+                <button class="btn-save" onclick="updateEducatorFromModal('${id}')">💾 Update Educator</button>
+            `;
 
-        document.getElementById('editModal').classList.add('show');
-    }
+            document.getElementById('editModal').classList.add('show');
+        } catch (err) {
+            console.error(err);
+            showAlert('error', '❌ Error loading educator', 'educatorsAlert');
+        }
+    };
 
     // ── UPDATE EDUCATOR FROM MODAL ──
-    function updateEducatorFromModal() {
+    window.updateEducatorFromModal = async (id) => {
         const name = document.getElementById('editEdName').value.trim();
         const phone = document.getElementById('editEdPhone').value.trim();
         const address = document.getElementById('editEdAddress').value.trim();
@@ -940,33 +1027,41 @@
             return;
         }
 
-        const idx = educators.findIndex(e => e.id === editingEducatorId);
-        if (idx !== -1) {
-            educators[idx] = {
-                id: editingEducatorId,
-                name, phone, address, joiningDate, qualification, professional,
-                photo: educatorPhotoData || educators[idx].photo
-            };
-        }
+        try {
+            let photoUrl = null;
+            if (educatorPhotoData) {
+                photoUrl = await uploadToCloudinary(educatorPhotoData.file);
+            }
 
-        localStorage.setItem('educators', JSON.stringify(educators));
-        showAlert('success', '✅ Educator updated successfully!', 'educatorsAlert');
-        closeEditModal();
-        loadEducatorsList();
-    }
+            const updateData = { name, phone, address, joiningDate, qualification, professional, updatedAt: Timestamp.now() };
+            if (photoUrl) updateData.photo = photoUrl;
+
+            await updateDoc(doc(db, 'educators', id), updateData);
+            showAlert('success', '✅ Educator updated!', 'educatorsAlert');
+            closeEditModal();
+            loadEducatorsList();
+        } catch (err) {
+            console.error(err);
+            showAlert('error', '❌ Error: ' + err.message, 'educatorsAlert');
+        }
+    };
 
     // ── DELETE EDUCATOR ──
-    function deleteEducator(id) {
+    window.deleteEducator = async (id) => {
         if (confirm('Are you sure you want to delete this educator?')) {
-            educators = educators.filter(e => e.id !== id);
-            localStorage.setItem('educators', JSON.stringify(educators));
-            showAlert('success', '✅ Educator deleted!', 'educatorsAlert');
-            loadEducatorsList();
+            try {
+                await deleteDoc(doc(db, 'educators', id));
+                showAlert('success', '✅ Educator deleted!', 'educatorsAlert');
+                loadEducatorsList();
+            } catch (err) {
+                console.error(err);
+                showAlert('error', '❌ Error: ' + err.message, 'educatorsAlert');
+            }
         }
-    }
+    };
 
     // ── SAVE CHILD ──
-    function saveChild() {
+    window.saveChild = async () => {
         const name = document.getElementById('chName').value.trim();
         const dob = document.getElementById('chDOB').value;
         const mother = document.getElementById('chMother').value.trim();
@@ -978,140 +1073,166 @@
             return;
         }
 
-        if (editingChildId) {
-            // Update existing
-            const idx = children.findIndex(c => c.id === editingChildId);
-            if (idx !== -1) {
-                children[idx] = {
-                    id: editingChildId,
-                    sno: children[idx].sno,
-                    name, dob, mother, father, class: chClass,
-                    photo: childPhotoData || children[idx].photo
-                };
+        const btn = document.getElementById('chSaveBtn');
+        btn.disabled = true;
+        btn.innerHTML = '<span class="spinner"></span> Saving...';
+
+        try {
+            let photoUrl = null;
+            if (childPhotoData) {
+                photoUrl = await uploadToCloudinary(childPhotoData.file);
             }
-            editingChildId = null;
-            closeEditModal();
-        } else {
-            // Add new
-            children.push({
-                id: Date.now(),
-                sno: children.length + 1,
+
+            const childData = {
                 name, dob, mother, father, class: chClass,
-                photo: childPhotoData
-            });
+                photo: photoUrl,
+                createdBy: currentUser.email,
+                createdAt: Timestamp.now()
+            };
+
+            if (editingChildId) {
+                await updateDoc(doc(db, 'children', editingChildId), {
+                    ...childData,
+                    updatedAt: Timestamp.now()
+                });
+                showAlert('success', '✅ Child updated!', 'childrenAlert');
+                editingChildId = null;
+                closeEditModal();
+            } else {
+                await addDoc(collection(db, 'children'), childData);
+                showAlert('success', '✅ Child saved!', 'childrenAlert');
+            }
+
+            // Reset form
+            document.getElementById('chName').value = '';
+            document.getElementById('chDOB').value = '';
+            document.getElementById('chMother').value = '';
+            document.getElementById('chFather').value = '';
+            document.getElementById('chClass').value = '';
+            document.getElementById('chPhotoPreview').innerHTML = '';
+            document.getElementById('chPhotoInput').value = '';
+            childPhotoData = null;
+
+            loadChildrenList();
+        } catch (err) {
+            console.error(err);
+            showAlert('error', '❌ Error: ' + err.message, 'childrenAlert');
+        } finally {
+            btn.disabled = false;
+            btn.innerHTML = '💾 Save Child';
         }
-
-        localStorage.setItem('children', JSON.stringify(children));
-        showAlert('success', '✅ Child saved successfully!', 'childrenAlert');
-        
-        // Reset form
-        document.getElementById('chName').value = '';
-        document.getElementById('chDOB').value = '';
-        document.getElementById('chMother').value = '';
-        document.getElementById('chFather').value = '';
-        document.getElementById('chClass').value = '';
-        document.getElementById('chPhotoPreview').innerHTML = '';
-        document.getElementById('chPhotoInput').value = '';
-        childPhotoData = null;
-
-        loadChildrenList();
-    }
+    };
 
     // ── LOAD CHILDREN LIST ──
-    function loadChildrenList() {
+    window.loadChildrenList = async () => {
         const list = document.getElementById('childrenList');
-        if (children.length === 0) {
-            list.innerHTML = '<div class="empty-state"><div class="icon">👨‍👩‍👧‍👦</div><p>No children added yet</p></div>';
-            return;
+        try {
+            const q = query(collection(db, 'children'), orderBy('createdAt', 'desc'));
+            const snap = await getDocs(q);
+            
+            if (snap.empty) {
+                list.innerHTML = '<div class="empty-state"><div class="icon">👨‍👩‍👧‍👦</div><p>No children added yet</p></div>';
+                return;
+            }
+
+            let html = '<table class="data-table"><thead><tr><th>S.No</th><th>Name</th><th>DOB</th><th>Mother</th><th>Father</th><th>Class</th><th>Photo</th><th>Actions</th></tr></thead><tbody>';
+            
+            let idx = 1;
+            snap.forEach((doc) => {
+                const ch = doc.data();
+                html += `<tr>
+                    <td>${idx++}</td>
+                    <td>${ch.name}</td>
+                    <td>${ch.dob}</td>
+                    <td>${ch.mother}</td>
+                    <td>${ch.father}</td>
+                    <td>${ch.class}</td>
+                    <td>${ch.photo ? `<img src="${ch.photo}" onclick="showLightbox('${ch.photo}')">` : '-'}</td>
+                    <td>
+                        <button class="action-btn edit" onclick="editChild('${doc.id}')">✏️ Edit</button>
+                        <button class="action-btn delete" onclick="deleteChild('${doc.id}')">🗑 Delete</button>
+                    </td>
+                </tr>`;
+            });
+
+            html += '</tbody></table>';
+            list.innerHTML = html;
+        } catch (err) {
+            console.error(err);
+            list.innerHTML = '<div class="empty-state"><div class="icon">⚠️</div><p>Error loading children</p></div>';
         }
-
-        let html = '<table class="data-table"><thead><tr><th>S.No</th><th>Name</th><th>DOB</th><th>Mother</th><th>Father</th><th>Class</th><th>Photo</th><th>Actions</th></tr></thead><tbody>';
-        
-        children.forEach((ch) => {
-            html += `<tr>
-                <td>${ch.sno}</td>
-                <td>${ch.name}</td>
-                <td>${ch.dob}</td>
-                <td>${ch.mother}</td>
-                <td>${ch.father}</td>
-                <td>${ch.class}</td>
-                <td>${ch.photo ? `<img src="${ch.photo}" onclick="showLightbox('${ch.photo}')">` : '-'}</td>
-                <td>
-                    <button class="action-btn edit" onclick="editChild(${ch.id})">✏️ Edit</button>
-                    <button class="action-btn delete" onclick="deleteChild(${ch.id})">🗑 Delete</button>
-                </td>
-            </tr>`;
-        });
-
-        html += '</tbody></table>';
-        list.innerHTML = html;
-    }
+    };
 
     // ── EDIT CHILD ──
-    function editChild(id) {
-        const child = children.find(c => c.id === id);
-        if (!child) return;
+    window.editChild = async (id) => {
+        try {
+            const snap = await (await import('https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js')).getDoc(doc(db, 'children', id));
+            const child = snap.data();
 
-        editingChildId = id;
-        childPhotoData = child.photo;
+            editingChildId = id;
+            childPhotoData = null;
 
-        document.getElementById('editTitle').textContent = 'Edit Child';
-        document.getElementById('editFormContainer').innerHTML = `
-            <div class="form-row">
-                <div class="form-group">
-                    <label>Student's Name *</label>
-                    <input type="text" id="editChName" value="${child.name}">
+            document.getElementById('editTitle').textContent = 'Edit Child';
+            document.getElementById('editFormContainer').innerHTML = `
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Student's Name *</label>
+                        <input type="text" id="editChName" value="${child.name}">
+                    </div>
+                    <div class="form-group">
+                        <label>Date of Birth *</label>
+                        <input type="date" id="editChDOB" value="${child.dob}">
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Mother's Name *</label>
+                        <input type="text" id="editChMother" value="${child.mother}">
+                    </div>
+                    <div class="form-group">
+                        <label>Father's Name *</label>
+                        <input type="text" id="editChFather" value="${child.father}">
+                    </div>
                 </div>
                 <div class="form-group">
-                    <label>Date of Birth *</label>
-                    <input type="date" id="editChDOB" value="${child.dob}">
+                    <label>Class *</label>
+                    <select id="editChClass">
+                        <option value="">Select Class</option>
+                        <option value="1st" ${child.class === '1st' ? 'selected' : ''}>1st</option>
+                        <option value="2nd" ${child.class === '2nd' ? 'selected' : ''}>2nd</option>
+                        <option value="3rd" ${child.class === '3rd' ? 'selected' : ''}>3rd</option>
+                        <option value="4th" ${child.class === '4th' ? 'selected' : ''}>4th</option>
+                        <option value="5th" ${child.class === '5th' ? 'selected' : ''}>5th</option>
+                        <option value="6th" ${child.class === '6th' ? 'selected' : ''}>6th</option>
+                        <option value="7th" ${child.class === '7th' ? 'selected' : ''}>7th</option>
+                        <option value="8th" ${child.class === '8th' ? 'selected' : ''}>8th</option>
+                        <option value="9th" ${child.class === '9th' ? 'selected' : ''}>9th</option>
+                        <option value="10th" ${child.class === '10th' ? 'selected' : ''}>10th</option>
+                        <option value="11th" ${child.class === '11th' ? 'selected' : ''}>11th</option>
+                        <option value="12th" ${child.class === '12th' ? 'selected' : ''}>12th</option>
+                    </select>
                 </div>
-            </div>
-            <div class="form-row">
                 <div class="form-group">
-                    <label>Mother's Name *</label>
-                    <input type="text" id="editChMother" value="${child.mother}">
+                    <label>Photo</label>
+                    <div class="photo-drop">
+                        <input type="file" accept="image/*" onchange="handleChildPhotoSelect(event)">
+                        <div class="photo-drop-icon">📷</div>
+                        <p><strong>Click to change photo</strong></p>
+                    </div>
+                    ${child.photo ? `<div class="photo-preview-grid"><div class="preview-item"><img src="${child.photo}"></div></div>` : ''}
                 </div>
-                <div class="form-group">
-                    <label>Father's Name *</label>
-                    <input type="text" id="editChFather" value="${child.father}">
-                </div>
-            </div>
-            <div class="form-group">
-                <label>Class *</label>
-                <select id="editChClass">
-                    <option value="">Select Class</option>
-                    <option value="1st" ${child.class === '1st' ? 'selected' : ''}>1st</option>
-                    <option value="2nd" ${child.class === '2nd' ? 'selected' : ''}>2nd</option>
-                    <option value="3rd" ${child.class === '3rd' ? 'selected' : ''}>3rd</option>
-                    <option value="4th" ${child.class === '4th' ? 'selected' : ''}>4th</option>
-                    <option value="5th" ${child.class === '5th' ? 'selected' : ''}>5th</option>
-                    <option value="6th" ${child.class === '6th' ? 'selected' : ''}>6th</option>
-                    <option value="7th" ${child.class === '7th' ? 'selected' : ''}>7th</option>
-                    <option value="8th" ${child.class === '8th' ? 'selected' : ''}>8th</option>
-                    <option value="9th" ${child.class === '9th' ? 'selected' : ''}>9th</option>
-                    <option value="10th" ${child.class === '10th' ? 'selected' : ''}>10th</option>
-                    <option value="11th" ${child.class === '11th' ? 'selected' : ''}>11th</option>
-                    <option value="12th" ${child.class === '12th' ? 'selected' : ''}>12th</option>
-                </select>
-            </div>
-            <div class="form-group">
-                <label>Photo</label>
-                <div class="photo-drop">
-                    <input type="file" accept="image/*" onchange="handleChildPhotoSelect(event)">
-                    <div class="photo-drop-icon">📷</div>
-                    <p><strong>Click to change photo</strong></p>
-                </div>
-                ${child.photo ? `<div class="photo-preview-grid"><div class="preview-item"><img src="${child.photo}"></div></div>` : ''}
-            </div>
-            <button class="btn-save" onclick="updateChildFromModal()">💾 Update Child</button>
-        `;
+                <button class="btn-save" onclick="updateChildFromModal('${id}')">💾 Update Child</button>
+            `;
 
-        document.getElementById('editModal').classList.add('show');
-    }
+            document.getElementById('editModal').classList.add('show');
+        } catch (err) {
+            console.error(err);
+            showAlert('error', '❌ Error loading child', 'childrenAlert');
+        }
+    };
 
     // ── UPDATE CHILD FROM MODAL ──
-    function updateChildFromModal() {
+    window.updateChildFromModal = async (id) => {
         const name = document.getElementById('editChName').value.trim();
         const dob = document.getElementById('editChDOB').value;
         const mother = document.getElementById('editChMother').value.trim();
@@ -1123,68 +1244,62 @@
             return;
         }
 
-        const idx = children.findIndex(c => c.id === editingChildId);
-        if (idx !== -1) {
-            children[idx] = {
-                id: editingChildId,
-                sno: children[idx].sno,
-                name, dob, mother, father, class: chClass,
-                photo: childPhotoData || children[idx].photo
-            };
-        }
+        try {
+            let photoUrl = null;
+            if (childPhotoData) {
+                photoUrl = await uploadToCloudinary(childPhotoData.file);
+            }
 
-        localStorage.setItem('children', JSON.stringify(children));
-        showAlert('success', '✅ Child updated successfully!', 'childrenAlert');
-        closeEditModal();
-        loadChildrenList();
-    }
+            const updateData = { name, dob, mother, father, class: chClass, updatedAt: Timestamp.now() };
+            if (photoUrl) updateData.photo = photoUrl;
+
+            await updateDoc(doc(db, 'children', id), updateData);
+            showAlert('success', '✅ Child updated!', 'childrenAlert');
+            closeEditModal();
+            loadChildrenList();
+        } catch (err) {
+            console.error(err);
+            showAlert('error', '❌ Error: ' + err.message, 'childrenAlert');
+        }
+    };
 
     // ── DELETE CHILD ──
-    function deleteChild(id) {
+    window.deleteChild = async (id) => {
         if (confirm('Are you sure you want to delete this child?')) {
-            children = children.filter(c => c.id !== id);
-            localStorage.setItem('children', JSON.stringify(children));
-            showAlert('success', '✅ Child deleted!', 'childrenAlert');
-            loadChildrenList();
+            try {
+                await deleteDoc(doc(db, 'children', id));
+                showAlert('success', '✅ Child deleted!', 'childrenAlert');
+                loadChildrenList();
+            } catch (err) {
+                console.error(err);
+                showAlert('error', '❌ Error: ' + err.message, 'childrenAlert');
+            }
         }
-    }
+    };
 
     // ── CLOSE EDIT MODAL ──
-    function closeEditModal() {
+    window.closeEditModal = () => {
         document.getElementById('editModal').classList.remove('show');
         editingEducatorId = null;
         editingChildId = null;
         educatorPhotoData = null;
         childPhotoData = null;
-    }
+    };
 
     // ── LIGHTBOX ──
-    function showLightbox(src) {
+    window.showLightbox = (src) => {
         document.getElementById('lightboxImg').src = src;
         document.getElementById('lightbox').classList.add('show');
-    }
+    };
 
-    function closeLightbox() {
+    window.closeLightbox = () => {
         document.getElementById('lightbox').classList.remove('show');
-    }
-
-    // ── LOGOUT ──
-    function handleLogout() {
-        if (confirm('Are you sure you want to logout?')) {
-            window.location.href = 'admin-login.html';
-        }
-    }
+    };
 
     // ── SAVE ENTRY (Placeholder) ──
-    function saveEntry() {
+    window.saveEntry = () => {
         alert('Entry saved! (This is a placeholder)');
-    }
-
-    // Initialize
-    document.addEventListener('DOMContentLoaded', () => {
-        const today = new Date().toISOString().split('T')[0];
-        document.getElementById('entryDate').value = today;
-    });
+    };
 </script>
 
 </body>
