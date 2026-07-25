@@ -270,6 +270,14 @@
             margin: 0;
         }
 
+        .checkbox-item input[type="checkbox"] {
+            cursor: pointer;
+        }
+
+        .checkbox-item input[type="checkbox"]:change {
+            cursor: pointer;
+        }
+
         /* ── PHOTO UPLOAD ── */
         .photo-drop {
             border: 2px dashed #d4c9bc;
@@ -1262,7 +1270,10 @@
 
         <div class="form-group">
             <label>Educators Present</label>
-            <div id="editEducatorsCheckboxes" class="educators-checkboxes"></div>
+            <div id="educatorsCheckboxes" class="educators-checkboxes"></div>
+            <div style="margin-top:0.5rem;padding:0.5rem;background:#e8f2ee;border-radius:8px;font-size:0.875rem;color:#2f5f4f;font-weight:600">
+                👨‍🏫 <span id="educatorCount">0</span> Educators Selected
+            </div>
         </div>
 
         <div class="form-group">
@@ -1442,6 +1453,13 @@
         });
     });
 
+    // ── UPDATE EDUCATOR COUNT ──
+    window.updateEducatorCount = () => {
+        const checked = document.querySelectorAll('#educatorsCheckboxes input[type="checkbox"]:checked').length;
+        const countEl = document.getElementById('educatorCount');
+        if (countEl) countEl.textContent = checked;
+    };
+
     // ── LOAD EDUCATORS CHECKBOXES ──
     window.loadEducatorsCheckboxes = async () => {
         try {
@@ -1461,13 +1479,14 @@
                 allEducators.push({ id: doc.id, ...ed });
                 html += `
                     <div class="checkbox-item">
-                        <input type="checkbox" id="ed-${doc.id}" value="${doc.id}">
+                        <input type="checkbox" id="ed-${doc.id}" value="${doc.id}" onchange="updateEducatorCount()">
                         <label for="ed-${doc.id}">${ed.name}</label>
                     </div>
                 `;
             });
 
             container.innerHTML = html;
+            updateEducatorCount();
         } catch (err) {
             console.error(err);
         }
@@ -1755,7 +1774,7 @@
                         <span class="entry-stat">👦 Boys: <strong>${entry.attendance?.boys || 0}</strong></span>
                         <span class="entry-stat">👧 Girls: <strong>${entry.attendance?.girls || 0}</strong></span>
                         <span class="entry-stat">✅ Total: <strong>${entry.attendance?.total || 0}</strong></span>
-                        ${entry.educatorsPresent?.length ? `<span class="entry-stat">👨‍🏫 Educators: <strong>${entry.educatorsPresent.join(', ')}</strong></span>` : ''}
+                        ${entry.educatorsPresent?.length ? `<span class="entry-stat">👨‍🏫 Educators: <strong>${entry.educatorsPresent.length}</strong></span>` : ''}
                         <span class="entry-stat">📚 ${capitalize(entry.sessionType || 'regular')}</span>
                         ${entry.photos?.length ? `<span class="entry-stat">📸 ${entry.photos.length} photo${entry.photos.length > 1 ? 's' : ''}</span>` : ''}
                     </div>
@@ -2257,7 +2276,7 @@
             html += `
                 <div class="entry-detail-item">
                     <div class="entry-detail-label">👨‍🏫 Educators Present</div>
-                    <div class="entry-detail-value">${entry.educatorsPresent.join(', ')}</div>
+                    <div class="entry-detail-value"><strong>${entry.educatorsPresent.length}</strong> educators: ${entry.educatorsPresent.join(', ')}</div>
                 </div>
             `;
         }
