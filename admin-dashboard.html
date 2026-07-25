@@ -535,6 +535,15 @@
             border-radius: 12px;
             padding: 1rem;
             text-align: center;
+            cursor: pointer;
+            transition: all 0.2s;
+            border: 2px solid transparent;
+        }
+
+        .stat-box:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 20px rgba(47,95,79,0.35);
+            border-color: rgba(255,255,255,0.3);
         }
 
         .stat-box .val {
@@ -609,6 +618,91 @@
 
         .empty-state .icon { font-size: 3rem; margin-bottom: 0.75rem; }
         .empty-state p { font-size: 0.9rem; }
+
+        /* ── ENTRY DETAIL MODAL ── */
+        .entry-detail-modal {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.5);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+            padding: 1rem;
+        }
+
+        .entry-detail-modal.show { display: flex; }
+
+        .entry-detail-content {
+            background: white;
+            border-radius: 16px;
+            padding: 1.5rem;
+            max-width: 600px;
+            width: 100%;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+        }
+
+        .entry-detail-header {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: #2f5f4f;
+            margin-bottom: 1rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 2px solid #e8f2ee;
+            padding-bottom: 0.75rem;
+        }
+
+        .entry-detail-close {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: #a08878;
+        }
+
+        .entry-detail-item {
+            margin-bottom: 1rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid #e0dbd0;
+        }
+
+        .entry-detail-item:last-child {
+            border-bottom: none;
+        }
+
+        .entry-detail-label {
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: #a08878;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 0.3rem;
+        }
+
+        .entry-detail-value {
+            font-size: 0.95rem;
+            color: #2c1a0e;
+            line-height: 1.6;
+        }
+
+        .entry-detail-photos {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+            gap: 0.5rem;
+            margin-top: 0.5rem;
+        }
+
+        .entry-detail-photos img {
+            width: 100%;
+            aspect-ratio: 1;
+            object-fit: cover;
+            border-radius: 8px;
+            cursor: pointer;
+        }
 
         .section-title {
             font-size: 0.75rem;
@@ -902,16 +996,23 @@
         <div class="card">
             <div class="card-title">📊 Overall Summary</div>
             <div class="stats-grid" id="summaryStats">
-                <div class="stat-box"><div class="val" id="totalDays">-</div><div class="lbl">Total Days</div></div>
-                <div class="stat-box"><div class="val" id="avgAttendance">-</div><div class="lbl">Avg. Attendance</div></div>
-                <div class="stat-box"><div class="val" id="totalPhotos">-</div><div class="lbl">Photos Saved</div></div>
-                <div class="stat-box"><div class="val" id="thisMonth">-</div><div class="lbl">This Month</div></div>
+                <div class="stat-box" onclick="showSummaryFilter('all-days')"><div class="val" id="totalDays">-</div><div class="lbl">Total Days</div></div>
+                <div class="stat-box" onclick="showSummaryFilter('attendance')"><div class="val" id="avgAttendance">-</div><div class="lbl">Avg. Attendance</div></div>
+                <div class="stat-box" onclick="showSummaryFilter('photos')"><div class="val" id="totalPhotos">-</div><div class="lbl">Photos Saved</div></div>
+                <div class="stat-box" onclick="showSummaryFilter('this-month')"><div class="val" id="thisMonth">-</div><div class="lbl">This Month</div></div>
             </div>
         </div>
 
         <div class="card" id="recentActivity">
             <div class="card-title">📅 Recent Activity</div>
             <div id="recentList">Loading...</div>
+        </div>
+
+        <div id="summaryFilterResults" style="display:none">
+            <div class="card">
+                <div class="card-title" id="filterResultsTitle">Results</div>
+                <div id="filterResultsList"></div>
+            </div>
         </div>
 
     </div>
@@ -1067,6 +1168,17 @@
         </div>
     </div>
 
+</div>
+
+<!-- ENTRY DETAIL MODAL -->
+<div class="entry-detail-modal" id="entryDetailModal">
+    <div class="entry-detail-content">
+        <div class="entry-detail-header">
+            <span>Entry Details</span>
+            <button class="entry-detail-close" onclick="closeEntryDetailModal()">✕</button>
+        </div>
+        <div id="entryDetailBody"></div>
+    </div>
 </div>
 
 <!-- EDIT EDUCATOR MODAL -->
@@ -1484,11 +1596,13 @@
     };
 
     // ── LOAD SUMMARY ──
+    let allSummaryEntries = [];
     window.loadSummary = async () => {
         try {
             const snap = await getDocs(query(collection(db, 'daily-updates'), orderBy('date', 'desc')));
             const entries = [];
             snap.forEach(d => entries.push({ id: d.id, ...d.data() }));
+            allSummaryEntries = entries;
 
             const thisMonth = new Date().toISOString().substring(0, 7);
             const thisMonthEntries = entries.filter(e => e.date?.startsWith(thisMonth));
@@ -1509,7 +1623,7 @@
             }
 
             recentList.innerHTML = entries.slice(0, 5).map(e => `
-                <div style="display:flex;justify-content:space-between;align-items:center;padding:0.6rem 0;border-bottom:0.5px solid #f0ebe3">
+                <div style="display:flex;justify-content:space-between;align-items:center;padding:0.6rem 0;border-bottom:0.5px solid #f0ebe3;cursor:pointer;transition:all 0.2s;border-radius:6px;padding:0.6rem" onclick="openEntryDetailModal('${e.id}')" onmouseover="this.style.background='#f0ebe3'" onmouseout="this.style.background='transparent'">
                     <div>
                         <div style="font-size:0.875rem;font-weight:500;color:#2c1a0e">${formatDate(e.date)}</div>
                         <div style="font-size:0.75rem;color:#7a6b5d">${e.mood || ''} • ${e.attendance?.total || 0} students</div>
@@ -1653,7 +1767,7 @@
     window.loadEducatorsList = async () => {
         const list = document.getElementById('educatorsList');
         try {
-            const q = query(collection(db, 'educators'), orderBy('createdAt', 'desc'));
+            const q = query(collection(db, 'educators'), orderBy('createdAt', 'asc'));
             const snap = await getDocs(q);
             
             if (snap.empty) {
@@ -1849,7 +1963,7 @@
     window.loadChildrenList = async () => {
         const list = document.getElementById('childrenList');
         try {
-            const q = query(collection(db, 'children'), orderBy('createdAt', 'desc'));
+            const q = query(collection(db, 'children'), orderBy('createdAt', 'asc'));
             const snap = await getDocs(q);
             
             if (snap.empty) {
@@ -1926,6 +2040,152 @@
     function capitalize(str) {
         return str ? str.charAt(0).toUpperCase() + str.slice(1) : '';
     }
+
+    // ── OPEN ENTRY DETAIL MODAL ──
+    window.openEntryDetailModal = (entryId) => {
+        const entry = allSummaryEntries.find(e => e.id === entryId);
+        if (!entry) return;
+
+        let html = `
+            <div class="entry-detail-item">
+                <div class="entry-detail-label">📅 Date</div>
+                <div class="entry-detail-value">${formatDate(entry.date)}</div>
+            </div>
+            <div class="entry-detail-item">
+                <div class="entry-detail-label">😊 Mood</div>
+                <div class="entry-detail-value">${entry.mood || '-'}</div>
+            </div>
+            <div class="entry-detail-item">
+                <div class="entry-detail-label">📚 Session Type</div>
+                <div class="entry-detail-value">${capitalize(entry.sessionType || 'regular')}</div>
+            </div>
+            <div class="entry-detail-item">
+                <div class="entry-detail-label">👦 Children Attendance</div>
+                <div class="entry-detail-value">
+                    Boys: <strong>${entry.attendance?.boys || 0}</strong> | 
+                    Girls: <strong>${entry.attendance?.girls || 0}</strong> | 
+                    Total: <strong>${entry.attendance?.total || 0}</strong>
+                </div>
+            </div>
+        `;
+
+        if (entry.educatorsPresent?.length) {
+            html += `
+                <div class="entry-detail-item">
+                    <div class="entry-detail-label">👨‍🏫 Educators Present</div>
+                    <div class="entry-detail-value">${entry.educatorsPresent.join(', ')}</div>
+                </div>
+            `;
+        }
+
+        if (entry.activities) {
+            html += `
+                <div class="entry-detail-item">
+                    <div class="entry-detail-label">📝 Activities</div>
+                    <div class="entry-detail-value">${entry.activities}</div>
+                </div>
+            `;
+        }
+
+        if (entry.highlights) {
+            html += `
+                <div class="entry-detail-item">
+                    <div class="entry-detail-label">⭐ Highlights</div>
+                    <div class="entry-detail-value">${entry.highlights}</div>
+                </div>
+            `;
+        }
+
+        if (entry.challenges) {
+            html += `
+                <div class="entry-detail-item">
+                    <div class="entry-detail-label">⚠️ Challenges</div>
+                    <div class="entry-detail-value">${entry.challenges}</div>
+                </div>
+            `;
+        }
+
+        if (entry.photos?.length) {
+            html += `
+                <div class="entry-detail-item">
+                    <div class="entry-detail-label">📸 Photos (${entry.photos.length})</div>
+                    <div class="entry-detail-photos">
+                        ${entry.photos.map(url => `<img src="${url}" onclick="openLightbox('${url}')">` ).join('')}
+                    </div>
+                </div>
+            `;
+        }
+
+        html += `
+            <div class="entry-detail-item" style="border-bottom:none">
+                <div class="entry-detail-label">👤 Added By</div>
+                <div class="entry-detail-value">${entry.createdBy || 'unknown'}</div>
+            </div>
+        `;
+
+        document.getElementById('entryDetailBody').innerHTML = html;
+        document.getElementById('entryDetailModal').classList.add('show');
+    };
+
+    window.closeEntryDetailModal = () => {
+        document.getElementById('entryDetailModal').classList.remove('show');
+    };
+
+    // ── SHOW SUMMARY FILTER ──
+    window.showSummaryFilter = (filter) => {
+        const resultsDiv = document.getElementById('summaryFilterResults');
+        const resultsList = document.getElementById('filterResultsList');
+        const titleEl = document.getElementById('filterResultsTitle');
+        let html = '';
+        let title = '';
+
+        if (filter === 'all-days') {
+            title = '📅 All Days';
+            html = allSummaryEntries.map(e => `
+                <div style="padding:0.75rem;border-bottom:1px solid #e0dbd0;cursor:pointer;border-radius:6px;transition:all 0.2s" onclick="openEntryDetailModal('${e.id}')" onmouseover="this.style.background='#f0ebe3'" onmouseout="this.style.background='transparent'">
+                    <div style="font-weight:600;color:#2f5f4f">${formatDate(e.date)}</div>
+                    <div style="font-size:0.8rem;color:#7a6b5d">${e.mood} • ${e.attendance?.total || 0} students</div>
+                </div>
+            `).join('');
+        } else if (filter === 'attendance') {
+            title = '📊 Attendance by Day';
+            html = allSummaryEntries.map(e => `
+                <div style="padding:0.75rem;border-bottom:1px solid #e0dbd0;border-radius:6px">
+                    <div style="font-weight:600;color:#2f5f4f">${formatDate(e.date)}</div>
+                    <div style="font-size:0.85rem;color:#5c4a38;margin-top:0.3rem">
+                        👦 Boys: <strong>${e.attendance?.boys || 0}</strong> | 
+                        👧 Girls: <strong>${e.attendance?.girls || 0}</strong> | 
+                        ✅ Total: <strong>${e.attendance?.total || 0}</strong>
+                    </div>
+                </div>
+            `).join('');
+        } else if (filter === 'photos') {
+            title = '📸 Photos by Day';
+            html = allSummaryEntries.filter(e => e.photos?.length).map(e => `
+                <div style="padding:0.75rem;border-bottom:1px solid #e0dbd0;border-radius:6px">
+                    <div style="font-weight:600;color:#2f5f4f">${formatDate(e.date)} - ${e.photos.length} photo${e.photos.length > 1 ? 's' : ''}</div>
+                    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(60px,1fr));gap:0.4rem;margin-top:0.5rem">
+                        ${e.photos.map(url => `<img src="${url}" style="width:100%;aspect-ratio:1;object-fit:cover;border-radius:6px;cursor:pointer" onclick="openLightbox('${url}')">` ).join('')}
+                    </div>
+                </div>
+            `).join('');
+        } else if (filter === 'this-month') {
+            const thisMonth = new Date().toISOString().substring(0, 7);
+            const monthEntries = allSummaryEntries.filter(e => e.date?.startsWith(thisMonth));
+            title = '📅 This Month';
+            html = monthEntries.map(e => `
+                <div style="padding:0.75rem;border-bottom:1px solid #e0dbd0;cursor:pointer;border-radius:6px;transition:all 0.2s" onclick="openEntryDetailModal('${e.id}')" onmouseover="this.style.background='#f0ebe3'" onmouseout="this.style.background='transparent'">
+                    <div style="font-weight:600;color:#2f5f4f">${formatDate(e.date)}</div>
+                    <div style="font-size:0.8rem;color:#7a6b5d">${e.mood} • ${e.attendance?.total || 0} students</div>
+                </div>
+            `).join('');
+        }
+
+        titleEl.textContent = title;
+        resultsList.innerHTML = html || '<p style="color:#a08878">No data available</p>';
+        resultsDiv.style.display = 'block';
+        window.scrollTo({ top: resultsDiv.offsetTop - 100, behavior: 'smooth' });
+    };
 
     // Drag & drop
     const drop = document.getElementById('photoDrop');
