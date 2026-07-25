@@ -1038,26 +1038,8 @@
 
             <div class="form-row">
                 <div class="form-group">
-                    <label>Address *</label>
-                    <input type="text" id="edAddress" placeholder="Full Address">
-                </div>
-                <div class="form-group">
-                    <label>Joining Date *</label>
+                    <label>Joining Date</label>
                     <input type="date" id="edJoiningDate">
-                </div>
-            </div>
-
-            <div class="form-row">
-                <div class="form-group">
-                    <label>Qualification *</label>
-                    <select id="edQualification">
-                        <option value="">Select Qualification</option>
-                        <option value="10th pass">10th pass</option>
-                        <option value="12th pass">12th pass</option>
-                        <option value="Graduate">Graduate</option>
-                        <option value="PG">PG</option>
-                        <option value="PhD">PhD</option>
-                    </select>
                 </div>
                 <div class="form-group">
                     <label>Professional Status *</label>
@@ -1065,6 +1047,8 @@
                         <option value="">Select Status</option>
                         <option value="Private Job">Private Job</option>
                         <option value="Govt. Job">Govt. Job</option>
+                        <option value="Student">Student</option>
+                        <option value="Self Employed">Self Employed</option>
                     </select>
                 </div>
             </div>
@@ -1202,26 +1186,8 @@
 
         <div class="form-row">
             <div class="form-group">
-                <label>Address *</label>
-                <input type="text" id="editEdAddress" placeholder="Full Address">
-            </div>
-            <div class="form-group">
-                <label>Joining Date *</label>
+                <label>Joining Date</label>
                 <input type="date" id="editEdJoiningDate">
-            </div>
-        </div>
-
-        <div class="form-row">
-            <div class="form-group">
-                <label>Qualification *</label>
-                <select id="editEdQualification">
-                    <option value="">Select Qualification</option>
-                    <option value="10th pass">10th pass</option>
-                    <option value="12th pass">12th pass</option>
-                    <option value="Graduate">Graduate</option>
-                    <option value="PG">PG</option>
-                    <option value="PhD">PhD</option>
-                </select>
             </div>
             <div class="form-group">
                 <label>Professional Status *</label>
@@ -1229,6 +1195,8 @@
                     <option value="">Select Status</option>
                     <option value="Private Job">Private Job</option>
                     <option value="Govt. Job">Govt. Job</option>
+                    <option value="Student">Student</option>
+                    <option value="Self Employed">Self Employed</option>
                 </select>
             </div>
         </div>
@@ -1695,13 +1663,11 @@
     window.saveEducator = async () => {
         const name = document.getElementById('edName').value.trim();
         const phone = document.getElementById('edPhone').value.trim();
-        const address = document.getElementById('edAddress').value.trim();
         const joiningDate = document.getElementById('edJoiningDate').value;
-        const qualification = document.getElementById('edQualification').value;
         const professional = document.getElementById('edProfessional').value;
 
-        if (!name || !phone || !address || !joiningDate || !qualification || !professional) {
-            showAlert('❌ Please fill all required fields', 'error', 'educatorsAlert');
+        if (!name || !phone || !professional) {
+            showAlert('❌ Please fill all required fields (Name, Phone, Professional Status)', 'error', 'educatorsAlert');
             return;
         }
 
@@ -1716,7 +1682,7 @@
             }
 
             const educatorData = {
-                name, phone, address, joiningDate, qualification, professional,
+                name, phone, joiningDate, professional,
                 photo: photoUrl,
                 createdBy: auth.currentUser.email,
                 createdAt: Timestamp.now()
@@ -1727,9 +1693,7 @@
 
             document.getElementById('edName').value = '';
             document.getElementById('edPhone').value = '';
-            document.getElementById('edAddress').value = '';
             document.getElementById('edJoiningDate').value = '';
-            document.getElementById('edQualification').value = '';
             document.getElementById('edProfessional').value = '';
             document.getElementById('edPhotoPreview').innerHTML = '';
             document.getElementById('edPhotoInput').value = '';
@@ -1775,7 +1739,7 @@
                 return;
             }
 
-            let html = '<table class="data-table"><thead><tr><th>S.No</th><th>Name</th><th>Photo</th><th>Phone</th><th>Address</th><th>Joining Date</th><th>Qualification</th><th>Professional</th><th>Actions</th></tr></thead><tbody>';
+            let html = '<table class="data-table"><thead><tr><th>S.No</th><th>Name</th><th>Photo</th><th>Phone</th><th>Joining Date</th><th>Professional</th><th>Actions</th></tr></thead><tbody>';
             
             let idx = 1;
             snap.forEach((doc) => {
@@ -1785,12 +1749,10 @@
                     <td>${ed.name}</td>
                     <td>${ed.photo ? `<img src="${ed.photo}" onclick="openLightbox('${ed.photo}')">` : '-'}</td>
                     <td>${ed.phone}</td>
-                    <td>${ed.address}</td>
-                    <td>${ed.joiningDate}</td>
-                    <td>${ed.qualification}</td>
+                    <td>${ed.joiningDate || '-'}</td>
                     <td>${ed.professional}</td>
                     <td>
-                        <button class="action-btn edit" onclick="openEditEducatorModal('${doc.id}', '${ed.name}', '${ed.phone}', '${ed.address}', '${ed.joiningDate}', '${ed.qualification}', '${ed.professional}', '${ed.photo || ''}')">✏️ Edit</button>
+                        <button class="action-btn edit" onclick="openEditEducatorModal('${doc.id}', '${ed.name}', '${ed.phone}', '${ed.joiningDate || ''}', '${ed.professional}', '${ed.photo || ''}')">✏️ Edit</button>
                         <button class="action-btn delete" onclick="deleteEducator('${doc.id}')">🗑 Delete</button>
                     </td>
                 </tr>`;
@@ -1805,13 +1767,11 @@
     };
 
     // ── OPEN EDIT EDUCATOR MODAL ──
-    window.openEditEducatorModal = (id, name, phone, address, joiningDate, qualification, professional, photo) => {
+    window.openEditEducatorModal = (id, name, phone, joiningDate, professional, photo) => {
         editingEducatorId = id;
         document.getElementById('editEdName').value = name;
         document.getElementById('editEdPhone').value = phone;
-        document.getElementById('editEdAddress').value = address;
         document.getElementById('editEdJoiningDate').value = joiningDate;
-        document.getElementById('editEdQualification').value = qualification;
         document.getElementById('editEdProfessional').value = professional;
         
         if (photo) {
@@ -1840,13 +1800,11 @@
     window.updateEducator = async () => {
         const name = document.getElementById('editEdName').value.trim();
         const phone = document.getElementById('editEdPhone').value.trim();
-        const address = document.getElementById('editEdAddress').value.trim();
         const joiningDate = document.getElementById('editEdJoiningDate').value;
-        const qualification = document.getElementById('editEdQualification').value;
         const professional = document.getElementById('editEdProfessional').value;
 
-        if (!name || !phone || !address || !joiningDate || !qualification || !professional) {
-            showAlert('❌ Please fill all required fields', 'error', 'educatorsAlert');
+        if (!name || !phone || !professional) {
+            showAlert('❌ Please fill all required fields (Name, Phone, Professional Status)', 'error', 'educatorsAlert');
             return;
         }
 
@@ -1857,7 +1815,7 @@
             }
 
             const updateData = {
-                name, phone, address, joiningDate, qualification, professional
+                name, phone, joiningDate, professional
             };
 
             if (photoUrl) {
