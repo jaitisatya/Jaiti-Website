@@ -521,6 +521,73 @@
 
         .entry-delete:hover { background: #FCEBEB; border-color: #f5c6c6; }
 
+        .entry-edit {
+            background: none;
+            border: 1px solid #d4c9bc;
+            color: #2f5f4f;
+            padding: 4px 10px;
+            border-radius: 6px;
+            font-size: 0.75rem;
+            cursor: pointer;
+            font-family: 'Inter', sans-serif;
+            transition: all 0.15s;
+        }
+
+        .entry-edit:hover { background: #e8f2ee; border-color: #3a7260; }
+
+        .entry-edit:disabled {
+            background: #f0ebe3;
+            cursor: not-allowed;
+            opacity: 0.5;
+            border-color: #d4c9bc;
+        }
+
+        /* ── EDIT ENTRY MODAL ── */
+        .edit-entry-modal {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.5);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+            padding: 1rem;
+            overflow-y: auto;
+        }
+
+        .edit-entry-modal.show { display: flex; }
+
+        .edit-entry-content {
+            background: white;
+            border-radius: 16px;
+            padding: 1.5rem;
+            max-width: 700px;
+            width: 100%;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+        }
+
+        .edit-entry-header {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: #2f5f4f;
+            margin-bottom: 1rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 2px solid #e8f2ee;
+            padding-bottom: 0.75rem;
+        }
+
+        .edit-entry-close {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: #a08878;
+        }
+
         /* ── STATS SUMMARY ── */
         .stats-grid {
             display: grid;
@@ -1155,7 +1222,69 @@
 
 </div>
 
-<!-- ENTRY DETAIL MODAL -->
+        <!-- EDIT ENTRY MODAL -->
+<div class="edit-entry-modal" id="editEntryModal">
+    <div class="edit-entry-content">
+        <div class="edit-entry-header">
+            <span>Edit Entry</span>
+            <button class="edit-entry-close" onclick="closeEditEntryModal()">✕</button>
+        </div>
+        
+        <div class="form-row">
+            <div class="form-group">
+                <label>Date *</label>
+                <input type="date" id="editEntryDate">
+            </div>
+            <div class="form-group">
+                <label>Session Type</label>
+                <select id="editSessionType">
+                    <option value="regular">Regular Class</option>
+                    <option value="workshop">Workshop</option>
+                    <option value="event">Event</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="form-row">
+            <div class="form-group">
+                <label>Boys Present</label>
+                <input type="number" id="editAttBoys" min="0" value="0">
+            </div>
+            <div class="form-group">
+                <label>Girls Present</label>
+                <input type="number" id="editAttGirls" min="0" value="0">
+            </div>
+            <div class="form-group">
+                <label>Total Present</label>
+                <input type="number" id="editAttTotal" min="0" value="0" readonly>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label>Educators Present</label>
+            <div id="editEducatorsCheckboxes" class="educators-checkboxes"></div>
+        </div>
+
+        <div class="form-group">
+            <label>Activities *</label>
+            <textarea id="editActivities" maxlength="500" placeholder="Describe today's activities" style="height:80px"></textarea>
+        </div>
+
+        <div class="form-group">
+            <label>Highlights</label>
+            <textarea id="editHighlights" maxlength="300" placeholder="Any highlights?" style="height:60px"></textarea>
+        </div>
+
+        <div class="form-group">
+            <label>Challenges</label>
+            <textarea id="editChallenges" maxlength="300" placeholder="Any challenges faced?" style="height:60px"></textarea>
+        </div>
+
+        <button class="btn-save" id="updateEntryBtn" onclick="updateEntry()" style="width:100%">✅ Update Entry</button>
+    </div>
+</div>
+
+        <!-- ENTRY DETAIL MODAL -->
 <div class="entry-detail-modal" id="entryDetailModal">
     <div class="entry-detail-content">
         <div class="entry-detail-header">
@@ -1491,6 +1620,91 @@
         selectedMood = '😊 Good';
     }
 
+    // ── EDIT ENTRY DATA ──
+    let editingEntryId = null;
+    let editingEntryData = null;
+
+    // ── OPEN EDIT ENTRY MODAL ──
+    window.openEditEntryModal = (entryId) => {
+        const entry = allSummaryEntries.find(e => e.id === entryId);
+        if (!entry) return;
+
+        editingEntryId = entryId;
+        editingEntryData = entry;
+
+        document.getElementById('editEntryDate').value = entry.date || '';
+        document.getElementById('editSessionType').value = entry.sessionType || 'regular';
+        document.getElementById('editAttBoys').value = entry.attendance?.boys || 0;
+        document.getElementById('editAttGirls').value = entry.attendance?.girls || 0;
+        document.getElementById('editAttTotal').value = entry.attendance?.total || 0;
+        document.getElementById('editActivities').value = entry.activities || '';
+        document.getElementById('editHighlights').value = entry.highlights || '';
+        document.getElementById('editChallenges').value = entry.challenges || '';
+
+        // Load educators checkboxes
+        document.querySelectorAll('#editEducatorsCheckboxes input[type="checkbox"]').forEach(cb => {
+            cb.checked = entry.educatorsPresent?.includes(allEducators.find(e => e.id === cb.value)?.name) || false;
+        });
+
+        document.getElementById('editEntryModal').classList.add('show');
+    };
+
+    window.closeEditEntryModal = () => {
+        document.getElementById('editEntryModal').classList.remove('show');
+        editingEntryId = null;
+        editingEntryData = null;
+    };
+
+    // ── UPDATE ENTRY ──
+    window.updateEntry = async () => {
+        const date = document.getElementById('editEntryDate').value;
+        const activities = document.getElementById('editActivities').value.trim();
+
+        if (!date || !activities) {
+            showAlert('❌ Please fill required fields', 'error');
+            return;
+        }
+
+        const btn = document.getElementById('updateEntryBtn');
+        btn.disabled = true;
+        btn.innerHTML = '<span class="spinner"></span> Updating...';
+
+        try {
+            const selectedEducators = [];
+            document.querySelectorAll('#editEducatorsCheckboxes input[type="checkbox"]:checked').forEach(cb => {
+                const educator = allEducators.find(e => e.id === cb.value);
+                if (educator) selectedEducators.push(educator.name);
+            });
+
+            const updateData = {
+                date,
+                sessionType: document.getElementById('editSessionType').value,
+                mood: editingEntryData.mood,
+                attendance: {
+                    boys: parseInt(document.getElementById('editAttBoys').value) || 0,
+                    girls: parseInt(document.getElementById('editAttGirls').value) || 0,
+                    total: parseInt(document.getElementById('editAttTotal').value) || 0,
+                },
+                educatorsPresent: selectedEducators,
+                activities: activities,
+                highlights: document.getElementById('editHighlights').value.trim(),
+                challenges: document.getElementById('editChallenges').value.trim(),
+            };
+
+            await updateDoc(doc(db, 'daily-updates', editingEntryId), updateData);
+            showAlert('✅ Entry updated!', 'success');
+            closeEditEntryModal();
+            loadEntries();
+            loadSummary();
+        } catch (err) {
+            console.error(err);
+            showAlert('❌ Error updating. ' + err.message, 'error');
+        } finally {
+            btn.disabled = false;
+            btn.innerHTML = '✅ Update Entry';
+        }
+    };
+
     // ── LOAD ENTRIES ──
     window.loadEntries = async () => {
         const list = document.getElementById('entriesList');
@@ -1519,12 +1733,21 @@
                 return;
             }
 
-            list.innerHTML = filtered.map(entry => `
+            list.innerHTML = filtered.map(entry => {
+                const createdAt = entry.createdAt?.toDate?.() || new Date(entry.createdAt);
+                const now = new Date();
+                const hoursDiff = (now - createdAt) / (1000 * 60 * 60);
+                const canEdit = hoursDiff < 24;
+
+                return `
                 <div class="entry-card" id="entry-${entry.id}">
                     <div class="entry-header">
                         <span class="entry-date">📅 ${formatDate(entry.date)}</span>
                         <div style="display:flex;gap:6px;align-items:center">
                             <span class="entry-mood">${entry.mood || ''}</span>
+                            <button class="entry-edit" onclick="openEditEntryModal('${entry.id}')" ${!canEdit ? 'disabled title="Can only edit within 24 hours"' : ''}>
+                                ${canEdit ? '✏️ Edit' : '⏰ Locked'}
+                            </button>
                             <button class="entry-delete" onclick="deleteEntry('${entry.id}')">🗑 Delete</button>
                         </div>
                     </div>
@@ -1546,7 +1769,8 @@
                     ` : ''}
                     <div style="margin-top:0.5rem;font-size:0.7rem;color:#a08878">Added by: ${entry.createdBy || 'unknown'}</div>
                 </div>
-            `).join('');
+            `;
+            }).join('');
 
         } catch (err) {
             list.innerHTML = '<div class="empty-state"><div class="icon">❌</div><p>Error loading entries. Check connection.</p></div>';
