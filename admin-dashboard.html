@@ -1271,9 +1271,11 @@
         <div class="form-group">
             <label>Educators Present</label>
             <div id="educatorsCheckboxes" class="educators-checkboxes"></div>
-            <div style="margin-top:0.5rem;padding:0.5rem;background:#e8f2ee;border-radius:8px;font-size:0.875rem;color:#2f5f4f;font-weight:600">
-                👨‍🏫 <span id="educatorCount">0</span> Educators Selected
-            </div>
+        </div>
+
+        <div class="att-card" style="background:#e8f2ee;border:2px solid #3a7260;text-align:center;padding:1rem;border-radius:10px;margin-bottom:1rem">
+            <label style="font-size:0.8rem;color:#5c4a38;display:block;margin-bottom:0.5rem;font-weight:600">Total Educators Present</label>
+            <div style="font-size:2rem;font-weight:700;color:#2f5f4f" id="educatorCountDisplay">0</div>
         </div>
 
         <div class="form-group">
@@ -1456,8 +1458,8 @@
     // ── UPDATE EDUCATOR COUNT ──
     window.updateEducatorCount = () => {
         const checked = document.querySelectorAll('#educatorsCheckboxes input[type="checkbox"]:checked').length;
-        const countEl = document.getElementById('educatorCount');
-        if (countEl) countEl.textContent = checked;
+        const countDisplay = document.getElementById('educatorCountDisplay');
+        if (countDisplay) countDisplay.textContent = checked;
     };
 
     // ── LOAD EDUCATORS CHECKBOXES ──
