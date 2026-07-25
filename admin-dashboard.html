@@ -1316,7 +1316,7 @@
     // ── LOAD EDUCATORS CHECKBOXES ──
     window.loadEducatorsCheckboxes = async () => {
         try {
-            const q = query(collection(db, 'educators'), orderBy('createdAt', 'desc'));
+            const q = query(collection(db, 'educators'), orderBy('createdAt', 'asc'));
             const snap = await getDocs(q);
             allEducators = [];
             
