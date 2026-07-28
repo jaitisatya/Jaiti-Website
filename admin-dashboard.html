@@ -1942,6 +1942,16 @@
         }
     };
 
+    window.toggleChildrenForm = () => {
+        const formCard = document.getElementById('addChildrenFormCard');
+        if (formCard.style.display === 'none') {
+            formCard.style.display = 'block';
+            formCard.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        } else {
+            formCard.style.display = 'none';
+        }
+    };
+
     // ── OPEN LIGHTBOX ──
     window.openLightbox = (photoUrl) => {
         let lightbox = document.getElementById('photoLightbox');
