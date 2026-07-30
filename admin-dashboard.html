@@ -914,6 +914,91 @@
             cursor: pointer;
             color: #a08878;
         }
+
+        /* ── DRAG & DROP STYLES ── */
+        .drag-handle {
+            cursor: grab;
+            color: #9ca3af;
+            font-size: 1.2rem;
+            user-select: none;
+            padding: 0 8px;
+            transition: color 0.2s;
+        }
+
+        .drag-handle:hover {
+            color: #6b7280;
+        }
+
+        .data-table tbody tr.dragging {
+            opacity: 0.5;
+            background-color: #fef3c7 !important;
+        }
+
+        .data-table tbody tr.drag-over {
+            background-color: #e8f2ee !important;
+            border-top: 3px solid #3a7260;
+        }
+
+        .btn-move {
+            background: none;
+            border: 1px solid #d4c9bc;
+            color: #6b7280;
+            padding: 4px 8px;
+            border-radius: 6px;
+            font-size: 0.85rem;
+            cursor: pointer;
+            font-family: 'Inter', sans-serif;
+            transition: all 0.15s;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 32px;
+            height: 28px;
+        }
+
+        .btn-move:hover:not(:disabled) {
+            background-color: #f3f4f6;
+            border-color: #9ca3af;
+            color: #374151;
+        }
+
+        .btn-move:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+            background-color: #f9fafb;
+        }
+
+        .action-btn {
+            background: none;
+            border: 1px solid #d4c9bc;
+            color: #2f5f4f;
+            padding: 4px 10px;
+            border-radius: 6px;
+            font-size: 0.75rem;
+            cursor: pointer;
+            font-family: 'Inter', sans-serif;
+            transition: all 0.15s;
+            margin-right: 4px;
+        }
+
+        .action-btn.edit {
+            color: #2f5f4f;
+        }
+
+        .action-btn.edit:hover {
+            background: #e8f2ee;
+            border-color: #3a7260;
+        }
+
+        .action-btn.delete {
+            color: #A32D2D;
+        }
+
+        .action-btn.delete:hover {
+            background: #FCEBEB;
+            border-color: #f5c6c6;
+        }
+
     </style>
 </head>
 <body>
@@ -2482,6 +2567,183 @@
             window.handlePhotoSelect(fakeEvent);
         });
     }
+
+    // ── DRAG & DROP VARIABLES ──
+    let draggedEducatorId = null;
+    let draggedEducatorSequence = null;
+
+    // ── LOAD EDUCATORS WITH DRAG & DROP ──
+    window.loadEducatorsList = async () => {
+        const list = document.getElementById('educatorsList');
+        try {
+            const q = query(collection(db, 'educators'), orderBy('sequence', 'asc'), orderBy('createdAt', 'asc'));
+            const snap = await getDocs(q);
+            
+            if (snap.empty) {
+                list.innerHTML = '<div class="empty-state"><div class="icon">👥</div><p>No educators added yet</p></div>';
+                return;
+            }
+
+            let html = '<table class="data-table"><thead><tr><th style="width:40px">Drag</th><th style="width:50px">S.No</th><th>Name</th><th>Photo</th><th>Phone</th><th>Joining Date</th><th>Professional</th><th style="width:200px">Actions</th></tr></thead><tbody>';
+            
+            let idx = 1;
+            const educators = [];
+            snap.forEach((doc) => {
+                educators.push({ id: doc.id, ...doc.data() });
+            });
+
+            educators.forEach((ed, index) => {
+                const isFirst = index === 0;
+                const isLast = index === educators.length - 1;
+                const sequence = ed.sequence ?? index;
+
+                html += `<tr draggable="true" data-educator-id="${ed.id}" data-sequence="${sequence}" class="educator-row" 
+                    ondragstart="startDragEducator(event, '${ed.id}', ${sequence})"
+                    ondragover="dragOverEducator(event)"
+                    ondrop="dropEducator(event, '${ed.id}', ${sequence})"
+                    ondragend="endDragEducator(event)">
+                    <td style="text-align:center;cursor:grab" class="drag-handle" title="Drag to reorder">≡</td>
+                    <td style="text-align:center;font-weight:600">${idx++}</td>
+                    <td>${ed.name}</td>
+                    <td>${ed.photo ? `<img src="${ed.photo}" onclick="openLightbox('${ed.photo}')" style="cursor:pointer">` : '-'}</td>
+                    <td>${ed.phone}</td>
+                    <td>${ed.joiningDate || '-'}</td>
+                    <td>${ed.professional}</td>
+                    <td>
+                        <button class="btn-move" onclick="moveEducatorUp('${ed.id}', ${sequence})" ${isFirst ? 'disabled' : ''} title="Move up">↑</button>
+                        <button class="btn-move" onclick="moveEducatorDown('${ed.id}', ${sequence})" ${isLast ? 'disabled' : ''} title="Move down">↓</button>
+                        <button class="action-btn edit" onclick="openEditEducatorModal('${ed.id}', '${ed.name}', '${ed.phone}', '${ed.joiningDate || ''}', '${ed.professional}', '${ed.photo || ''}')">✏️ Edit</button>
+                        <button class="action-btn delete" onclick="deleteEducator('${ed.id}')">🗑 Delete</button>
+                    </td>
+                </tr>`;
+            });
+
+            html += '</tbody></table>';
+            list.innerHTML = html;
+        } catch (err) {
+            console.error(err);
+            list.innerHTML = '<div class="empty-state"><div class="icon">⚠️</div><p>Error loading educators</p></div>';
+        }
+    };
+
+    // ── DRAG START ──
+    window.startDragEducator = (e, id, sequence) => {
+        draggedEducatorId = id;
+        draggedEducatorSequence = sequence;
+        e.target.closest('tr').classList.add('dragging');
+        e.dataTransfer.effectAllowed = 'move';
+    };
+
+    // ── DRAG OVER ──
+    window.dragOverEducator = (e) => {
+        e.preventDefault();
+        e.dataTransfer.dropEffect = 'move';
+        const row = e.target.closest('tr');
+        if (row && row.dataset.educatorId !== draggedEducatorId) {
+            row.classList.add('drag-over');
+        }
+    };
+
+    // ── DRAG END ──
+    window.endDragEducator = (e) => {
+        document.querySelectorAll('.educator-row').forEach(row => {
+            row.classList.remove('dragging', 'drag-over');
+        });
+    };
+
+    // ── DROP ──
+    window.dropEducator = async (e, targetId, targetSequence) => {
+        e.preventDefault();
+        
+        if (draggedEducatorId === targetId) {
+            endDragEducator();
+            return;
+        }
+
+        try {
+            const q = query(collection(db, 'educators'), orderBy('sequence', 'asc'));
+            const snap = await getDocs(q);
+            const educators = [];
+            snap.forEach(doc => {
+                educators.push({ id: doc.id, sequence: doc.data().sequence ?? 0 });
+            });
+
+            const draggedIndex = educators.findIndex(e => e.id === draggedEducatorId);
+            const targetIndex = educators.findIndex(e => e.id === targetId);
+
+            if (draggedIndex === -1 || targetIndex === -1) return;
+
+            const [draggedEd] = educators.splice(draggedIndex, 1);
+            educators.splice(targetIndex, 0, draggedEd);
+
+            for (let i = 0; i < educators.length; i++) {
+                await updateDoc(doc(db, 'educators', educators[i].id), { sequence: i });
+            }
+
+            showAlert('✅ Educators reordered!', 'success', 'educatorsAlert');
+            loadEducatorsList();
+            loadEducatorsCheckboxes();
+        } catch (err) {
+            console.error(err);
+            showAlert('❌ Error: ' + err.message, 'error', 'educatorsAlert');
+        } finally {
+            endDragEducator();
+        }
+    };
+
+    // ── MOVE UP ──
+    window.moveEducatorUp = async (id, sequence) => {
+        try {
+            const q = query(collection(db, 'educators'), orderBy('sequence', 'asc'));
+            const snap = await getDocs(q);
+            const educators = [];
+            snap.forEach(doc => {
+                educators.push({ id: doc.id, sequence: doc.data().sequence ?? 0 });
+            });
+
+            const currentIndex = educators.findIndex(e => e.id === id);
+            if (currentIndex <= 0) return;
+
+            const above = educators[currentIndex - 1];
+            await updateDoc(doc(db, 'educators', id), { sequence: currentIndex - 1 });
+            await updateDoc(doc(db, 'educators', above.id), { sequence: currentIndex });
+
+            showAlert('✅ Educator moved up!', 'success', 'educatorsAlert');
+            loadEducatorsList();
+            loadEducatorsCheckboxes();
+        } catch (err) {
+            console.error(err);
+            showAlert('❌ Error: ' + err.message, 'error', 'educatorsAlert');
+        }
+    };
+
+    // ── MOVE DOWN ──
+    window.moveEducatorDown = async (id, sequence) => {
+        try {
+            const q = query(collection(db, 'educators'), orderBy('sequence', 'asc'));
+            const snap = await getDocs(q);
+            const educators = [];
+            snap.forEach(doc => {
+                educators.push({ id: doc.id, sequence: doc.data().sequence ?? 0 });
+            });
+
+            const currentIndex = educators.findIndex(e => e.id === id);
+            if (currentIndex >= educators.length - 1) return;
+
+            const below = educators[currentIndex + 1];
+            await updateDoc(doc(db, 'educators', id), { sequence: currentIndex + 1 });
+            await updateDoc(doc(db, 'educators', below.id), { sequence: currentIndex });
+
+            showAlert('✅ Educator moved down!', 'success', 'educatorsAlert');
+            loadEducatorsList();
+            loadEducatorsCheckboxes();
+        } catch (err) {
+            console.error(err);
+            showAlert('❌ Error: ' + err.message, 'error', 'educatorsAlert');
+        }
+    };
+
+
 </script>
 
 </body>
