@@ -915,15 +915,10 @@
             color: #a08878;
         }
 
-        /* ── DRAG & DROP STYLES ── */
-        .educator-row { transition: all 0.2s; }
-        .educator-row.dragging { opacity: 0.5; background-color: #fef3c7 !important; }
-        .educator-row.drag-over { background-color: #e8f2ee !important; border-top: 3px solid #3a7260; }
-        .drag-handle { cursor: grab; color: #9ca3af; padding: 0 8px; user-select: none; }
-        .drag-handle:hover { color: #6b7280; }
-        .btn-move { background: none; border: 1px solid #d4c9bc; padding: 4px 8px; border-radius: 6px; cursor: pointer; margin-right: 4px; min-width: 32px; height: 28px; font-family: 'Inter', sans-serif; transition: all 0.15s; }
-        .btn-move:hover:not(:disabled) { background-color: #f3f4f6; border-color: #9ca3af; color: #374151; }
-        .btn-move:disabled { opacity: 0.4; cursor: not-allowed; }
+        .drag-handle { user-select: none; }
+        .btn-arrow { background: none; border: 1px solid #d4c9bc; padding: 4px 6px; border-radius: 4px; cursor: pointer; font-size: 0.85rem; font-family: 'Inter', sans-serif; }
+        .btn-arrow:hover { background: #f3f4f6; border-color: #9ca3af; }
+        .educator-row.dragging { opacity: 0.5; background: #fef3c7; }
 
     </style>
 </head>
@@ -2074,20 +2069,13 @@
                 return;
             }
 
-            let html = '<table class="data-table"><thead><tr><th style="width:40px">Drag</th><th>S.No</th><th>Name</th><th>Photo</th><th>Phone</th><th>Joining Date</th><th>Professional</th><th>Actions</th></tr></thead><tbody>';
+            let html = '<table class="data-table"><thead><tr><th style="width:45px;text-align:center">Drag</th><th>S.No</th><th>Name</th><th>Photo</th><th>Phone</th><th>Joining Date</th><th>Professional</th><th>Actions</th></tr></thead><tbody>';
             
             let idx = 1;
             snap.forEach((doc) => {
                 const ed = doc.data();
-                const isFirst = idx === 2;
-                const isLast = idx === snap.size + 1;
-                const sequence = ed.sequence ?? idx - 1;
-                html += `<tr class="educator-row" draggable="true" data-educator-id="${doc.id}" 
-                    ondragstart="startDragEducator(event, '${doc.id}', ${sequence})"
-                    ondragover="dragOverEducator(event)"
-                    ondrop="dropEducator(event, '${doc.id}', ${sequence})"
-                    ondragend="endDragEducator(event)">
-                    <td class="drag-handle">≡</td>
+                html += `<tr class="educator-row" draggable="true" data-ed-id="${doc.id}">
+                    <td style="text-align:center;cursor:grab" class="drag-handle" ondragstart="dragStart(event,'${doc.id}')" ondragover="dragOver(event)" ondrop="dragDrop(event,'${doc.id}')">≡</td>
                     <td>${idx++}</td>
                     <td>${ed.name}</td>
                     <td>${ed.photo ? `<img src="${ed.photo}" onclick="openLightbox('${ed.photo}')">` : '-'}</td>
@@ -2095,9 +2083,7 @@
                     <td>${ed.joiningDate || '-'}</td>
                     <td>${ed.professional}</td>
                     <td>
-                        <button class="btn-move" onclick="moveEducatorUp('${doc.id}', ${sequence})" ${isFirst ? 'disabled' : ''}>↑</button>
-                        <button class="btn-move" onclick="moveEducatorDown('${doc.id}', ${sequence})" ${isLast ? 'disabled' : ''}>↓</button>
-                        <button class="action-btn edit" onclick="openEditEducatorModal('${doc.id}', '${ed.name}', '${ed.phone}', '${ed.joiningDate || ''}', '${ed.professional}', '${ed.photo || ''}')">✏️ Edit</button>
+                        <button class="btn-arrow" onclick="moveUp('${doc.id}')" style="padding:4px 6px;margin-right:2px">↑</button><button class="btn-arrow" onclick="moveDown('${doc.id}')" style="padding:4px 6px;margin-right:6px">↓</button><button class="action-btn edit" onclick="openEditEducatorModal('${doc.id}', '${ed.name}', '${ed.phone}', '${ed.joiningDate || ''}', '${ed.professional}', '${ed.photo || ''}')">✏️ Edit</button>
                         <button class="action-btn delete" onclick="deleteEducator('${doc.id}')">🗑 Delete</button>
                     </td>
                 </tr>`;
@@ -2274,12 +2260,13 @@
                 return;
             }
 
-            let html = '<table class="data-table"><thead><tr><th>S.No</th><th>Name</th><th>DOB</th><th>Mother</th><th>Father</th><th>Class</th><th>Photo</th><th>Actions</th></tr></thead><tbody>';
+            let html = '<table class="data-table"><thead><tr><th style="width:45px;text-align:center">Drag</th><th>S.No</th><th>Name</th><th>DOB</th><th>Mother</th><th>Father</th><th>Class</th><th>Photo</th><th>Actions</th></tr></thead><tbody>';
             
             let idx = 1;
             snap.forEach((doc) => {
                 const ch = doc.data();
-                html += `<tr>
+                html += `<tr class="educator-row" draggable="true" data-ed-id="${doc.id}">
+                    <td style="text-align:center;cursor:grab" class="drag-handle" ondragstart="dragStart(event,'${doc.id}')" ondragover="dragOver(event)" ondrop="dragDrop(event,'${doc.id}')">≡</td>
                     <td>${idx++}</td>
                     <td>${ch.name}</td>
                     <td>${ch.dob}</td>
@@ -2504,49 +2491,49 @@
         });
     }
 
-    // ── DRAG & DROP VARIABLES ──
-    let draggedEducatorId = null;
-    window.startDragEducator = (e, id, seq) => { draggedEducatorId = id; e.target.closest('tr').classList.add('dragging'); e.dataTransfer.effectAllowed = 'move'; };
-    window.dragOverEducator = (e) => { e.preventDefault(); e.target.closest('tr').classList.add('drag-over'); };
-    window.endDragEducator = (e) => { document.querySelectorAll('.educator-row').forEach(r => r.classList.remove('dragging', 'drag-over')); };
-    window.dropEducator = async (e, targetId, seq) => {
+    let draggedId = null;
+    window.dragStart = (e, id) => { draggedId = id; e.target.closest('tr').classList.add('dragging'); };
+    window.dragOver = (e) => { e.preventDefault(); };
+    window.dragDrop = async (e, targetId) => {
         e.preventDefault();
-        if (draggedEducatorId === targetId) { endDragEducator(); return; }
+        if (draggedId === targetId) return;
         try {
             const q = query(collection(db, 'educators'), orderBy('createdAt', 'asc'));
             const snap = await getDocs(q);
-            const eds = []; snap.forEach(d => eds.push({ id: d.id, seq: d.data().sequence ?? 0 }));
-            const dragIdx = eds.findIndex(e => e.id === draggedEducatorId);
-            const tgtIdx = eds.findIndex(e => e.id === targetId);
+            const ids = snap.docs.map(d => d.id);
+            const dragIdx = ids.indexOf(draggedId);
+            const tgtIdx = ids.indexOf(targetId);
             if (dragIdx === -1 || tgtIdx === -1) return;
-            const [dragged] = eds.splice(dragIdx, 1);
-            eds.splice(tgtIdx, 0, dragged);
-            for (let i = 0; i < eds.length; i++) await updateDoc(doc(db, 'educators', eds[i].id), { sequence: i });
+            const [dragged] = ids.splice(dragIdx, 1);
+            ids.splice(tgtIdx, 0, dragged);
+            for (let i = 0; i < ids.length; i++) {
+                await updateDoc(doc(db, 'educators', ids[i]), { sequence: i });
+            }
             loadEducatorsList();
         } catch (err) { console.error(err); }
-        endDragEducator();
+        document.querySelectorAll('.educator-row').forEach(r => r.classList.remove('dragging'));
     };
-    window.moveEducatorUp = async (id, seq) => {
+    window.moveUp = async (id) => {
         try {
             const q = query(collection(db, 'educators'), orderBy('createdAt', 'asc'));
             const snap = await getDocs(q);
-            const eds = []; snap.forEach(d => eds.push({ id: d.id }));
-            const idx = eds.findIndex(e => e.id === id);
+            const ids = snap.docs.map(d => d.id);
+            const idx = ids.indexOf(id);
             if (idx <= 0) return;
             await updateDoc(doc(db, 'educators', id), { sequence: idx - 1 });
-            await updateDoc(doc(db, 'educators', eds[idx-1].id), { sequence: idx });
+            await updateDoc(doc(db, 'educators', ids[idx - 1]), { sequence: idx });
             loadEducatorsList();
         } catch (err) { console.error(err); }
     };
-    window.moveEducatorDown = async (id, seq) => {
+    window.moveDown = async (id) => {
         try {
             const q = query(collection(db, 'educators'), orderBy('createdAt', 'asc'));
             const snap = await getDocs(q);
-            const eds = []; snap.forEach(d => eds.push({ id: d.id }));
-            const idx = eds.findIndex(e => e.id === id);
-            if (idx >= eds.length - 1) return;
+            const ids = snap.docs.map(d => d.id);
+            const idx = ids.indexOf(id);
+            if (idx >= ids.length - 1) return;
             await updateDoc(doc(db, 'educators', id), { sequence: idx + 1 });
-            await updateDoc(doc(db, 'educators', eds[idx+1].id), { sequence: idx });
+            await updateDoc(doc(db, 'educators', ids[idx + 1]), { sequence: idx });
             loadEducatorsList();
         } catch (err) { console.error(err); }
     };
