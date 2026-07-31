@@ -2492,7 +2492,7 @@
             const q = query(collection(db, 'educators'), orderBy('createdAt', 'asc'));
             const snap = await getDocs(q);
             const educators = [];
-            snap.forEach((d, i) => educators.push({ id: d.id, index: i }));
+            snap.docs.forEach((d, i) => educators.push({ id: d.id, index: i }));
             
             const current = educators.find(e => e.id === id);
             if (!current || current.index === 0) {
@@ -2521,7 +2521,7 @@
             const q = query(collection(db, 'educators'), orderBy('createdAt', 'asc'));
             const snap = await getDocs(q);
             const educators = [];
-            snap.forEach((d, i) => educators.push({ id: d.id, index: i }));
+            snap.docs.forEach((d, i) => educators.push({ id: d.id, index: i }));
             
             const current = educators.find(e => e.id === id);
             if (!current || current.index === educators.length - 1) {
