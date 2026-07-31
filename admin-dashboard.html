@@ -2487,59 +2487,47 @@
 
     // ── MOVE EDUCATORS UP/DOWN ──
     window.moveEducatorUp = async (id) => {
-        console.log('Moving up:', id);
         try {
             const q = query(collection(db, 'educators'), orderBy('createdAt', 'asc'));
             const snap = await getDocs(q);
-            const educators = [];
-            snap.docs.forEach((d, i) => educators.push({ id: d.id, index: i }));
+            const allDocs = [];
+            snap.forEach(doc => allDocs.push({ id: doc.id, data: doc.data() }));
             
-            const current = educators.find(e => e.id === id);
-            if (!current || current.index === 0) {
-                console.log('Cannot move up');
-                return;
-            }
+            const currentIdx = allDocs.findIndex(e => e.id === id);
+            if (currentIdx <= 0) return;
             
-            const above = educators[current.index - 1];
-            console.log('Swapping', current.id, 'with', above.id);
+            const temp = allDocs[currentIdx];
+            allDocs[currentIdx] = allDocs[currentIdx - 1];
+            allDocs[currentIdx - 1] = temp;
             
-            // Swap positions
-            await updateDoc(doc(db, 'educators', current.id), { sequence: above.index });
-            await updateDoc(doc(db, 'educators', above.id), { sequence: current.index });
+            await updateDoc(doc(db, 'educators', allDocs[currentIdx].id), { order: currentIdx });
+            await updateDoc(doc(db, 'educators', allDocs[currentIdx - 1].id), { order: currentIdx - 1 });
             
-            console.log('Swap complete, reloading...');
             loadEducatorsList();
         } catch (err) { 
-            console.error('Error moving up:', err);
             alert('Error: ' + err.message); 
         }
     };
 
     window.moveEducatorDown = async (id) => {
-        console.log('Moving down:', id);
         try {
             const q = query(collection(db, 'educators'), orderBy('createdAt', 'asc'));
             const snap = await getDocs(q);
-            const educators = [];
-            snap.docs.forEach((d, i) => educators.push({ id: d.id, index: i }));
+            const allDocs = [];
+            snap.forEach(doc => allDocs.push({ id: doc.id, data: doc.data() }));
             
-            const current = educators.find(e => e.id === id);
-            if (!current || current.index === educators.length - 1) {
-                console.log('Cannot move down');
-                return;
-            }
+            const currentIdx = allDocs.findIndex(e => e.id === id);
+            if (currentIdx >= allDocs.length - 1) return;
             
-            const below = educators[current.index + 1];
-            console.log('Swapping', current.id, 'with', below.id);
+            const temp = allDocs[currentIdx];
+            allDocs[currentIdx] = allDocs[currentIdx + 1];
+            allDocs[currentIdx + 1] = temp;
             
-            // Swap positions
-            await updateDoc(doc(db, 'educators', current.id), { sequence: below.index });
-            await updateDoc(doc(db, 'educators', below.id), { sequence: current.index });
+            await updateDoc(doc(db, 'educators', allDocs[currentIdx].id), { order: currentIdx });
+            await updateDoc(doc(db, 'educators', allDocs[currentIdx + 1].id), { order: currentIdx + 1 });
             
-            console.log('Swap complete, reloading...');
             loadEducatorsList();
         } catch (err) { 
-            console.error('Error moving down:', err);
             alert('Error: ' + err.message); 
         }
     };
