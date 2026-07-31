@@ -1121,6 +1121,9 @@
                 <h2 style="margin:0;white-space:nowrap;font-size:1.1rem;color:#2c1a0e;font-weight:600">📚 All Educators</h2>
                 <button class="btn-save" onclick="toggleEducatorForm()" style="padding:0.25rem 0.5rem;font-size:0.7rem;white-space:nowrap;flex-shrink:0;width:auto">+ Add</button>
             </div>
+            <div style="margin-bottom:1rem">
+                <input type="text" id="educatorSearch" placeholder="Search by name, phone, status..." style="width:100%;padding:0.75rem;border:2px solid #d4c9bc;border-radius:10px;font-size:0.9rem;outline:none" oninput="filterEducators()">
+            </div>
             <div id="educatorsList">
                 <div class="empty-state">
                     <div class="icon">👥</div>
@@ -1185,6 +1188,9 @@
             <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem;gap:0.5rem;flex-wrap:nowrap">
                 <h2 style="margin:0;white-space:nowrap;font-size:1.1rem;color:#2c1a0e;font-weight:600">👧 All Children</h2>
                 <button class="btn-save" onclick="toggleChildrenForm()" style="padding:0.25rem 0.5rem;font-size:0.7rem;white-space:nowrap;flex-shrink:0;width:auto">+ Add</button>
+            </div>
+            <div style="margin-bottom:1rem">
+                <input type="text" id="childrenSearch" placeholder="Search by child name, parent name, DOB..." style="width:100%;padding:0.75rem;border:2px solid #d4c9bc;border-radius:10px;font-size:0.9rem;outline:none" oninput="filterChildren()">
             </div>
             <div id="childrenList">
                 <div class="empty-state">
@@ -2063,12 +2069,14 @@
                 return;
             }
 
+            window.allEducatorsData = [];
             let html = '<table class="data-table"><thead><tr><th>S.No</th><th>Name</th><th>Photo</th><th>Phone</th><th>Joining Date</th><th>Professional</th><th>Actions</th></tr></thead><tbody>';
             
             let idx = 1;
             snap.forEach((doc) => {
                 const ed = doc.data();
-                html += `<tr>
+                window.allEducatorsData.push({ id: doc.id, ...ed });
+                html += `<tr class="educator-row" data-name="${ed.name.toLowerCase()}" data-phone="${ed.phone}" data-professional="${ed.professional.toLowerCase()}">
                     <td>${idx++}</td>
                     <td>${ed.name}</td>
                     <td>${ed.photo ? `<img src="${ed.photo}" onclick="openLightbox('${ed.photo}')">` : '-'}</td>
@@ -2255,12 +2263,21 @@
                 return;
             }
 
+            window.allChildrenData = [];
+            const childrenArray = [];
+            snap.forEach((doc) => {
+                const ch = doc.data();
+                childrenArray.push({ id: doc.id, ...ch });
+                window.allChildrenData.push({ id: doc.id, ...ch });
+            });
+            
+            childrenArray.sort((a, b) => a.name.localeCompare(b.name));
+            
             let html = '<table class="data-table"><thead><tr><th>S.No</th><th>Name</th><th>DOB</th><th>Mother</th><th>Father</th><th>Class</th><th>Photo</th><th>Actions</th></tr></thead><tbody>';
             
             let idx = 1;
-            snap.forEach((doc) => {
-                const ch = doc.data();
-                html += `<tr>
+            childrenArray.forEach((ch) => {
+                html += `<tr class="child-row" data-name="${ch.name.toLowerCase()}" data-mother="${ch.mother.toLowerCase()}" data-father="${ch.father.toLowerCase()}" data-dob="${ch.dob}">
                     <td>${idx++}</td>
                     <td>${ch.name}</td>
                     <td>${ch.dob}</td>
@@ -2269,7 +2286,7 @@
                     <td>${ch.class}</td>
                     <td>${ch.photo ? `<img src="${ch.photo}" onclick="openLightbox('${ch.photo}')">` : '-'}</td>
                     <td>
-                        <button class="action-btn delete" onclick="deleteChild('${doc.id}')">🗑 Delete</button>
+                        <button class="action-btn delete" onclick="deleteChild('${ch.id}')">🗑 Delete</button>
                     </td>
                 </tr>`;
             });
@@ -2530,6 +2547,39 @@
         } catch (err) { 
             alert('Error: ' + err.message); 
         }
+    };
+
+    // ── FILTER EDUCATORS ──
+    window.filterEducators = () => {
+        const searchBox = document.getElementById('educatorSearch');
+        const searchTerm = searchBox.value.toLowerCase();
+        const rows = document.querySelectorAll('.educator-row');
+        
+        rows.forEach(row => {
+            const name = row.dataset.name || '';
+            const phone = row.dataset.phone || '';
+            const professional = row.dataset.professional || '';
+            
+            const matches = name.includes(searchTerm) || phone.includes(searchTerm) || professional.includes(searchTerm);
+            row.style.display = matches ? '' : 'none';
+        });
+    };
+
+    // ── FILTER CHILDREN ──
+    window.filterChildren = () => {
+        const searchBox = document.getElementById('childrenSearch');
+        const searchTerm = searchBox.value.toLowerCase();
+        const rows = document.querySelectorAll('.child-row');
+        
+        rows.forEach(row => {
+            const name = row.dataset.name || '';
+            const mother = row.dataset.mother || '';
+            const father = row.dataset.father || '';
+            const dob = row.dataset.dob || '';
+            
+            const matches = name.includes(searchTerm) || mother.includes(searchTerm) || father.includes(searchTerm) || dob.includes(searchTerm);
+            row.style.display = matches ? '' : 'none';
+        });
     };
 </script>
 
