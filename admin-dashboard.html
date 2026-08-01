@@ -1109,6 +1109,76 @@
             </div>
         </div>
 
+        <div class="card">
+            <div class="card-title">📅 Data Export & Filter</div>
+            
+            <!-- Filter Options -->
+            <div style="margin-bottom:1.5rem;padding:1rem;background:#f5f1ed;border-radius:10px">
+                <div style="margin-bottom:1rem">
+                    <label style="display:block;margin-bottom:0.5rem;font-weight:600;color:#2c1a0e">Filter Type:</label>
+                    <div style="display:flex;gap:0.5rem;flex-wrap:wrap">
+                        <button onclick="switchFilterType('date-range')" class="filter-btn" style="padding:0.5rem 1rem;border:2px solid #3a7260;background:white;color:#3a7260;border-radius:5px;cursor:pointer;font-weight:600">📅 Date Range</button>
+                        <button onclick="switchFilterType('month')" class="filter-btn" style="padding:0.5rem 1rem;border:2px solid #d4c9bc;background:white;color:#7a6b5d;border-radius:5px;cursor:pointer;font-weight:600">📆 Month</button>
+                        <button onclick="switchFilterType('quick')" class="filter-btn" style="padding:0.5rem 1rem;border:2px solid #d4c9bc;background:white;color:#7a6b5d;border-radius:5px;cursor:pointer;font-weight:600">⚡ Quick</button>
+                    </div>
+                </div>
+
+                <!-- Date Range Filter -->
+                <div id="dateRangeFilter" style="display:none">
+                    <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1rem">
+                        <div>
+                            <label style="display:block;margin-bottom:0.5rem;font-weight:600;color:#2c1a0e">Start Date:</label>
+                            <input type="date" id="startDate" style="width:100%;padding:0.75rem;border:2px solid #d4c9bc;border-radius:5px;font-size:0.9rem">
+                        </div>
+                        <div>
+                            <label style="display:block;margin-bottom:0.5rem;font-weight:600;color:#2c1a0e">End Date:</label>
+                            <input type="date" id="endDate" style="width:100%;padding:0.75rem;border:2px solid #d4c9bc;border-radius:5px;font-size:0.9rem">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Month Filter -->
+                <div id="monthFilter" style="display:none;margin-bottom:1rem">
+                    <label style="display:block;margin-bottom:0.5rem;font-weight:600;color:#2c1a0e">Select Month:</label>
+                    <select id="monthSelect" style="width:100%;padding:0.75rem;border:2px solid #d4c9bc;border-radius:5px;font-size:0.9rem">
+                        <option value="01">January</option>
+                        <option value="02">February</option>
+                        <option value="03">March</option>
+                        <option value="04">April</option>
+                        <option value="05">May</option>
+                        <option value="06">June</option>
+                        <option value="07">July</option>
+                        <option value="08" selected>August</option>
+                        <option value="09">September</option>
+                        <option value="10">October</option>
+                        <option value="11">November</option>
+                        <option value="12">December</option>
+                    </select>
+                </div>
+
+                <!-- Quick Buttons -->
+                <div id="quickFilter" style="display:none">
+                    <div style="display:flex;gap:0.5rem;flex-wrap:wrap">
+                        <button onclick="applyQuickFilter('this-month')" style="padding:0.5rem 1rem;background:#3a7260;color:white;border:none;border-radius:5px;cursor:pointer;font-weight:600">This Month</button>
+                        <button onclick="applyQuickFilter('last-month')" style="padding:0.5rem 1rem;background:#3a7260;color:white;border:none;border-radius:5px;cursor:pointer;font-weight:600">Last Month</button>
+                        <button onclick="applyQuickFilter('last-3-months')" style="padding:0.5rem 1rem;background:#3a7260;color:white;border:none;border-radius:5px;cursor:pointer;font-weight:600">Last 3 Months</button>
+                        <button onclick="applyQuickFilter('last-year')" style="padding:0.5rem 1rem;background:#3a7260;color:white;border:none;border-radius:5px;cursor:pointer;font-weight:600">Last Year</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Action Buttons -->
+            <div style="display:flex;gap:1rem;margin-bottom:1.5rem;flex-wrap:wrap">
+                <button onclick="loadFilteredData()" style="padding:0.75rem 1.5rem;background:#3a7260;color:white;border:none;border-radius:5px;cursor:pointer;font-weight:600;font-size:0.95rem">👁️ View Data</button>
+                <button onclick="downloadWordFile()" style="padding:0.75rem 1.5rem;background:#2c5f4f;color:white;border:none;border-radius:5px;cursor:pointer;font-weight:600;font-size:0.95rem">📥 Download Word</button>
+            </div>
+
+            <!-- Data Container -->
+            <div id="filteredDataContainer" style="overflow-x:auto">
+                <p style="text-align:center;color:#7a6b5d">Select filter and click View Data</p>
+            </div>
+        </div>
+
     </div>
 
     <!-- ── TAB 4: EDUCATORS DATA ── -->
@@ -2580,6 +2650,101 @@
             const matches = name.includes(searchTerm) || mother.includes(searchTerm) || father.includes(searchTerm) || dob.includes(searchTerm);
             row.style.display = matches ? '' : 'none';
         });
+    };
+
+    window.switchFilterType = (type) => {
+        document.getElementById('dateRangeFilter').style.display = type === 'date-range' ? 'block' : 'none';
+        document.getElementById('monthFilter').style.display = type === 'month' ? 'block' : 'none';
+        document.getElementById('quickFilter').style.display = type === 'quick' ? 'block' : 'none';
+    };
+
+    window.applyQuickFilter = (type) => {
+        const today = new Date();
+        let start, end;
+        if (type === 'this-month') {
+            start = new Date(today.getFullYear(), today.getMonth(), 1);
+            end = today;
+        } else if (type === 'last-month') {
+            start = new Date(today.getFullYear(), today.getMonth() - 1, 1);
+            end = new Date(today.getFullYear(), today.getMonth(), 0);
+        } else if (type === 'last-3-months') {
+            start = new Date(today.getFullYear(), today.getMonth() - 3, today.getDate());
+            end = today;
+        } else if (type === 'last-year') {
+            start = new Date(today.getFullYear() - 1, today.getMonth(), today.getDate());
+            end = today;
+        }
+        document.getElementById('startDate').value = start.toISOString().split('T')[0];
+        document.getElementById('endDate').value = end.toISOString().split('T')[0];
+    };
+
+    window.loadFilteredData = async () => {
+        const container = document.getElementById('filteredDataContainer');
+        container.innerHTML = '<p style="text-align:center;color:#7a6b5d">Loading...</p>';
+        try {
+            let startDate, endDate;
+            if (document.getElementById('dateRangeFilter').style.display !== 'none') {
+                startDate = document.getElementById('startDate').value;
+                endDate = document.getElementById('endDate').value;
+                if (!startDate || !endDate) {
+                    container.innerHTML = '<p style="text-align:center;color:red">Please select both dates</p>';
+                    return;
+                }
+            } else if (document.getElementById('monthFilter').style.display !== 'none') {
+                const month = document.getElementById('monthSelect').value;
+                const year = new Date().getFullYear();
+                startDate = year + '-' + month + '-01';
+                const lastDay = new Date(year, parseInt(month), 0).getDate();
+                endDate = year + '-' + month + '-' + lastDay;
+            }
+            const q = query(collection(db, 'entries'), where('date', '>=', startDate), where('date', '<=', endDate), orderBy('date', 'asc'));
+            const snap = await getDocs(q);
+            if (snap.empty) {
+                container.innerHTML = '<p style="text-align:center;color:#7a6b5d">No data found</p>';
+                return;
+            }
+            window.filteredEntries = [];
+            snap.forEach(doc => window.filteredEntries.push(doc.data()));
+            let html = '<table style="width:100%;border-collapse:collapse"><tr style="background:#3a7260;color:white"><th style="padding:10px;border:1px solid #d4c9bc">Date</th><th style="padding:10px;border:1px solid #d4c9bc">Session</th><th style="padding:10px;border:1px solid #d4c9bc">Children</th><th style="padding:10px;border:1px solid #d4c9bc">Educators</th><th style="padding:10px;border:1px solid #d4c9bc">Photo</th></tr>';
+            window.filteredEntries.forEach(entry => {
+                const photoHtml = entry.photo ? '<img src="' + entry.photo + '" onclick="openLightbox(\'' + entry.photo + '\')" style="width:50px;height:50px;cursor:pointer;border-radius:5px;object-fit:cover">' : '-';
+                html += '<tr><td style="padding:10px;border:1px solid #d4c9bc">' + entry.date + '</td><td style="padding:10px;border:1px solid #d4c9bc">' + (entry.mood || '-') + '</td><td style="padding:10px;border:1px solid #d4c9bc">' + (entry.childrenPresent || '-') + '</td><td style="padding:10px;border:1px solid #d4c9bc">' + (entry.educatorsPresent || '-') + '</td><td style="padding:10px;border:1px solid #d4c9bc;text-align:center">' + photoHtml + '</td></tr>';
+            });
+            html += '</table>';
+            container.innerHTML = html;
+        } catch (err) {
+            container.innerHTML = '<p style="text-align:center;color:red">Error: ' + err.message + '</p>';
+        }
+    };
+
+    window.downloadWordFile = () => {
+        if (!window.filteredEntries || window.filteredEntries.length === 0) {
+            alert('Please load data first!');
+            return;
+        }
+        try {
+            const startDate = document.getElementById('startDate').value || 'N/A';
+            const endDate = document.getElementById('endDate').value || 'N/A';
+            let doc = '<html><body><h1>Jaiti Foundation Report</h1><p>Period: ' + startDate + ' to ' + endDate + '</p>';
+            const total = window.filteredEntries.length;
+            const children = window.filteredEntries.reduce((s, e) => s + (parseInt(e.childrenPresent) || 0), 0);
+            const avg = (children / total).toFixed(0);
+            doc += '<h2>Summary</h2><table border="1"><tr><td>Total Days</td><td>' + total + '</td><td>Total Children</td><td>' + children + '</td><td>Avg/Day</td><td>' + avg + '</td></tr></table>';
+            doc += '<h2>Entries</h2><table border="1"><tr><th>Date</th><th>Session</th><th>Children</th><th>Educators</th></tr>';
+            window.filteredEntries.forEach(e => {
+                doc += '<tr><td>' + e.date + '</td><td>' + (e.mood || '-') + '</td><td>' + (e.childrenPresent || '-') + '</td><td>' + (e.educatorsPresent || '-') + '</td></tr>';
+            });
+            doc += '</table></body></html>';
+            const blob = new Blob([doc], {type: 'application/msword'});
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'Jaiti_Report_' + startDate + '.doc';
+            a.click();
+            URL.revokeObjectURL(url);
+        } catch (err) {
+            alert('Error: ' + err.message);
+        }
     };
 </script>
 
