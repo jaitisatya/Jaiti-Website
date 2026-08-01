@@ -2697,7 +2697,7 @@
                 const lastDay = new Date(year, parseInt(month), 0).getDate();
                 endDate = year + '-' + month + '-' + lastDay;
             }
-            const q = query(collection(db, 'entries'), where('date', '>=', startDate), where('date', '<=', endDate), orderBy('date', 'asc'));
+            const q = query(collection(db, 'daily-updates'), where('date', '>=', startDate), where('date', '<=', endDate), orderBy('date', 'asc'));
             const snap = await getDocs(q);
             if (snap.empty) {
                 container.innerHTML = '<p style="text-align:center;color:#7a6b5d">No data found</p>';
