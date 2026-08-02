@@ -1060,6 +1060,21 @@
                 <div style="display:flex;gap:0.75rem;flex-wrap:wrap;align-items:center">
                     <input type="month" id="filterMonth" style="padding:0.5rem 0.75rem;border:2px solid #d4c9bc;border-radius:8px;font-family:Inter,sans-serif;font-size:0.875rem;outline:none;color:#2c1a0e;background:#fdf9f4" onchange="loadEntries()">
                     <button onclick="loadEntries()" style="padding:0.5rem 1rem;background:#3a7260;color:white;border:none;border-radius:8px;font-family:Inter,sans-serif;font-size:0.875rem;cursor:pointer">🔄 Refresh</button>
+                    <div style="position:relative;display:inline-block">
+                        <button onclick="toggleDownloadMenu('allEntries')" style="padding:0.5rem 1rem;background:#2f5f4f;color:white;border:none;border-radius:8px;font-family:Inter,sans-serif;font-size:0.875rem;cursor:pointer">📥 Download</button>
+                        <div id="downloadMenuAllEntries" style="display:none;position:absolute;top:100%;left:0;background:white;border:2px solid #d4c9bc;border-radius:8px;box-shadow:0 4px 12px rgba(0,0,0,0.15);z-index:1000;min-width:200px;margin-top:0.5rem">
+                            <button onclick="openDownloadPage('dateRange', 'allEntries')" style="width:100%;text-align:left;padding:0.75rem 1rem;border:none;background:none;cursor:pointer;font-family:Inter,sans-serif;font-size:0.875rem;color:#2c1a0e;border-bottom:1px solid #d4c9bc;transition:background 0.2s" onmouseover="this.style.background='#f5f0eb'" onmouseout="this.style.background='none'">📅 Date Range</button>
+                            <button onclick="openDownloadPage('month', 'allEntries')" style="width:100%;text-align:left;padding:0.75rem 1rem;border:none;background:none;cursor:pointer;font-family:Inter,sans-serif;font-size:0.875rem;color:#2c1a0e;border-bottom:1px solid #d4c9bc;transition:background 0.2s" onmouseover="this.style.background='#f5f0eb'" onmouseout="this.style.background='none'">📆 Month Select</button>
+                            <button onclick="openDownloadPage('year', 'allEntries')" style="width:100%;text-align:left;padding:0.75rem 1rem;border:none;background:none;cursor:pointer;font-family:Inter,sans-serif;font-size:0.875rem;color:#2c1a0e;border-bottom:1px solid #d4c9bc;transition:background 0.2s" onmouseover="this.style.background='#f5f0eb'" onmouseout="this.style.background='none'">📊 Year Select</button>
+                            <div style="border-top:1px solid #d4c9bc;padding:0.5rem">
+                                <div style="font-size:0.75rem;color:#7a6b5d;padding:0.5rem 1rem;font-weight:600">⚡ Quick Options</div>
+                                <button onclick="openDownloadPage('thisMonth', 'allEntries')" style="width:100%;text-align:left;padding:0.5rem 1rem;border:none;background:none;cursor:pointer;font-family:Inter,sans-serif;font-size:0.825rem;color:#2c1a0e;transition:background 0.2s" onmouseover="this.style.background='#f5f0eb'" onmouseout="this.style.background='none'">This Month</button>
+                                <button onclick="openDownloadPage('lastMonth', 'allEntries')" style="width:100%;text-align:left;padding:0.5rem 1rem;border:none;background:none;cursor:pointer;font-family:Inter,sans-serif;font-size:0.825rem;color:#2c1a0e;transition:background 0.2s" onmouseover="this.style.background='#f5f0eb'" onmouseout="this.style.background='none'">Last Month</button>
+                                <button onclick="openDownloadPage('last3Months', 'allEntries')" style="width:100%;text-align:left;padding:0.5rem 1rem;border:none;background:none;cursor:pointer;font-family:Inter,sans-serif;font-size:0.825rem;color:#2c1a0e;transition:background 0.2s" onmouseover="this.style.background='#f5f0eb'" onmouseout="this.style.background='none'">Last 3 Months</button>
+                                <button onclick="openDownloadPage('lastYear', 'allEntries')" style="width:100%;text-align:left;padding:0.5rem 1rem;border:none;background:none;cursor:pointer;font-family:Inter,sans-serif;font-size:0.825rem;color:#2c1a0e;transition:background 0.2s" onmouseover="this.style.background='#f5f0eb'" onmouseout="this.style.background='none'">Last Year</button>
+                            </div>
+                        </div>
+                    </div>
                 </div>
                 <div style="font-size:0.85rem;color:#5c4a38;font-weight:600" id="entriesCount">0 entries</div>
             </div>
@@ -2805,6 +2820,258 @@ window.closeEntryModal = function() {
 // ── CLOSE MODAL ON OUTSIDE CLICK ──
 document.addEventListener('click', function(event) {
     const modal = document.getElementById('entryModal');
+    if (event.target === modal) {
+        modal.style.display = 'none';
+    }
+});
+
+// ── TOGGLE DOWNLOAD MENU ──
+window.toggleDownloadMenu = function(page) {
+    const menuId = page === 'allEntries' ? 'downloadMenuAllEntries' : 'downloadMenuSummary';
+    const menu = document.getElementById(menuId);
+    if (!menu) return;
+    menu.style.display = menu.style.display === 'none' ? 'block' : 'none';
+};
+
+// Close menu when clicking outside
+document.addEventListener('click', function(event) {
+    const allEntriesMenu = document.getElementById('downloadMenuAllEntries');
+    const summaryMenu = document.getElementById('downloadMenuSummary');
+    const downloadBtn = event.target.closest('button[onclick*="toggleDownloadMenu"]');
+    
+    if (!downloadBtn) {
+        if (allEntriesMenu) allEntriesMenu.style.display = 'none';
+        if (summaryMenu) summaryMenu.style.display = 'none';
+    }
+});
+
+// ── OPEN DOWNLOAD PAGE ──
+window.openDownloadPage = async function(filterType, source) {
+    // Store filter info in sessionStorage for the download page
+    sessionStorage.setItem('downloadFilterType', filterType);
+    sessionStorage.setItem('downloadSource', source);
+    
+    // Open download page in new tab or modal
+    showDownloadModal(filterType, source);
+};
+
+// ── SHOW DOWNLOAD MODAL ──
+window.showDownloadModal = async function(filterType, source) {
+    // Create modal if it doesn't exist
+    let modal = document.getElementById('downloadModal');
+    if (!modal) {
+        modal = document.createElement('div');
+        modal.id = 'downloadModal';
+        modal.style.cssText = 'display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.5);z-index:2000;overflow-y:auto;padding:1rem';
+        document.body.appendChild(modal);
+    }
+    
+    let html = '<div style="background:white;border-radius:12px;max-width:700px;margin:2rem auto;padding:2rem;box-shadow:0 10px 40px rgba(0,0,0,0.2)">';
+    html += '<h2 style="color:#3a7260;margin-bottom:1.5rem">📥 Download Data</h2>';
+    
+    if (filterType === 'dateRange') {
+        html += '<div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.5rem">';
+        html += '<div><label style="display:block;font-weight:600;color:#2c1a0e;margin-bottom:0.5rem">Start Date</label>';
+        html += '<input type="date" id="downloadStartDate" style="width:100%;padding:0.75rem;border:2px solid #d4c9bc;border-radius:8px;font-family:Inter,sans-serif;outline:none" />';
+        html += '</div>';
+        html += '<div><label style="display:block;font-weight:600;color:#2c1a0e;margin-bottom:0.5rem">End Date</label>';
+        html += '<input type="date" id="downloadEndDate" style="width:100%;padding:0.75rem;border:2px solid #d4c9bc;border-radius:8px;font-family:Inter,sans-serif;outline:none" />';
+        html += '</div>';
+        html += '</div>';
+    } else if (filterType === 'month') {
+        html += '<div style="margin-bottom:1.5rem">';
+        html += '<label style="display:block;font-weight:600;color:#2c1a0e;margin-bottom:0.5rem">Select Month</label>';
+        html += '<input type="month" id="downloadMonth" style="width:100%;padding:0.75rem;border:2px solid #d4c9bc;border-radius:8px;font-family:Inter,sans-serif;outline:none" />';
+        html += '</div>';
+    } else if (filterType === 'year') {
+        html += '<div style="margin-bottom:1.5rem">';
+        html += '<label style="display:block;font-weight:600;color:#2c1a0e;margin-bottom:0.5rem">Select Year</label>';
+        html += '<input type="number" id="downloadYear" min="2020" max="2099" placeholder="2026" style="width:100%;padding:0.75rem;border:2px solid #d4c9bc;border-radius:8px;font-family:Inter,sans-serif;outline:none" />';
+        html += '</div>';
+    }
+    
+    html += '<div style="display:flex;gap:1rem;margin-top:2rem">';
+    html += '<button onclick="downloadAsWord(\'' + filterType + '\', \'' + source + '\')" style="flex:1;padding:0.75rem;background:#3a7260;color:white;border:none;border-radius:8px;cursor:pointer;font-weight:600;font-family:Inter,sans-serif">📄 Download as Word</button>';
+    html += '<button onclick="viewFilteredData(\'' + filterType + '\', \'' + source + '\')" style="flex:1;padding:0.75rem;background:#2f5f4f;color:white;border:none;border-radius:8px;cursor:pointer;font-weight:600;font-family:Inter,sans-serif">👁️ View Data</button>';
+    html += '<button onclick="closeDownloadModal()" style="flex:1;padding:0.75rem;background:#a08878;color:white;border:none;border-radius:8px;cursor:pointer;font-weight:600;font-family:Inter,sans-serif">✕ Close</button>';
+    html += '</div>';
+    html += '</div>';
+    
+    modal.innerHTML = html;
+    modal.style.display = 'block';
+};
+
+// ── CLOSE DOWNLOAD MODAL ──
+window.closeDownloadModal = function() {
+    const modal = document.getElementById('downloadModal');
+    if (modal) modal.style.display = 'none';
+};
+
+// Close modal on outside click
+document.addEventListener('click', function(event) {
+    const modal = document.getElementById('downloadModal');
+    if (event.target === modal) {
+        modal.style.display = 'none';
+    }
+});
+
+// ── GET FILTERED DATA ──
+window.getFilteredDataForDownload = async function(filterType) {
+    try {
+        const snap = await getDocs(query(collection(db, 'daily-updates'), orderBy('date', 'desc')));
+        let entries = [];
+        snap.forEach(d => entries.push({ id: d.id, ...d.data() }));
+        
+        const today = new Date();
+        let filtered = entries;
+        
+        if (filterType === 'dateRange') {
+            const startDate = document.getElementById('downloadStartDate')?.value;
+            const endDate = document.getElementById('downloadEndDate')?.value;
+            if (startDate && endDate) {
+                filtered = entries.filter(e => e.date >= startDate && e.date <= endDate);
+            }
+        } else if (filterType === 'month') {
+            const month = document.getElementById('downloadMonth')?.value;
+            if (month) {
+                filtered = entries.filter(e => e.date?.startsWith(month));
+            }
+        } else if (filterType === 'year') {
+            const year = document.getElementById('downloadYear')?.value;
+            if (year) {
+                filtered = entries.filter(e => e.date?.startsWith(year));
+            }
+        } else if (filterType === 'thisMonth') {
+            const thisMonth = today.toISOString().substring(0, 7);
+            filtered = entries.filter(e => e.date?.startsWith(thisMonth));
+        } else if (filterType === 'lastMonth') {
+            const lastMonth = new Date(today.getFullYear(), today.getMonth() - 1, 1).toISOString().substring(0, 7);
+            filtered = entries.filter(e => e.date?.startsWith(lastMonth));
+        } else if (filterType === 'last3Months') {
+            const threeMonthsAgo = new Date(today.getFullYear(), today.getMonth() - 3, 1);
+            filtered = entries.filter(e => {
+                const entryDate = new Date(e.date);
+                return entryDate >= threeMonthsAgo;
+            });
+        } else if (filterType === 'lastYear') {
+            const lastYear = new Date(today.getFullYear() - 1, today.getMonth(), today.getDate());
+            filtered = entries.filter(e => {
+                const entryDate = new Date(e.date);
+                return entryDate >= lastYear;
+            });
+        }
+        
+        return filtered;
+    } catch (err) {
+        console.error('Error fetching data:', err);
+        return [];
+    }
+};
+
+// ── DOWNLOAD AS WORD ──
+window.downloadAsWord = async function(filterType, source) {
+    const filtered = await window.getFilteredDataForDownload(filterType);
+    
+    if (filtered.length === 0) {
+        alert('No data found for the selected period.');
+        return;
+    }
+    
+    // Create Word document using docx library (you'll need to add this library)
+    let docContent = '<html><body><h1>Jaiti Foundation - Data Export</h1>';
+    docContent += '<p><strong>Filter Type:</strong> ' + filterType + '</p>';
+    docContent += '<p><strong>Total Entries:</strong> ' + filtered.length + '</p>';
+    docContent += '<table border="1" cellpadding="10" style="width:100%;border-collapse:collapse">';
+    docContent += '<tr style="background:#3a7260;color:white"><th>Date</th><th>Mood</th><th>Children</th><th>Educators</th><th>Photos</th><th>Activities</th></tr>';
+    
+    filtered.forEach(entry => {
+        const date = new Date(entry.date);
+        const formattedDate = ('0' + date.getDate()).slice(-2) + '.' + ('0' + (date.getMonth() + 1)).slice(-2) + '.' + date.getFullYear();
+        docContent += '<tr>';
+        docContent += '<td>' + formattedDate + '</td>';
+        docContent += '<td>' + (entry.mood || '-') + '</td>';
+        docContent += '<td>' + (entry.attendance?.total || '-') + '</td>';
+        docContent += '<td>' + (entry.educatorsPresent?.length || '-') + '</td>';
+        docContent += '<td>' + (entry.photos?.length || 0) + '</td>';
+        docContent += '<td>' + (entry.activities || '-') + '</td>';
+        docContent += '</tr>';
+    });
+    
+    docContent += '</table></body></html>';
+    
+    // Create blob and download
+    const blob = new Blob([docContent], { type: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'jaiti-data-' + new Date().toISOString().substring(0, 10) + '.html';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+    
+    closeDownloadModal();
+};
+
+// ── VIEW FILTERED DATA ──
+window.viewFilteredData = async function(filterType, source) {
+    const filtered = await window.getFilteredDataForDownload(filterType);
+    
+    if (filtered.length === 0) {
+        alert('No data found for the selected period.');
+        return;
+    }
+    
+    // Show data in modal or table
+    let html = '<div style="background:white;border-radius:12px;max-width:900px;margin:2rem auto;padding:2rem;box-shadow:0 10px 40px rgba(0,0,0,0.2)">';
+    html += '<h2 style="color:#3a7260;margin-bottom:1.5rem">📊 Filtered Data (' + filtered.length + ' entries)</h2>';
+    html += '<div style="overflow-x:auto;margin-bottom:1.5rem">';
+    html += '<table style="width:100%;border-collapse:collapse;background:white;border-radius:8px;overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,0.08)">';
+    html += '<thead><tr style="background:#3a7260;color:white;font-weight:600;text-align:left">';
+    html += '<th style="padding:1rem;border:1px solid #d4c9bc">📅 Date</th>';
+    html += '<th style="padding:1rem;border:1px solid #d4c9bc">😊 Mood</th>';
+    html += '<th style="padding:1rem;border:1px solid #d4c9bc">👥 Children</th>';
+    html += '<th style="padding:1rem;border:1px solid #d4c9bc">👨‍🏫 Educators</th>';
+    html += '<th style="padding:1rem;border:1px solid #d4c9bc">📸 Photos</th>';
+    html += '</tr></thead><tbody>';
+    
+    filtered.forEach(entry => {
+        const date = new Date(entry.date);
+        const formattedDate = ('0' + date.getDate()).slice(-2) + '.' + ('0' + (date.getMonth() + 1)).slice(-2) + '.' + date.getFullYear();
+        html += '<tr style="border-bottom:1px solid #d4c9bc">';
+        html += '<td style="padding:1rem;border:1px solid #d4c9bc">' + formattedDate + '</td>';
+        html += '<td style="padding:1rem;border:1px solid #d4c9bc">' + (entry.mood || '-') + '</td>';
+        html += '<td style="padding:1rem;border:1px solid #d4c9bc">' + (entry.attendance?.total || '-') + '</td>';
+        html += '<td style="padding:1rem;border:1px solid #d4c9bc">' + (entry.educatorsPresent?.length || '-') + '</td>';
+        html += '<td style="padding:1rem;border:1px solid #d4c9bc">' + (entry.photos?.length || 0) + '</td>';
+        html += '</tr>';
+    });
+    
+    html += '</tbody></table></div>';
+    html += '<button onclick="closeViewModal()" style="padding:0.75rem 1.5rem;background:#a08878;color:white;border:none;border-radius:8px;cursor:pointer;font-weight:600;font-family:Inter,sans-serif">✕ Close</button>';
+    html += '</div>';
+    
+    let modal = document.getElementById('viewModal');
+    if (!modal) {
+        modal = document.createElement('div');
+        modal.id = 'viewModal';
+        modal.style.cssText = 'display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.5);z-index:2001;overflow-y:auto;padding:1rem';
+        document.body.appendChild(modal);
+    }
+    
+    modal.innerHTML = html;
+    modal.style.display = 'block';
+};
+
+// ── CLOSE VIEW MODAL ──
+window.closeViewModal = function() {
+    const modal = document.getElementById('viewModal');
+    if (modal) modal.style.display = 'none';
+};
+
+// Close view modal on outside click
+document.addEventListener('click', function(event) {
+    const modal = document.getElementById('viewModal');
     if (event.target === modal) {
         modal.style.display = 'none';
     }
