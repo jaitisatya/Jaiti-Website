@@ -1865,44 +1865,8 @@
                 return;
             }
 
-            list.innerHTML = filtered.map(entry => {
-                const createdAt = entry.createdAt?.toDate?.() || new Date(entry.createdAt);
-                const now = new Date();
-                const hoursDiff = (now - createdAt) / (1000 * 60 * 60);
-                const canEdit = hoursDiff < 24;
-
-                return `
-                <div class="entry-card" id="entry-${entry.id}">
-                    <div class="entry-header">
-                        <span class="entry-date">📅 ${formatDate(entry.date)}</span>
-                        <div style="display:flex;gap:6px;align-items:center">
-                            <span class="entry-mood">${entry.mood || ''}</span>
-                            <button class="entry-edit" onclick="openEditEntryModal('${entry.id}')" ${!canEdit ? 'disabled title="Can only edit within 24 hours"' : ''}>
-                                ${canEdit ? '✏️ Edit' : '⏰ Locked'}
-                            </button>
-                            <button class="entry-delete" onclick="deleteEntry('${entry.id}')">🗑 Delete</button>
-                        </div>
-                    </div>
-                    <div class="entry-stats">
-                        <span class="entry-stat">👦 Boys: <strong>${entry.attendance?.boys || 0}</strong></span>
-                        <span class="entry-stat">👧 Girls: <strong>${entry.attendance?.girls || 0}</strong></span>
-                        <span class="entry-stat">✅ Total: <strong>${entry.attendance?.total || 0}</strong></span>
-                        ${entry.educatorsPresent?.length ? `<span class="entry-stat">👨‍🏫 Educators: <strong>${entry.educatorsPresent.length}</strong></span>` : ''}
-                        <span class="entry-stat">📚 ${capitalize(entry.sessionType || 'regular')}</span>
-                        ${entry.photos?.length ? `<span class="entry-stat">📸 ${entry.photos.length} photo${entry.photos.length > 1 ? 's' : ''}</span>` : ''}
-                    </div>
-                    ${entry.activities ? `<div class="entry-notes">${entry.activities}</div>` : ''}
-                    ${entry.highlights ? `<div class="entry-notes" style="color:#2f5f4f;font-size:0.8rem">⭐ ${entry.highlights}</div>` : ''}
-                    ${entry.challenges ? `<div class="entry-notes" style="color:#854F0B;font-size:0.8rem">⚠️ ${entry.challenges}</div>` : ''}
-                    ${entry.photos?.length ? `
-                        <div class="entry-photos">
-                            ${entry.photos.map(url => `<img src="${url}" alt="Photo" onclick="openLightbox('${url}')" loading="lazy">`).join('')}
-                        </div>
-                    ` : ''}
-                    <div style="margin-top:0.5rem;font-size:0.7rem;color:#a08878">Added by: ${entry.createdBy || 'unknown'}</div>
-                </div>
-            `;
-            }).join('');
+            window.allEntries = filtered;
+            window.renderEntriesTable(filtered);
 
         } catch (err) {
             list.innerHTML = '<div class="empty-state"><div class="icon">❌</div><p>Error loading entries. Check connection.</p></div>';
