@@ -2787,7 +2787,14 @@ window.openEntryModal = function(entryId, event) {
     html += '<div style="border-bottom:2px solid #d4c9bc;padding-bottom:1rem;margin-bottom:1rem">';
     html += '<p style="margin:0.5rem 0"><strong>😊 Mood:</strong> ' + (entry.mood || '-') + '</p>';
     html += '<p style="margin:0.5rem 0"><strong>👥 Children:</strong> ' + (entry.attendance?.total || entry.childrenPresent || '-') + '</p>';
-    html += '<p style="margin:0.5rem 0"><strong>👨‍🏫 Educators:</strong> ' + (entry.educatorsPresent?.length || '-') + '</p>';
+    
+    // Build educator names list
+    let educatorsList = '-';
+    if (entry.educatorsPresent && entry.educatorsPresent.length > 0) {
+        educatorsList = entry.educatorsPresent.join(', ');
+    }
+    html += '<p style="margin:0.5rem 0"><strong>👨‍🏫 Educators (' + (entry.educatorsPresent?.length || 0) + '):</strong></p>';
+    html += '<div style="background:#f5f0eb;padding:0.75rem;border-radius:5px;margin:0.5rem 0;font-size:0.9rem">' + educatorsList + '</div>';
     html += '</div>';
     
     html += '<p style="margin:0.5rem 0"><strong>📝 Activities:</strong></p>';
