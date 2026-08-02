@@ -1019,30 +1019,17 @@
 
         <!-- Activities & Notes -->
         <div class="card">
-            <div class="card-title">📝 Activities & Notes</div>
-
-            <div class="form-group" style="margin-bottom:1rem">
-                <label>What did we do today? *</label>
-                <textarea id="activities" placeholder="Describe today's activities, subjects taught, games played, meals given..." maxlength="1000" oninput="updateCharCount(this, 'activitiesCount')"></textarea>
-                <div class="char-count" id="activitiesCount">0 / 1000</div>
-            </div>
-
-            <div class="form-group" style="margin-bottom:1rem">
-                <label>Highlights / Special Moments</label>
-                <textarea id="highlights" placeholder="Any special achievement, funny moment, or milestone worth remembering..." maxlength="500" style="min-height:75px" oninput="updateCharCount(this, 'highlightsCount')"></textarea>
-                <div class="char-count" id="highlightsCount">0 / 500</div>
-            </div>
-
+            <div class="card-title">📝 Today's Activities</div>
             <div class="form-group">
-                <label>Challenges / Needs Attention</label>
-                <textarea id="challenges" placeholder="Any child needing extra support, supplies needed, issues faced..." maxlength="500" style="min-height:75px" oninput="updateCharCount(this, 'challengesCount')"></textarea>
-                <div class="char-count" id="challengesCount">0 / 500</div>
+                <label>What did we do today? *</label>
+                <textarea id="activities" placeholder="Describe today's activities, subjects taught, games played, meals given..." maxlength="1000" oninput="updateCharCount(this, 'activitiesCount')" style="min-height:120px"></textarea>
+                <div class="char-count" id="activitiesCount">0 / 1000</div>
             </div>
         </div>
 
-        <!-- Photo Upload -->
+        <!-- Photo Upload & Save -->
         <div class="card">
-            <div class="card-title">📸 Photos</div>
+            <div class="card-title">📸 Photos & Save</div>
             <div class="photo-drop" id="photoDrop">
                 <input type="file" id="photoInput" accept="image/*" multiple onchange="handlePhotoSelect(event)">
                 <div class="photo-drop-icon">📷</div>
