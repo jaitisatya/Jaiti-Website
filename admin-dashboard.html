@@ -935,11 +935,11 @@
 
 <!-- TABS -->
 <div class="tabs">
-    <div class="tab active" onclick="switchTab('new-entry')">📝 New Entry</div>
-    <div class="tab" onclick="switchTab('all-entries')">📋 All Entries</div>
-    <div class="tab" onclick="switchTab('summary')">📊 Summary</div>
-    <div class="tab" onclick="switchTab('educators')">👨‍🏫 Educators Data</div>
-    <div class="tab" onclick="switchTab('children')">👶 Children Data</div>
+    <div class="tab active" onclick="window.switchTab('new-entry')">📝 New Entry</div>
+    <div class="tab" onclick="window.switchTab('all-entries')">📋 All Entries</div>
+    <div class="tab" onclick="window.switchTab('summary')">📊 Summary</div>
+    <div class="tab" onclick="window.switchTab('educators')">👨‍🏫 Educators Data</div>
+    <div class="tab" onclick="window.switchTab('children')">👶 Children Data</div>
 </div>
 
 <!-- MAIN CONTENT -->
@@ -1058,8 +1058,8 @@
         <div class="card" style="padding:1rem">
             <div style="display:flex;gap:0.75rem;flex-wrap:wrap;align-items:center;justify-content:space-between">
                 <div style="display:flex;gap:0.75rem;flex-wrap:wrap;align-items:center">
-                    <input type="month" id="filterMonth" style="padding:0.5rem 0.75rem;border:2px solid #d4c9bc;border-radius:8px;font-family:Inter,sans-serif;font-size:0.875rem;outline:none;color:#2c1a0e;background:#fdf9f4" onchange="window.window.loadEntries()">
-                    <button onclick="window.window.loadEntries()" style="padding:0.5rem 1rem;background:#3a7260;color:white;border:none;border-radius:8px;font-family:Inter,sans-serif;font-size:0.875rem;cursor:pointer">🔄 Refresh</button>
+                    <input type="month" id="filterMonth" style="padding:0.5rem 0.75rem;border:2px solid #d4c9bc;border-radius:8px;font-family:Inter,sans-serif;font-size:0.875rem;outline:none;color:#2c1a0e;background:#fdf9f4" onchange="window.loadEntries()">
+                    <button onclick="window.loadEntries()" style="padding:0.5rem 1rem;background:#3a7260;color:white;border:none;border-radius:8px;font-family:Inter,sans-serif;font-size:0.875rem;cursor:pointer">🔄 Refresh</button>
                     <div style="position:relative;display:inline-block">
                         <button onclick="toggleDownloadMenu('allEntries')" style="padding:0.5rem 1rem;background:#2f5f4f;color:white;border:none;border-radius:8px;font-family:Inter,sans-serif;font-size:0.875rem;cursor:pointer">📥 Download</button>
                         <div id="downloadMenuAllEntries" style="display:none;position:absolute;top:100%;left:0;background:white;border:2px solid #d4c9bc;border-radius:8px;box-shadow:0 4px 12px rgba(0,0,0,0.15);z-index:1000;min-width:200px;margin-top:0.5rem">
@@ -1537,11 +1537,11 @@
             document.getElementById('entryDate').value = today;
             const ym = today.substring(0, 7);
             document.getElementById('filterMonth').value = ym;
-            window.window.loadEntries();
-            window.window.loadSummary();
-            window.window.loadEducatorsList();
-            window.window.loadEducatorsCheckboxes();
-            window.window.loadChildrenList();
+            window.loadEntries();
+            window.loadSummary();
+            window.loadEducatorsList();
+            window.loadEducatorsCheckboxes();
+            window.loadChildrenList();
         }
     });
 
@@ -1577,13 +1577,13 @@
         
         // Load data for the tab
         if (tabId === 'all-entries' && window.loadEntries) {
-            window.window.loadEntries();
+            window.loadEntries();
         } else if (tabId === 'summary' && window.loadSummary) {
-            window.window.loadSummary();
+            window.loadSummary();
         } else if (tabId === 'educators' && window.loadEducatorsList) {
-            window.window.loadEducatorsList();
+            window.loadEducatorsList();
         } else if (tabId === 'children' && window.loadChildrenList) {
-            window.window.loadChildrenList();
+            window.loadChildrenList();
         }
     };
 
@@ -2368,7 +2368,7 @@
             
             childrenArray.sort((a, b) => a.name.localeCompare(b.name));
             
-            let html = '<table class="data-table"><thead><tr><th>S.No</th><th>Name</th><th>DOB</th><th>Mother's Name</th><th>Father's Name</th><th>Class</th><th>School</th><th>Photo</th><th>Actions</th></tr></thead><tbody>';
+            let html = '<table class="data-table"><thead><tr><th>S.No</th><th>Name</th><th>DOB</th><th>Mother\'s Name</th><th>Father\'s Name</th><th>Class</th><th>School</th><th>Photo</th><th>Actions</th></tr></thead><tbody>';
             
             let idx = 1;
             childrenArray.forEach((ch) => {
