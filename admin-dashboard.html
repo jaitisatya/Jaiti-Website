@@ -2107,7 +2107,8 @@
 
             const q = query(collection(db, 'educators'));
             const snap = await getDocs(q);
-            const nextOrder = snap.size;
+            const existingOrders = snap.docs.map(doc => Number(doc.data().order) || 0);
+            const nextOrder = existingOrders.length ? Math.max(...existingOrders) + 1 : 0;
 
             const educatorData = {
                 name, phone, joiningDate, professional,
@@ -2156,15 +2157,28 @@
         return data.secure_url;
     }
 
+    window.normalizeEducatorOrders = async () => {
+        const q = query(collection(db, 'educators'));
+        const snap = await getDocs(q);
+        const educators = [];
+        snap.forEach((docSnap) => educators.push({ id: docSnap.id, ...docSnap.data() }));
+        educators.sort((a, b) => (Number(a.order ?? 9999)) - (Number(b.order ?? 9999)));
+
+        await Promise.all(educators.map((item, index) => updateDoc(doc(db, 'educators', item.id), { order: index })));
+        return educators;
+    };
+
     // ── LOAD EDUCATORS LIST ──
     window.loadEducatorsList = async () => {
         const list = document.getElementById('educatorsList');
         try {
+            await window.normalizeEducatorOrders();
+
             const q = query(collection(db, 'educators'));
             const snap = await getDocs(q);
             const educatorsArray = [];
-            snap.forEach((doc) => educatorsArray.push({ id: doc.id, ...doc.data() }));
-            educatorsArray.sort((a, b) => (a.order ?? 9999) - (b.order ?? 9999));
+            snap.forEach((docSnap) => educatorsArray.push({ id: docSnap.id, ...docSnap.data() }));
+            educatorsArray.sort((a, b) => (Number(a.order ?? 9999)) - (Number(b.order ?? 9999)));
 
             if (educatorsArray.length === 0) {
                 list.innerHTML = '<div class="empty-state"><div class="icon">👥</div><p>No educators added yet</p></div>';
@@ -2765,21 +2779,17 @@
             const q = query(collection(db, 'educators'));
             const snap = await getDocs(q);
             const allDocs = [];
-            snap.forEach(doc => allDocs.push({ id: doc.id, ...doc.data() }));
-            allDocs.sort((a, b) => (a.order ?? 9999) - (b.order ?? 9999));
+            snap.forEach(docSnap => allDocs.push({ id: docSnap.id, ...docSnap.data() }));
+            allDocs.sort((a, b) => (Number(a.order ?? 9999)) - (Number(b.order ?? 9999)));
 
             const currentIdx = allDocs.findIndex(e => e.id === id);
             if (currentIdx <= 0) return;
 
-            const previous = allDocs[currentIdx - 1];
-            const current = allDocs[currentIdx];
-            const currentOrder = current.order ?? currentIdx;
-            const previousOrder = previous.order ?? (currentIdx - 1);
+            const [current] = allDocs.splice(currentIdx, 1);
+            allDocs.splice(currentIdx - 1, 0, current);
 
-            await updateDoc(doc(db, 'educators', current.id), { order: previousOrder });
-            await updateDoc(doc(db, 'educators', previous.id), { order: currentOrder });
-
-            window.loadEducatorsList();
+            await Promise.all(allDocs.map((item, index) => updateDoc(doc(db, 'educators', item.id), { order: index })));
+            await window.loadEducatorsList();
         } catch (err) {
             alert('Error: ' + err.message);
         }
@@ -2790,21 +2800,17 @@
             const q = query(collection(db, 'educators'));
             const snap = await getDocs(q);
             const allDocs = [];
-            snap.forEach(doc => allDocs.push({ id: doc.id, ...doc.data() }));
-            allDocs.sort((a, b) => (a.order ?? 9999) - (b.order ?? 9999));
+            snap.forEach(docSnap => allDocs.push({ id: docSnap.id, ...docSnap.data() }));
+            allDocs.sort((a, b) => (Number(a.order ?? 9999)) - (Number(b.order ?? 9999)));
 
             const currentIdx = allDocs.findIndex(e => e.id === id);
             if (currentIdx >= allDocs.length - 1) return;
 
-            const next = allDocs[currentIdx + 1];
-            const current = allDocs[currentIdx];
-            const currentOrder = current.order ?? currentIdx;
-            const nextOrder = next.order ?? (currentIdx + 1);
+            const [current] = allDocs.splice(currentIdx, 1);
+            allDocs.splice(currentIdx + 1, 0, current);
 
-            await updateDoc(doc(db, 'educators', current.id), { order: nextOrder });
-            await updateDoc(doc(db, 'educators', next.id), { order: currentOrder });
-
-            window.loadEducatorsList();
+            await Promise.all(allDocs.map((item, index) => updateDoc(doc(db, 'educators', item.id), { order: index })));
+            await window.loadEducatorsList();
         } catch (err) {
             alert('Error: ' + err.message);
         }
