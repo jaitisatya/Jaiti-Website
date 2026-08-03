@@ -2759,14 +2759,25 @@ window.renderEntriesTable = function(entries) {
         const mood = entry.mood || '😐';
         const children = entry.attendance?.total || entry.childrenPresent || '-';
         const educators = entry.educatorsPresent?.length || '-';
-        const photos = entry.photos?.length || 0;
+        
+        // Build photos HTML with thumbnails
+        let photosHtml = '';
+        if (entry.photos && entry.photos.length > 0) {
+            photosHtml = '<div style="display:flex;gap:0.5rem;flex-wrap:wrap">';
+            entry.photos.forEach(photo => {
+                photosHtml += '<img src="' + photo + '" style="width:40px;height:40px;object-fit:cover;border-radius:4px;cursor:pointer;border:1px solid #d4c9bc" onclick="openLightbox(\'' + photo + '\')" title="Click to enlarge" />';
+            });
+            photosHtml += '</div>';
+        } else {
+            photosHtml = '<span style="color:#a08878">-</span>';
+        }
         
         html += '<tr style="border-bottom:1px solid #d4c9bc;cursor:pointer;transition:background 0.2s" onmouseover="this.style.background=\'#f5f0eb\'" onmouseout="this.style.background=\'white\'">';
         html += '<td style="padding:1rem;border:1px solid #d4c9bc"><span onclick="openEntryModal(\'' + entry.id + '\', event)" style="cursor:pointer;color:#3a7260;font-weight:600;text-decoration:underline">' + formattedDate + '</span></td>';
         html += '<td style="padding:1rem;border:1px solid #d4c9bc">' + mood + '</td>';
         html += '<td style="padding:1rem;border:1px solid #d4c9bc">' + children + '</td>';
         html += '<td style="padding:1rem;border:1px solid #d4c9bc">' + educators + '</td>';
-        html += '<td style="padding:1rem;border:1px solid #d4c9bc">' + photos + '</td>';
+        html += '<td style="padding:1rem;border:1px solid #d4c9bc">' + photosHtml + '</td>';
         html += '<td style="padding:1rem;border:1px solid #d4c9bc"><button onclick="editEntry(\'' + entry.id + '\')" style="padding:0.4rem 0.8rem;background:#3a7260;color:white;border:none;border-radius:5px;cursor:pointer;font-size:0.8rem;margin-right:0.5rem">✏️ Edit</button><button onclick="deleteEntry(\'' + entry.id + '\')" style="padding:0.4rem 0.8rem;background:#d9534f;color:white;border:none;border-radius:5px;cursor:pointer;font-size:0.8rem">🗑️ Delete</button></td>';
         html += '</tr>';
     });
