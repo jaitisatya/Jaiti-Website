@@ -2105,11 +2105,16 @@
                 photoUrl = await uploadEducatorPhoto(educatorPhotoData.file);
             }
 
+            const q = query(collection(db, 'educators'));
+            const snap = await getDocs(q);
+            const nextOrder = snap.size;
+
             const educatorData = {
                 name, phone, joiningDate, professional,
                 photo: photoUrl,
                 createdBy: auth.currentUser.email,
-                createdAt: Timestamp.now()
+                createdAt: Timestamp.now(),
+                order: nextOrder
             };
 
             await addDoc(collection(db, 'educators'), educatorData);
@@ -2155,10 +2160,13 @@
     window.loadEducatorsList = async () => {
         const list = document.getElementById('educatorsList');
         try {
-            const q = query(collection(db, 'educators'), orderBy('createdAt', 'asc'));
+            const q = query(collection(db, 'educators'));
             const snap = await getDocs(q);
-            
-            if (snap.empty) {
+            const educatorsArray = [];
+            snap.forEach((doc) => educatorsArray.push({ id: doc.id, ...doc.data() }));
+            educatorsArray.sort((a, b) => (a.order ?? 9999) - (b.order ?? 9999));
+
+            if (educatorsArray.length === 0) {
                 list.innerHTML = '<div class="empty-state"><div class="icon">👥</div><p>No educators added yet</p></div>';
                 return;
             }
@@ -2167,10 +2175,9 @@
             let html = '<table class="data-table"><thead><tr><th>S.No</th><th>Name</th><th>Photo</th><th>Phone</th><th>Joining Date</th><th>Professional</th><th>Actions</th></tr></thead><tbody>';
             
             let idx = 1;
-            snap.forEach((doc) => {
-                const ed = doc.data();
-                window.allEducatorsData.push({ id: doc.id, ...ed });
-                html += `<tr class="educator-row" data-name="${ed.name.toLowerCase()}" data-phone="${ed.phone}" data-professional="${ed.professional.toLowerCase()}">
+            educatorsArray.forEach((ed) => {
+                window.allEducatorsData.push({ id: ed.id, ...ed });
+                html += `<tr class="educator-row" data-name="${(ed.name || '').toLowerCase()}" data-phone="${ed.phone || ''}" data-professional="${(ed.professional || '').toLowerCase()}">
                     <td>${idx++}</td>
                     <td>${ed.name}</td>
                     <td>${ed.photo ? `<img src="${ed.photo}" onclick="openLightbox('${ed.photo}')">` : '-'}</td>
@@ -2178,10 +2185,10 @@
                     <td>${ed.joiningDate || '-'}</td>
                     <td>${ed.professional}</td>
                     <td>
-                        <button class="action-btn" onclick="moveEducatorUp('${doc.id}')" style="background:#f0f9f7;border:1px solid #3a7260;color:#3a7260;padding:6px 8px;margin-right:4px;cursor:pointer;border-radius:4px;font-size:0.85rem">↑ Up</button>
-                        <button class="action-btn" onclick="moveEducatorDown('${doc.id}')" style="background:#f0f9f7;border:1px solid #3a7260;color:#3a7260;padding:6px 8px;margin-right:8px;cursor:pointer;border-radius:4px;font-size:0.85rem">↓ Down</button>
-                        <button class="action-btn edit" onclick="openEditEducatorModal('${doc.id}', '${ed.name}', '${ed.phone}', '${ed.joiningDate || ''}', '${ed.professional}', '${ed.photo || ''}')">✏️ Edit</button>
-                        <button class="action-btn delete" onclick="deleteEducator('${doc.id}')">🗑 Delete</button>
+                        <button class="action-btn" onclick="moveEducatorUp('${ed.id}')" style="background:#f0f9f7;border:1px solid #3a7260;color:#3a7260;padding:6px 8px;margin-right:4px;cursor:pointer;border-radius:4px;font-size:0.85rem">↑ Up</button>
+                        <button class="action-btn" onclick="moveEducatorDown('${ed.id}')" style="background:#f0f9f7;border:1px solid #3a7260;color:#3a7260;padding:6px 8px;margin-right:8px;cursor:pointer;border-radius:4px;font-size:0.85rem">↓ Down</button>
+                        <button class="action-btn edit" onclick="openEditEducatorModal('${ed.id}', '${ed.name}', '${ed.phone}', '${ed.joiningDate || ''}', '${ed.professional}', '${ed.photo || ''}')">✏️ Edit</button>
+                        <button class="action-btn delete" onclick="deleteEducator('${ed.id}')">🗑 Delete</button>
                     </td>
                 </tr>`;
             });
@@ -2755,47 +2762,51 @@
     // ── MOVE EDUCATORS UP/DOWN ──
     window.moveEducatorUp = async (id) => {
         try {
-            const q = query(collection(db, 'educators'), orderBy('createdAt', 'asc'));
+            const q = query(collection(db, 'educators'));
             const snap = await getDocs(q);
             const allDocs = [];
-            snap.forEach(doc => allDocs.push({ id: doc.id, data: doc.data() }));
-            
+            snap.forEach(doc => allDocs.push({ id: doc.id, ...doc.data() }));
+            allDocs.sort((a, b) => (a.order ?? 9999) - (b.order ?? 9999));
+
             const currentIdx = allDocs.findIndex(e => e.id === id);
             if (currentIdx <= 0) return;
-            
-            const temp = allDocs[currentIdx];
-            allDocs[currentIdx] = allDocs[currentIdx - 1];
-            allDocs[currentIdx - 1] = temp;
-            
-            await updateDoc(doc(db, 'educators', allDocs[currentIdx].id), { order: currentIdx });
-            await updateDoc(doc(db, 'educators', allDocs[currentIdx - 1].id), { order: currentIdx - 1 });
-            
+
+            const previous = allDocs[currentIdx - 1];
+            const current = allDocs[currentIdx];
+            const currentOrder = current.order ?? currentIdx;
+            const previousOrder = previous.order ?? (currentIdx - 1);
+
+            await updateDoc(doc(db, 'educators', current.id), { order: previousOrder });
+            await updateDoc(doc(db, 'educators', previous.id), { order: currentOrder });
+
             window.loadEducatorsList();
-        } catch (err) { 
-            alert('Error: ' + err.message); 
+        } catch (err) {
+            alert('Error: ' + err.message);
         }
     };
 
     window.moveEducatorDown = async (id) => {
         try {
-            const q = query(collection(db, 'educators'), orderBy('createdAt', 'asc'));
+            const q = query(collection(db, 'educators'));
             const snap = await getDocs(q);
             const allDocs = [];
-            snap.forEach(doc => allDocs.push({ id: doc.id, data: doc.data() }));
-            
+            snap.forEach(doc => allDocs.push({ id: doc.id, ...doc.data() }));
+            allDocs.sort((a, b) => (a.order ?? 9999) - (b.order ?? 9999));
+
             const currentIdx = allDocs.findIndex(e => e.id === id);
             if (currentIdx >= allDocs.length - 1) return;
-            
-            const temp = allDocs[currentIdx];
-            allDocs[currentIdx] = allDocs[currentIdx + 1];
-            allDocs[currentIdx + 1] = temp;
-            
-            await updateDoc(doc(db, 'educators', allDocs[currentIdx].id), { order: currentIdx });
-            await updateDoc(doc(db, 'educators', allDocs[currentIdx + 1].id), { order: currentIdx + 1 });
-            
+
+            const next = allDocs[currentIdx + 1];
+            const current = allDocs[currentIdx];
+            const currentOrder = current.order ?? currentIdx;
+            const nextOrder = next.order ?? (currentIdx + 1);
+
+            await updateDoc(doc(db, 'educators', current.id), { order: nextOrder });
+            await updateDoc(doc(db, 'educators', next.id), { order: currentOrder });
+
             window.loadEducatorsList();
-        } catch (err) { 
-            alert('Error: ' + err.message); 
+        } catch (err) {
+            alert('Error: ' + err.message);
         }
     };
 
