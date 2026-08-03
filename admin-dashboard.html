@@ -1321,23 +1321,29 @@
                 </div>
             </div>
 
-            <div class="form-group">
-                <label>Class *</label>
-                <select id="chClass">
-                    <option value="">Select Class</option>
-                    <option value="1st">1st</option>
-                    <option value="2nd">2nd</option>
-                    <option value="3rd">3rd</option>
-                    <option value="4th">4th</option>
-                    <option value="5th">5th</option>
-                    <option value="6th">6th</option>
-                    <option value="7th">7th</option>
-                    <option value="8th">8th</option>
-                    <option value="9th">9th</option>
-                    <option value="10th">10th</option>
-                    <option value="11th">11th</option>
-                    <option value="12th">12th</option>
-                </select>
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Class *</label>
+                    <select id="chClass">
+                        <option value="">Select Class</option>
+                        <option value="1st">1st</option>
+                        <option value="2nd">2nd</option>
+                        <option value="3rd">3rd</option>
+                        <option value="4th">4th</option>
+                        <option value="5th">5th</option>
+                        <option value="6th">6th</option>
+                        <option value="7th">7th</option>
+                        <option value="8th">8th</option>
+                        <option value="9th">9th</option>
+                        <option value="10th">10th</option>
+                        <option value="11th">11th</option>
+                        <option value="12th">12th</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>School</label>
+                    <input type="text" id="chSchool" placeholder="School Name">
+                </div>
             </div>
 
             <div class="form-group">
@@ -2248,6 +2254,7 @@
         const mother = document.getElementById('chMother').value.trim();
         const father = document.getElementById('chFather').value.trim();
         const chClass = document.getElementById('chClass').value;
+        const school = document.getElementById('chSchool').value.trim();
 
         if (!name || !dob || !mother || !father || !chClass) {
             showAlert('❌ Please fill all required fields', 'error', 'childrenAlert');
@@ -2265,13 +2272,19 @@
             }
 
             const childData = {
-                name, dob, mother, father, class: chClass,
+                name, dob, mother, father, class: chClass, school,
                 photo: photoUrl,
                 createdBy: auth.currentUser.email,
                 createdAt: Timestamp.now()
             };
 
-            await addDoc(collection(db, 'children'), childData);
+            // Check if editing or adding new
+            if (window.editingChildId) {
+                await updateDoc(doc(db, 'children', window.editingChildId), childData);
+                window.editingChildId = null;
+            } else {
+                await addDoc(collection(db, 'children'), childData);
+            }
             showAlert('✅ Child saved!', 'success', 'childrenAlert');
 
             document.getElementById('chName').value = '';
@@ -2279,9 +2292,11 @@
             document.getElementById('chMother').value = '';
             document.getElementById('chFather').value = '';
             document.getElementById('chClass').value = '';
+            document.getElementById('chSchool').value = '';
             document.getElementById('chPhotoPreview').innerHTML = '';
             document.getElementById('chPhotoInput').value = '';
             childPhotoData = null;
+            window.editingChildId = null;
 
             loadChildrenList();
         } catch (err) {
@@ -2332,20 +2347,22 @@
             
             childrenArray.sort((a, b) => a.name.localeCompare(b.name));
             
-            let html = '<table class="data-table"><thead><tr><th>S.No</th><th>Name</th><th>DOB</th><th>Mother</th><th>Father</th><th>Class</th><th>Photo</th><th>Actions</th></tr></thead><tbody>';
+            let html = '<table class="data-table"><thead><tr><th>S.No</th><th>Name</th><th>DOB</th><th>Mother's Name</th><th>Father's Name</th><th>Class</th><th>School</th><th>Photo</th><th>Actions</th></tr></thead><tbody>';
             
             let idx = 1;
             childrenArray.forEach((ch) => {
                 html += `<tr class="child-row" data-name="${ch.name.toLowerCase()}" data-mother="${ch.mother.toLowerCase()}" data-father="${ch.father.toLowerCase()}" data-dob="${ch.dob}">
                     <td>${idx++}</td>
                     <td>${ch.name}</td>
-                    <td>${ch.dob}</td>
+                    <td>${ch.dob || '-'}</td>
                     <td>${ch.mother}</td>
                     <td>${ch.father}</td>
                     <td>${ch.class}</td>
-                    <td>${ch.photo ? `<img src="${ch.photo}" onclick="openLightbox('${ch.photo}')">` : '-'}</td>
-                    <td>
-                        <button class="action-btn delete" onclick="deleteChild('${ch.id}')">🗑 Delete</button>
+                    <td>${ch.school || '-'}</td>
+                    <td>${ch.photo ? `<img src="${ch.photo}" onclick="openLightbox('${ch.photo}')" style="width:40px;height:40px;object-fit:cover;border-radius:4px;cursor:pointer;border:1px solid #d4c9bc" title="Click to enlarge">` : '-'}</td>
+                    <td style="text-align:center;white-space:nowrap">
+                        <button onclick="editChild('${ch.id}')" style="background:none;border:none;cursor:pointer;font-size:1.1rem;padding:0.25rem;margin-right:0.5rem" title="Edit">✏️</button>
+                        <button onclick="deleteChild('${ch.id}')" style="background:none;border:none;cursor:pointer;font-size:1.1rem;padding:0.25rem" title="Delete">🗑️</button>
                     </td>
                 </tr>`;
             });
@@ -2356,6 +2373,27 @@
             console.error(err);
             list.innerHTML = '<div class="empty-state"><div class="icon">⚠️</div><p>Error loading children</p></div>';
         }
+    };
+
+    // ── EDIT CHILD ──
+    window.editChild = (id) => {
+        const child = window.allChildrenData?.find(c => c.id === id);
+        if (!child) return;
+        
+        // Populate form with child data
+        document.getElementById('chName').value = child.name || '';
+        document.getElementById('chDOB').value = child.dob || '';
+        document.getElementById('chMother').value = child.mother || '';
+        document.getElementById('chFather').value = child.father || '';
+        document.getElementById('chClass').value = child.class || '';
+        document.getElementById('chSchool').value = child.school || '';
+        
+        // Store the ID for update
+        window.editingChildId = id;
+        
+        // Show form
+        toggleChildrenForm();
+        window.scrollTo({ top: 0, behavior: 'smooth' });
     };
 
     // ── DELETE CHILD ──
