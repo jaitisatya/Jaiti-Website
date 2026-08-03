@@ -1058,8 +1058,8 @@
         <div class="card" style="padding:1rem">
             <div style="display:flex;gap:0.75rem;flex-wrap:wrap;align-items:center;justify-content:space-between">
                 <div style="display:flex;gap:0.75rem;flex-wrap:wrap;align-items:center">
-                    <input type="month" id="filterMonth" style="padding:0.5rem 0.75rem;border:2px solid #d4c9bc;border-radius:8px;font-family:Inter,sans-serif;font-size:0.875rem;outline:none;color:#2c1a0e;background:#fdf9f4" onchange="loadEntries()">
-                    <button onclick="loadEntries()" style="padding:0.5rem 1rem;background:#3a7260;color:white;border:none;border-radius:8px;font-family:Inter,sans-serif;font-size:0.875rem;cursor:pointer">🔄 Refresh</button>
+                    <input type="month" id="filterMonth" style="padding:0.5rem 0.75rem;border:2px solid #d4c9bc;border-radius:8px;font-family:Inter,sans-serif;font-size:0.875rem;outline:none;color:#2c1a0e;background:#fdf9f4" onchange="window.window.loadEntries()">
+                    <button onclick="window.window.loadEntries()" style="padding:0.5rem 1rem;background:#3a7260;color:white;border:none;border-radius:8px;font-family:Inter,sans-serif;font-size:0.875rem;cursor:pointer">🔄 Refresh</button>
                     <div style="position:relative;display:inline-block">
                         <button onclick="toggleDownloadMenu('allEntries')" style="padding:0.5rem 1rem;background:#2f5f4f;color:white;border:none;border-radius:8px;font-family:Inter,sans-serif;font-size:0.875rem;cursor:pointer">📥 Download</button>
                         <div id="downloadMenuAllEntries" style="display:none;position:absolute;top:100%;left:0;background:white;border:2px solid #d4c9bc;border-radius:8px;box-shadow:0 4px 12px rgba(0,0,0,0.15);z-index:1000;min-width:200px;margin-top:0.5rem">
@@ -1537,11 +1537,11 @@
             document.getElementById('entryDate').value = today;
             const ym = today.substring(0, 7);
             document.getElementById('filterMonth').value = ym;
-            loadEntries();
-            loadSummary();
-            loadEducatorsList();
-            loadEducatorsCheckboxes();
-            loadChildrenList();
+            window.window.loadEntries();
+            window.window.loadSummary();
+            window.window.loadEducatorsList();
+            window.window.loadEducatorsCheckboxes();
+            window.window.loadChildrenList();
         }
     });
 
@@ -1555,15 +1555,36 @@
 
     // ── TAB SWITCH ──
     window.switchTab = (tabId) => {
+        // Update tab active state
+        const tabIds = ['new-entry','all-entries','summary','educators','children'];
         document.querySelectorAll('.tab').forEach((t, i) => {
-            t.classList.toggle('active', ['new-entry','all-entries','summary','educators','children'][i] === tabId);
+            if (tabIds[i] === tabId) {
+                t.classList.add('active');
+            } else {
+                t.classList.remove('active');
+            }
         });
+        
+        // Update panel active state
         document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
-        document.getElementById('panel-' + tabId).classList.add('active');
-        if (tabId === 'all-entries') loadEntries();
-        if (tabId === 'summary') loadSummary();
-        if (tabId === 'educators') loadEducatorsList();
-        if (tabId === 'children') loadChildrenList();
+        const panel = document.getElementById('panel-' + tabId);
+        if (panel) {
+            panel.classList.add('active');
+        } else {
+            console.error('Panel not found:', 'panel-' + tabId);
+            return;
+        }
+        
+        // Load data for the tab
+        if (tabId === 'all-entries' && window.loadEntries) {
+            window.window.loadEntries();
+        } else if (tabId === 'summary' && window.loadSummary) {
+            window.window.loadSummary();
+        } else if (tabId === 'educators' && window.loadEducatorsList) {
+            window.window.loadEducatorsList();
+        } else if (tabId === 'children' && window.loadChildrenList) {
+            window.window.loadChildrenList();
+        }
     };
 
     // ── MOOD ──
@@ -1847,8 +1868,8 @@
             await updateDoc(doc(db, 'daily-updates', editingEntryId), updateData);
             showAlert('✅ Entry updated!', 'success');
             closeEditEntryModal();
-            loadEntries();
-            loadSummary();
+            window.loadEntries();
+            window.loadSummary();
         } catch (err) {
             console.error(err);
             showAlert('❌ Error updating. ' + err.message, 'error');
@@ -2094,8 +2115,8 @@
             document.getElementById('edPhotoInput').value = '';
             educatorPhotoData = null;
 
-            loadEducatorsList();
-            loadEducatorsCheckboxes();
+            window.loadEducatorsList();
+            window.loadEducatorsCheckboxes();
         } catch (err) {
             console.error(err);
             showAlert('❌ Error: ' + err.message, 'error', 'educatorsAlert');
@@ -2224,8 +2245,8 @@
             await updateDoc(doc(db, 'educators', editingEducatorId), updateData);
             showAlert('✅ Educator updated!', 'success', 'educatorsAlert');
             closeEditModal();
-            loadEducatorsList();
-            loadEducatorsCheckboxes();
+            window.loadEducatorsList();
+            window.loadEducatorsCheckboxes();
         } catch (err) {
             console.error(err);
             showAlert('❌ Error: ' + err.message, 'error', 'educatorsAlert');
@@ -2238,8 +2259,8 @@
             try {
                 await deleteDoc(doc(db, 'educators', id));
                 showAlert('✅ Educator deleted!', 'success', 'educatorsAlert');
-                loadEducatorsList();
-                loadEducatorsCheckboxes();
+                window.loadEducatorsList();
+                window.loadEducatorsCheckboxes();
             } catch (err) {
                 console.error(err);
                 showAlert('❌ Error: ' + err.message, 'error', 'educatorsAlert');
@@ -2298,7 +2319,7 @@
             childPhotoData = null;
             window.editingChildId = null;
 
-            loadChildrenList();
+            window.loadChildrenList();
         } catch (err) {
             console.error(err);
             showAlert('❌ Error: ' + err.message, 'error', 'childrenAlert');
@@ -2402,7 +2423,7 @@
             try {
                 await deleteDoc(doc(db, 'children', id));
                 showAlert('✅ Child deleted!', 'success', 'childrenAlert');
-                loadChildrenList();
+                window.loadChildrenList();
             } catch (err) {
                 console.error(err);
                 showAlert('❌ Error: ' + err.message, 'error', 'childrenAlert');
@@ -2617,7 +2638,7 @@
             await updateDoc(doc(db, 'educators', allDocs[currentIdx].id), { order: currentIdx });
             await updateDoc(doc(db, 'educators', allDocs[currentIdx - 1].id), { order: currentIdx - 1 });
             
-            loadEducatorsList();
+            window.loadEducatorsList();
         } catch (err) { 
             alert('Error: ' + err.message); 
         }
@@ -2640,7 +2661,7 @@
             await updateDoc(doc(db, 'educators', allDocs[currentIdx].id), { order: currentIdx });
             await updateDoc(doc(db, 'educators', allDocs[currentIdx + 1].id), { order: currentIdx + 1 });
             
-            loadEducatorsList();
+            window.loadEducatorsList();
         } catch (err) { 
             alert('Error: ' + err.message); 
         }
