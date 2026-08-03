@@ -2776,7 +2776,12 @@ window.renderEntriesTable = function(entries) {
         html += '<td style="padding:1rem;border:1px solid #d4c9bc"><span onclick="openEntryModal(\'' + entry.id + '\', event)" style="cursor:pointer;color:#3a7260;font-weight:600;text-decoration:underline">' + formattedDate + '</span></td>';
         html += '<td style="padding:1rem;border:1px solid #d4c9bc">' + mood + '</td>';
         html += '<td style="padding:1rem;border:1px solid #d4c9bc">' + children + '</td>';
-        html += '<td style="padding:1rem;border:1px solid #d4c9bc">' + educators + '</td>';
+        // Make educators clickable to show names
+        let educatorsHtml = educators;
+        if (entry.educatorsPresent && entry.educatorsPresent.length > 0) {
+            educatorsHtml = '<span onclick="event.stopPropagation(); showEducatorsList(\'' + entry.id + '\')" style="cursor:pointer;color:#3a7260;font-weight:600;text-decoration:underline;display:inline-block">' + educators + '</span>';
+        }
+        html += '<td style="padding:1rem;border:1px solid #d4c9bc">' + educatorsHtml + '</td>';
         html += '<td style="padding:1rem;border:1px solid #d4c9bc">' + photosHtml + '</td>';
         html += '<td style="padding:1rem;border:1px solid #d4c9bc"><button onclick="editEntry(\'' + entry.id + '\')" style="padding:0.4rem 0.8rem;background:#3a7260;color:white;border:none;border-radius:5px;cursor:pointer;font-size:0.8rem;margin-right:0.5rem">✏️ Edit</button><button onclick="deleteEntry(\'' + entry.id + '\')" style="padding:0.4rem 0.8rem;background:#d9534f;color:white;border:none;border-radius:5px;cursor:pointer;font-size:0.8rem">🗑️ Delete</button></td>';
         html += '</tr>';
@@ -2784,6 +2789,57 @@ window.renderEntriesTable = function(entries) {
     
     tbody.innerHTML = html;
 };
+
+// ── SHOW EDUCATORS LIST ──
+window.showEducatorsList = function(entryId) {
+    console.log('showEducatorsList called with:', entryId);
+    console.log('window.allEntries:', window.allEntries);
+    const entry = window.allEntries?.find(e => e.id === entryId);
+    console.log('Found entry:', entry);
+    if (!entry || !entry.educatorsPresent || entry.educatorsPresent.length === 0) {
+        console.log('No entry or educators found');
+        return;
+    }
+    
+    let html = '<div style="background:white;border-radius:12px;max-width:400px;margin:2rem auto;padding:2rem;box-shadow:0 10px 40px rgba(0,0,0,0.2)">';
+    html += '<h2 style="color:#3a7260;margin-top:0;margin-bottom:1.5rem">👨‍🏫 Educators Present</h2>';
+    html += '<div style="background:#f5f0eb;padding:1rem;border-radius:8px;margin-bottom:1.5rem">';
+    
+    entry.educatorsPresent.forEach((educator, index) => {
+        html += '<div style="padding:0.5rem 0;border-bottom:1px solid #d4c9bc;font-size:0.95rem;color:#2c1a0e">';
+        html += '<strong>' + (index + 1) + '.</strong> ' + educator;
+        html += '</div>';
+    });
+    
+    html += '</div>';
+    html += '<button onclick="closeEducatorsModal()" style="width:100%;padding:0.75rem;background:#3a7260;color:white;border:none;border-radius:8px;cursor:pointer;font-weight:600;font-family:Inter,sans-serif">✕ Close</button>';
+    html += '</div>';
+    
+    let modal = document.getElementById('educatorsModal');
+    if (!modal) {
+        modal = document.createElement('div');
+        modal.id = 'educatorsModal';
+        modal.style.cssText = 'display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.5);z-index:2000;overflow-y:auto;padding:1rem';
+        document.body.appendChild(modal);
+    }
+    
+    modal.innerHTML = html;
+    modal.style.display = 'block';
+};
+
+// ── CLOSE EDUCATORS MODAL ──
+window.closeEducatorsModal = function() {
+    const modal = document.getElementById('educatorsModal');
+    if (modal) modal.style.display = 'none';
+};
+
+// Close educators modal on outside click
+document.addEventListener('click', function(event) {
+    const modal = document.getElementById('educatorsModal');
+    if (event.target === modal) {
+        modal.style.display = 'none';
+    }
+});
 
 // ── OPEN ENTRY MODAL ──
 window.openEntryModal = function(entryId, event) {
