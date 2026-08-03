@@ -1282,8 +1282,12 @@
         <div class="card">
             <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem;gap:0.5rem;flex-wrap:nowrap">
                 <h2 style="margin:0;white-space:nowrap;font-size:1.1rem;color:#2c1a0e;font-weight:600">👧 All Children</h2>
-                <button class="btn-save" onclick="toggleChildrenForm()" style="padding:0.25rem 0.5rem;font-size:0.7rem;white-space:nowrap;flex-shrink:0;width:auto">+ Add</button>
+                <div style="display:flex;gap:0.5rem;flex-wrap:nowrap">
+                    <button class="btn-save" onclick="document.getElementById('childrenCsvInput').click()" style="padding:0.25rem 0.5rem;font-size:0.7rem;white-space:nowrap;flex-shrink:0;width:auto">📥 Import CSV</button>
+                    <button class="btn-save" onclick="toggleChildrenForm()" style="padding:0.25rem 0.5rem;font-size:0.7rem;white-space:nowrap;flex-shrink:0;width:auto">+ Add</button>
+                </div>
             </div>
+            <input type="file" id="childrenCsvInput" accept=".csv,text/csv" style="display:none" onchange="window.importChildrenCSV(event)">
             <div style="margin-bottom:1rem">
                 <input type="text" id="childrenSearch" placeholder="Search by child name, parent name, DOB..." style="width:100%;padding:0.75rem;border:2px solid #d4c9bc;border-radius:10px;font-size:0.9rem;outline:none" oninput="filterChildren()">
             </div>
@@ -2345,6 +2349,130 @@
         const data = await res.json();
         return data.secure_url;
     }
+
+    // ── CSV IMPORT HELPER ──
+    function parseCsvText(csvText) {
+        const rows = [];
+        let current = '';
+        let inQuotes = false;
+        let row = [];
+
+        const pushField = () => {
+            row.push(current);
+            current = '';
+        };
+
+        const pushRow = () => {
+            if (row.length > 0) {
+                rows.push(row);
+            }
+            row = [];
+        };
+
+        for (let i = 0; i < csvText.length; i++) {
+            const char = csvText[i];
+            const next = csvText[i + 1];
+
+            if (char === '"') {
+                if (inQuotes && next === '"') {
+                    current += '"';
+                    i++;
+                } else {
+                    inQuotes = !inQuotes;
+                }
+            } else if (char === ',' && !inQuotes) {
+                pushField();
+            } else if ((char === '\n' || char === '\r') && !inQuotes) {
+                if (char === '\r' && next === '\n') {
+                    i++;
+                }
+                pushField();
+                pushRow();
+            } else {
+                current += char;
+            }
+        }
+
+        if (current.length > 0 || row.length > 0) {
+            pushField();
+            pushRow();
+        }
+
+        if (!rows.length) return [];
+
+        const headers = rows[0].map(h => h.trim().toLowerCase());
+        return rows.slice(1).map(values => {
+            const obj = {};
+            headers.forEach((header, idx) => {
+                obj[header] = (values[idx] || '').trim();
+            });
+            return obj;
+        });
+    }
+
+    window.importChildrenCSV = async (event) => {
+        const file = event.target.files && event.target.files[0];
+        if (!file) return;
+
+        if (!file.name.toLowerCase().endsWith('.csv')) {
+            showAlert('❌ Please choose a CSV file.', 'error', 'childrenAlert');
+            event.target.value = '';
+            return;
+        }
+
+        try {
+            const csvText = await file.text();
+            const rows = parseCsvText(csvText);
+
+            if (!rows.length) {
+                throw new Error('The CSV file is empty or has no data rows.');
+            }
+
+            const requiredColumns = ['name', 'dob', 'mother', 'father', 'class'];
+            const missing = requiredColumns.filter(col => !rows[0][col] && !Object.keys(rows[0]).some(k => k.includes(col)));
+            if (missing.length) {
+                throw new Error('Missing required CSV columns: ' + missing.join(', '));
+            }
+
+            const normalizedRows = rows.map((row) => ({
+                name: row.name || row['student name'] || row['child name'] || '',
+                dob: row.dob || row['date of birth'] || '',
+                mother: row.mother || row['mother\'s name'] || row['mother name'] || '',
+                father: row.father || row['father\'s name'] || row['father name'] || '',
+                class: row.class || row['class name'] || row['student class'] || '',
+                school: row.school || row['school name'] || '',
+                photo: row.photo || row['photo url'] || row['image'] || '',
+            }));
+
+            const validRows = normalizedRows.filter(row => row.name && row.dob && row.mother && row.father && row.class);
+            if (!validRows.length) {
+                throw new Error('No valid child records were found. Please check your CSV headers and row values.');
+            }
+
+            let imported = 0;
+            for (const row of validRows) {
+                await addDoc(collection(db, 'children'), {
+                    name: row.name,
+                    dob: row.dob,
+                    mother: row.mother,
+                    father: row.father,
+                    class: row.class,
+                    school: row.school,
+                    photo: row.photo || '',
+                    createdAt: Timestamp.now(),
+                });
+                imported++;
+            }
+
+            showAlert('✅ Imported ' + imported + ' child records from ' + file.name, 'success', 'childrenAlert');
+            window.loadChildrenList();
+        } catch (err) {
+            console.error(err);
+            showAlert('❌ CSV import failed: ' + (err.message || err), 'error', 'childrenAlert');
+        } finally {
+            event.target.value = '';
+        }
+    };
 
     // ── LOAD CHILDREN LIST ──
     window.loadChildrenList = async () => {
