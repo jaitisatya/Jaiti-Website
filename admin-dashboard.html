@@ -1031,18 +1031,6 @@
             </div>
         </div>
 
-        <div class="card">
-            <div class="card-title">✨ Highlights & Challenges</div>
-            <div class="form-group">
-                <label>Highlights</label>
-                <textarea id="highlights" maxlength="300" placeholder="Any highlights?" style="height:70px"></textarea>
-            </div>
-            <div class="form-group">
-                <label>Challenges</label>
-                <textarea id="challenges" maxlength="300" placeholder="Any challenges faced?" style="height:70px"></textarea>
-            </div>
-        </div>
-
         <!-- Photo Upload & Save -->
         <div class="card">
             <div class="card-title">📸 Photos & Save</div>
@@ -1734,10 +1722,6 @@
     window.saveEntry = async () => {
         const date = document.getElementById('entryDate')?.value || '';
         const activities = document.getElementById('activities')?.value.trim() || '';
-        const highlightsField = document.getElementById('highlights');
-        const challengesField = document.getElementById('challenges');
-        const highlights = highlightsField ? highlightsField.value.trim() : '';
-        const challenges = challengesField ? challengesField.value.trim() : '';
 
         if (!date) { showAlert('Please select a date.', 'error'); return; }
         if (!activities) { showAlert('Please describe today\'s activities.', 'error'); return; }
@@ -1778,8 +1762,6 @@
                 },
                 educatorsPresent: selectedEducators,
                 activities: activities,
-                highlights: highlights,
-                challenges: challenges,
                 photos: photoUrls,
                 createdAt: Timestamp.now(),
                 createdBy: auth.currentUser?.email || 'unknown',
@@ -1807,10 +1789,6 @@
         document.getElementById('attGirls').value = 0;
         document.getElementById('attTotal').value = 0;
         document.getElementById('activities').value = '';
-        const highlightsField = document.getElementById('highlights');
-        const challengesField = document.getElementById('challenges');
-        if (highlightsField) highlightsField.value = '';
-        if (challengesField) challengesField.value = '';
         document.querySelectorAll('.char-count').forEach(el => el.textContent = el.textContent.split('/')[1] ? '0 /' + el.textContent.split('/')[1] : '0');
         document.querySelectorAll('.mood-btn').forEach(b => b.classList.remove('selected'));
         document.querySelectorAll('#educatorsCheckboxes input[type="checkbox"]').forEach(cb => cb.checked = false);
