@@ -117,7 +117,7 @@
 
         /* ── MAIN ── */
         .main {
-            max-width: 900px;
+            max-width: 1280px;
             margin: 0 auto;
             padding: 1.5rem 1rem;
         }
@@ -812,24 +812,28 @@
         /* ── DATA TABLE ── */
         .data-table {
             width: 100%;
+            min-width: 980px;
             border-collapse: collapse;
             margin-top: 1rem;
-            font-size: 0.875rem;
+            font-size: 0.78rem;
             overflow-x: auto;
         }
 
         .data-table th {
             background: #e8f2ee;
             color: #2f5f4f;
-            padding: 0.75rem;
+            padding: 0.6rem;
             text-align: left;
             font-weight: 600;
             border-bottom: 2px solid #d4c9bc;
+            white-space: nowrap;
         }
 
         .data-table td {
-            padding: 0.75rem;
+            padding: 0.6rem;
             border-bottom: 1px solid #e0dbd0;
+            white-space: nowrap;
+            vertical-align: middle;
         }
 
         .data-table tr:hover {
@@ -2496,17 +2500,17 @@
             
             childrenArray.sort((a, b) => a.name.localeCompare(b.name));
             
-            let html = '<table class="data-table"><thead><tr><th>S.No</th><th>Name</th><th>DOB</th><th>Mother\'s Name</th><th>Father\'s Name</th><th>Class</th><th>School</th><th>Photo</th><th>Actions</th></tr></thead><tbody>';
+            let html = '<div style="overflow-x:auto"><table class="data-table"><thead><tr><th>S.No</th><th>Name</th><th>DOB</th><th>Mother\'s Name</th><th>Father\'s Name</th><th>Class</th><th>School</th><th>Photo</th><th>Actions</th></tr></thead><tbody>';
             
             let idx = 1;
             childrenArray.forEach((ch) => {
-                html += `<tr class="child-row" data-name="${ch.name.toLowerCase()}" data-mother="${ch.mother.toLowerCase()}" data-father="${ch.father.toLowerCase()}" data-dob="${ch.dob}">
+                html += `<tr class="child-row" data-name="${(ch.name || '').toLowerCase()}" data-mother="${(ch.mother || '').toLowerCase()}" data-father="${(ch.father || '').toLowerCase()}" data-dob="${ch.dob || ''}">
                     <td>${idx++}</td>
-                    <td>${ch.name}</td>
+                    <td>${ch.name || '-'}</td>
                     <td>${ch.dob || '-'}</td>
-                    <td>${ch.mother}</td>
-                    <td>${ch.father}</td>
-                    <td>${ch.class}</td>
+                    <td>${ch.mother || '-'}</td>
+                    <td>${ch.father || '-'}</td>
+                    <td>${ch.class || '-'}</td>
                     <td>${ch.school || '-'}</td>
                     <td>${ch.photo ? `<img src="${ch.photo}" onclick="openLightbox('${ch.photo}')" style="width:40px;height:40px;object-fit:cover;border-radius:4px;cursor:pointer;border:1px solid #d4c9bc" title="Click to enlarge">` : '-'}</td>
                     <td style="text-align:center;white-space:nowrap">
@@ -2516,7 +2520,7 @@
                 </tr>`;
             });
 
-            html += '</tbody></table>';
+            html += '</tbody></table></div>';
             list.innerHTML = html;
         } catch (err) {
             console.error(err);
