@@ -1331,6 +1331,17 @@
 
             <div class="form-row">
                 <div class="form-group">
+                    <label>Phone Number</label>
+                    <input type="tel" id="chPhone" placeholder="Phone Number">
+                </div>
+                <div class="form-group">
+                    <label>Family Group</label>
+                    <input type="text" id="chFamilyGroup" placeholder="Family Group">
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
                     <label>Class *</label>
                     <select id="chClass">
                         <option value="">Select Class</option>
@@ -2299,8 +2310,10 @@
         const dob = document.getElementById('chDOB').value;
         const mother = document.getElementById('chMother').value.trim();
         const father = document.getElementById('chFather').value.trim();
+        const phone = document.getElementById('chPhone').value.trim();
         const chClass = document.getElementById('chClass').value;
         const school = document.getElementById('chSchool').value.trim();
+        const familyGroup = document.getElementById('chFamilyGroup').value.trim();
 
         if (!name || !dob || !mother || !father || !chClass) {
             showAlert('❌ Please fill all required fields', 'error', 'childrenAlert');
@@ -2318,7 +2331,7 @@
             }
 
             const childData = {
-                name, dob, mother, father, class: chClass, school,
+                name, dob, mother, father, phone, family_group: familyGroup, class: chClass, school,
                 photo: photoUrl,
                 createdBy: auth.currentUser.email,
                 createdAt: Timestamp.now()
@@ -2337,8 +2350,10 @@
             document.getElementById('chDOB').value = '';
             document.getElementById('chMother').value = '';
             document.getElementById('chFather').value = '';
+            document.getElementById('chPhone').value = '';
             document.getElementById('chClass').value = '';
             document.getElementById('chSchool').value = '';
+            document.getElementById('chFamilyGroup').value = '';
             document.getElementById('chPhotoPreview').innerHTML = '';
             document.getElementById('chPhotoInput').value = '';
             childPhotoData = null;
@@ -2460,8 +2475,10 @@
                 dob: row.dob || row['date of birth'] || '',
                 mother: row.mother || row['mother\'s name'] || row['mother name'] || '',
                 father: row.father || row['father\'s name'] || row['father name'] || '',
+                phone: row.phone || row['phone number'] || row['ph. number'] || row['phone_number'] || row['contact number'] || '',
                 class: row.class || row['class name'] || row['student class'] || '',
                 school: row.school || row['school name'] || '',
+                family_group: row.family_group || row['family group'] || row['family-group'] || row['group'] || '',
                 photo: row.photo || row['photo url'] || row['image'] || '',
             }));
 
@@ -2477,8 +2494,10 @@
                     dob: row.dob,
                     mother: row.mother,
                     father: row.father,
+                    phone: row.phone || '',
                     class: row.class,
                     school: row.school,
+                    family_group: row.family_group || '',
                     photo: row.photo || '',
                     createdAt: Timestamp.now(),
                 });
@@ -2517,11 +2536,11 @@
             
             childrenArray.sort((a, b) => a.name.localeCompare(b.name));
             
-            let html = '<div style="overflow-x:auto"><table class="data-table"><thead><tr><th>S.No</th><th>Name</th><th>DOB</th><th>Mother\'s Name</th><th>Father\'s Name</th><th>Class</th><th>School</th><th>Photo</th><th>Actions</th></tr></thead><tbody>';
+            let html = '<div style="overflow-x:auto"><table class="data-table"><thead><tr><th>S.No</th><th>Name</th><th>Mother\'s Name</th><th>Father\'s Name</th><th>DOB</th><th>Ph. Number</th><th>Class</th><th>School</th><th>Family Group</th><th>Photo</th><th>Actions</th></tr></thead><tbody>';
             
             let idx = 1;
             childrenArray.forEach((ch) => {
-                html += `<tr class="child-row" data-name="${(ch.name || '').toLowerCase()}" data-mother="${(ch.mother || '').toLowerCase()}" data-father="${(ch.father || '').toLowerCase()}" data-dob="${ch.dob || ''}">
+                html += `<tr class="child-row" data-name="${(ch.name || '').toLowerCase()}" data-mother="${(ch.mother || '').toLowerCase()}" data-father="${(ch.father || '').toLowerCase()}" data-dob="${ch.dob || ''}" data-phone="${(ch.phone || '').toLowerCase()}" data-family-group="${(ch.family_group || '').toLowerCase()}">
                     <td>${idx++}</td>
                     <td>${ch.name || '-'}</td>
                     <td>${ch.mother || '-'}</td>
@@ -2557,8 +2576,10 @@
         document.getElementById('chDOB').value = child.dob || '';
         document.getElementById('chMother').value = child.mother || '';
         document.getElementById('chFather').value = child.father || '';
+        document.getElementById('chPhone').value = child.phone || '';
         document.getElementById('chClass').value = child.class || '';
         document.getElementById('chSchool').value = child.school || '';
+        document.getElementById('chFamilyGroup').value = child.family_group || '';
         
         // Store the ID for update
         window.editingChildId = id;
@@ -2841,8 +2862,10 @@
             const mother = row.dataset.mother || '';
             const father = row.dataset.father || '';
             const dob = row.dataset.dob || '';
+            const phone = row.dataset.phone || '';
+            const familyGroup = row.dataset.familyGroup || '';
             
-            const matches = name.includes(searchTerm) || mother.includes(searchTerm) || father.includes(searchTerm) || dob.includes(searchTerm);
+            const matches = name.includes(searchTerm) || mother.includes(searchTerm) || father.includes(searchTerm) || dob.includes(searchTerm) || phone.includes(searchTerm) || familyGroup.includes(searchTerm);
             row.style.display = matches ? '' : 'none';
         });
     };
