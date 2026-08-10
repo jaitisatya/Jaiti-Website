@@ -2464,25 +2464,35 @@
                 throw new Error('The CSV file is empty or has no data rows.');
             }
 
-            const requiredColumns = ['name', 'dob', 'mother', 'father', 'class'];
-            const missing = requiredColumns.filter(col => !rows[0][col] && !Object.keys(rows[0]).some(k => k.includes(col)));
-            if (missing.length) {
-                throw new Error('Missing required CSV columns: ' + missing.join(', '));
-            }
+            const normalizeHeader = (value = '') => String(value).trim().toLowerCase().replace(/[^a-z0-9]/g, '');
+
+            const getCsvValue = (row, aliases) => {
+                const normalizedAliases = aliases.map(normalizeHeader);
+                for (const key of Object.keys(row)) {
+                    const normalizedKey = normalizeHeader(key);
+                    if (normalizedAliases.includes(normalizedKey)) {
+                        const value = row[key];
+                        return value !== undefined && value !== null ? String(value).trim() : '';
+                    }
+                }
+                return '';
+            };
 
             const normalizedRows = rows.map((row) => ({
-                name: row.name || row['student name'] || row['child name'] || '',
-                dob: row.dob || row['date of birth'] || '',
-                mother: row.mother || row['mother\'s name'] || row['mother name'] || '',
-                father: row.father || row['father\'s name'] || row['father name'] || '',
-                phone: row.phone || row['phone number'] || row['ph. number'] || row['phone_number'] || row['contact number'] || '',
-                class: row.class || row['class name'] || row['student class'] || '',
-                school: row.school || row['school name'] || '',
-                family_group: row.family_group || row['family group'] || row['family-group'] || row['group'] || '',
-                photo: row.photo || row['photo url'] || row['image'] || '',
+                name: getCsvValue(row, ['Name', 'Student Name', 'Child Name', "Student's Name"]),
+                dob: getCsvValue(row, ['DOB', 'Date of Birth', 'DateOfBirth', 'Birth Date']),
+                mother: getCsvValue(row, ["Mother's Name", 'Mother Name']),
+                father: getCsvValue(row, ["Father's Name", 'Father Name']),
+                phone: getCsvValue(row, ['Ph. Number', 'Ph. Numbaer', 'Phone Number', 'Phone', 'Contact Number', 'Contact']),
+                class: getCsvValue(row, ['Class', 'Class Name', 'Student Class', 'Grade']),
+                school: getCsvValue(row, ['School', 'School Name']),
+                family_group: getCsvValue(row, ['Family Group', 'Family Group Name', 'Group']),
+                photo: getCsvValue(row, ['Photo', 'Photo URL', 'Image', 'Image URL']),
             }));
 
-            const validRows = normalizedRows.filter(row => row.name && row.dob && row.mother && row.father && row.class);
+            const validRows = normalizedRows.filter(row =>
+                row.name || row.mother || row.father || row.phone || row.class || row.school || row.family_group || row.photo
+            );
             if (!validRows.length) {
                 throw new Error('No valid child records were found. Please check your CSV headers and row values.');
             }
