@@ -812,9 +812,11 @@
         /* ── DATA TABLE ── */
         .data-table {
             width: 100%;
+            min-width: 980px;
             border-collapse: collapse;
             margin-top: 1rem;
-            font-size: 0.8rem;
+            font-size: 0.78rem;
+            overflow-x: auto;
         }
 
         .data-table th {
@@ -828,12 +830,38 @@
         }
 
         .data-table td {
-            padding: 0.5rem 0.6rem;
+            padding: 0.6rem;
             border-bottom: 1px solid #e0dbd0;
-            white-space: normal;
-            word-break: break-word;
+            white-space: nowrap;
             vertical-align: middle;
         }
+
+        .children-table-wrap {
+            overflow-x: auto;
+        }
+
+        .children-table {
+            min-width: 1180px;
+            table-layout: fixed;
+        }
+
+        .children-table th,
+        .children-table td {
+            overflow-wrap: anywhere;
+            word-break: break-word;
+        }
+
+        .children-table th:nth-child(1), .children-table td:nth-child(1) { width: 52px; }
+        .children-table th:nth-child(2), .children-table td:nth-child(2) { width: 120px; }
+        .children-table th:nth-child(3), .children-table td:nth-child(3) { width: 120px; }
+        .children-table th:nth-child(4), .children-table td:nth-child(4) { width: 120px; }
+        .children-table th:nth-child(5), .children-table td:nth-child(5) { width: 90px; }
+        .children-table th:nth-child(6), .children-table td:nth-child(6) { width: 110px; }
+        .children-table th:nth-child(7), .children-table td:nth-child(7) { width: 72px; }
+        .children-table th:nth-child(8), .children-table td:nth-child(8) { width: 120px; }
+        .children-table th:nth-child(9), .children-table td:nth-child(9) { width: 90px; }
+        .children-table th:nth-child(10), .children-table td:nth-child(10) { width: 70px; }
+        .children-table th:nth-child(11), .children-table td:nth-child(11) { width: 90px; }
 
         .data-table tr:hover {
             background: #fdf9f4;
@@ -1330,6 +1358,17 @@
 
             <div class="form-row">
                 <div class="form-group">
+                    <label>Phone Number</label>
+                    <input type="tel" id="chPhone" placeholder="Phone Number">
+                </div>
+                <div class="form-group">
+                    <label>Family Group</label>
+                    <input type="text" id="chFamilyGroup" placeholder="Family Group">
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
                     <label>Class *</label>
                     <select id="chClass">
                         <option value="">Select Class</option>
@@ -1367,6 +1406,85 @@
         </div>
     </div>
 
+</div>
+
+<div class="modal" id="editChildModal">
+    <div class="modal-content">
+        <div class="modal-header">
+            Edit Child
+            <button class="modal-close" onclick="closeEditChildModal()">✕</button>
+        </div>
+
+        <div class="form-row">
+            <div class="form-group">
+                <label>Student's Name *</label>
+                <input type="text" id="editChName" placeholder="Full Name">
+            </div>
+            <div class="form-group">
+                <label>Date of Birth *</label>
+                <input type="date" id="editChDOB">
+            </div>
+        </div>
+
+        <div class="form-row">
+            <div class="form-group">
+                <label>Mother's Name *</label>
+                <input type="text" id="editChMother" placeholder="Mother's Name">
+            </div>
+            <div class="form-group">
+                <label>Father's Name *</label>
+                <input type="text" id="editChFather" placeholder="Father's Name">
+            </div>
+        </div>
+
+        <div class="form-row">
+            <div class="form-group">
+                <label>Phone Number</label>
+                <input type="tel" id="editChPhone" placeholder="Phone Number">
+            </div>
+            <div class="form-group">
+                <label>Family Group</label>
+                <input type="text" id="editChFamilyGroup" placeholder="Family Group">
+            </div>
+        </div>
+
+        <div class="form-row">
+            <div class="form-group">
+                <label>Class *</label>
+                <select id="editChClass">
+                    <option value="">Select Class</option>
+                    <option value="1st">1st</option>
+                    <option value="2nd">2nd</option>
+                    <option value="3rd">3rd</option>
+                    <option value="4th">4th</option>
+                    <option value="5th">5th</option>
+                    <option value="6th">6th</option>
+                    <option value="7th">7th</option>
+                    <option value="8th">8th</option>
+                    <option value="9th">9th</option>
+                    <option value="10th">10th</option>
+                    <option value="11th">11th</option>
+                    <option value="12th">12th</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>School</label>
+                <input type="text" id="editChSchool" placeholder="School Name">
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label>Photo</label>
+            <div class="photo-drop" id="editChPhotoDrop">
+                <input type="file" id="editChPhotoInput" accept="image/*" onchange="handleChildEditPhotoSelect(event)">
+                <div class="photo-drop-icon">📷</div>
+                <p><strong>Click to select photo</strong></p>
+            </div>
+            <div class="photo-preview-grid" id="editChPhotoPreview"></div>
+        </div>
+
+        <button class="btn-save" id="updateChildBtn" onclick="updateChild()">💾 Update Child</button>
+    </div>
 </div>
 
         <!-- EDIT ENTRY MODAL -->
@@ -2026,6 +2144,23 @@
         }
     };
 
+    window.handleChildEditPhotoSelect = (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+
+        const reader = new FileReader();
+        reader.onload = (event) => {
+            childPhotoData = { file, base64: event.target.result };
+            document.getElementById('editChPhotoPreview').innerHTML = `
+                <div class="preview-item">
+                    <img src="${event.target.result}" alt="Edit Preview">
+                    <button class="remove-btn" onclick="childPhotoData=null; document.getElementById('editChPhotoPreview').innerHTML=''; document.getElementById('editChPhotoInput').value='';">✕</button>
+                </div>
+            `;
+        };
+        reader.readAsDataURL(file);
+    };
+
     // ── TOGGLE EDUCATOR FORM ──
     window.toggleEducatorForm = () => {
         const formCard = document.getElementById('addEducatorFormCard');
@@ -2037,8 +2172,17 @@
         }
     };
 
+    window.openChildrenForm = () => {
+        const formCard = document.getElementById('addChildrenFormCard');
+        if (formCard) {
+            formCard.style.display = 'block';
+            formCard.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+    };
+
     window.toggleChildrenForm = () => {
         const formCard = document.getElementById('addChildrenFormCard');
+        if (!formCard) return;
         if (formCard.style.display === 'none') {
             formCard.style.display = 'block';
             formCard.scrollIntoView({ behavior: 'smooth', block: 'start' });
@@ -2298,11 +2442,13 @@
         const dob = document.getElementById('chDOB').value;
         const mother = document.getElementById('chMother').value.trim();
         const father = document.getElementById('chFather').value.trim();
+        const phone = document.getElementById('chPhone').value.trim();
         const chClass = document.getElementById('chClass').value;
         const school = document.getElementById('chSchool').value.trim();
+        const familyGroup = document.getElementById('chFamilyGroup').value.trim();
 
-        if (!name || !mother || !father || !chClass) {
-            showAlert('❌ Please fill all required fields (Name, Mother, Father, Class)', 'error', 'childrenAlert');
+        if (!name || !dob || !mother || !father || !chClass) {
+            showAlert('❌ Please fill all required fields', 'error', 'childrenAlert');
             return;
         }
 
@@ -2317,7 +2463,7 @@
             }
 
             const childData = {
-                name, dob, mother, father, class: chClass, school,
+                name, dob, mother, father, phone, family_group: familyGroup, class: chClass, school,
                 photo: photoUrl,
                 createdBy: auth.currentUser.email,
                 createdAt: Timestamp.now()
@@ -2336,12 +2482,15 @@
             document.getElementById('chDOB').value = '';
             document.getElementById('chMother').value = '';
             document.getElementById('chFather').value = '';
+            document.getElementById('chPhone').value = '';
             document.getElementById('chClass').value = '';
             document.getElementById('chSchool').value = '';
+            document.getElementById('chFamilyGroup').value = '';
             document.getElementById('chPhotoPreview').innerHTML = '';
             document.getElementById('chPhotoInput').value = '';
             childPhotoData = null;
             window.editingChildId = null;
+            document.getElementById('chSaveBtn').innerHTML = '💾 Save Child';
 
             window.loadChildrenList();
         } catch (err) {
@@ -2448,23 +2597,35 @@
                 throw new Error('The CSV file is empty or has no data rows.');
             }
 
-            const requiredColumns = ['name', 'dob', 'mother', 'father', 'class'];
-            const missing = requiredColumns.filter(col => !rows[0][col] && !Object.keys(rows[0]).some(k => k.includes(col)));
-            if (missing.length) {
-                throw new Error('Missing required CSV columns: ' + missing.join(', '));
-            }
+            const normalizeHeader = (value = '') => String(value).trim().toLowerCase().replace(/[^a-z0-9]/g, '');
+
+            const getCsvValue = (row, aliases) => {
+                const normalizedAliases = aliases.map(normalizeHeader);
+                for (const key of Object.keys(row)) {
+                    const normalizedKey = normalizeHeader(key);
+                    if (normalizedAliases.includes(normalizedKey)) {
+                        const value = row[key];
+                        return value !== undefined && value !== null ? String(value).trim() : '';
+                    }
+                }
+                return '';
+            };
 
             const normalizedRows = rows.map((row) => ({
-                name: row.name || row['student name'] || row['child name'] || '',
-                dob: row.dob || row['date of birth'] || '',
-                mother: row.mother || row['mother\'s name'] || row['mother name'] || '',
-                father: row.father || row['father\'s name'] || row['father name'] || '',
-                class: row.class || row['class name'] || row['student class'] || '',
-                school: row.school || row['school name'] || '',
-                photo: row.photo || row['photo url'] || row['image'] || '',
+                name: getCsvValue(row, ['Name', 'Student Name', 'Child Name', "Student's Name"]),
+                dob: getCsvValue(row, ['DOB', 'Date of Birth', 'DateOfBirth', 'Birth Date']),
+                mother: getCsvValue(row, ["Mother's Name", 'Mother Name']),
+                father: getCsvValue(row, ["Father's Name", 'Father Name']),
+                phone: getCsvValue(row, ['Ph. Number', 'Ph. Numbaer', 'Phone Number', 'Phone', 'Contact Number', 'Contact']),
+                class: getCsvValue(row, ['Class', 'Class Name', 'Student Class', 'Grade']),
+                school: getCsvValue(row, ['School', 'School Name']),
+                family_group: getCsvValue(row, ['Family Group', 'Family Group Name', 'Group']),
+                photo: getCsvValue(row, ['Photo', 'Photo URL', 'Image', 'Image URL']),
             }));
 
-            const validRows = normalizedRows.filter(row => row.name && row.dob && row.mother && row.father && row.class);
+            const validRows = normalizedRows.filter(row =>
+                row.name || row.mother || row.father || row.phone || row.class || row.school || row.family_group || row.photo
+            );
             if (!validRows.length) {
                 throw new Error('No valid child records were found. Please check your CSV headers and row values.');
             }
@@ -2476,8 +2637,10 @@
                     dob: row.dob,
                     mother: row.mother,
                     father: row.father,
+                    phone: row.phone || '',
                     class: row.class,
                     school: row.school,
+                    family_group: row.family_group || '',
                     photo: row.photo || '',
                     createdAt: Timestamp.now(),
                 });
@@ -2494,52 +2657,35 @@
         }
     };
 
-    // ── LOAD CHILDREN LIST ──
-    window.toggleChildrenForm = () => {
-        const formCard = document.getElementById('addChildrenFormCard');
-        if (formCard) {
-            const isHidden = formCard.style.display === 'none' || !formCard.style.display;
-            formCard.style.display = isHidden ? 'block' : 'none';
-            if (isHidden) {
-                formCard.scrollIntoView({ behavior: 'smooth', block: 'center' });
-            }
-        }
+    const escapeHtml = (value) => {
+        const stringValue = value == null ? '' : String(value);
+        return stringValue
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/\"/g, '&quot;')
+            .replace(/'/g, '&#039;');
     };
 
-    window.filterChildren = () => {
-        const queryVal = (document.getElementById('childrenSearch')?.value || '').toLowerCase().trim();
-        const rows = document.querySelectorAll('#childrenList tr.child-row');
-        rows.forEach(row => {
-            const name = row.dataset.name || '';
-            const mother = row.dataset.mother || '';
-            const father = row.dataset.father || '';
-            const dob = row.dataset.dob || '';
-            const phone = row.dataset.phone || '';
-            const family = row.dataset.familyGroup || '';
-            if (!queryVal || name.includes(queryVal) || mother.includes(queryVal) || father.includes(queryVal) || dob.includes(queryVal) || phone.includes(queryVal) || family.includes(queryVal)) {
-                row.style.display = '';
-            } else {
-                row.style.display = 'none';
-            }
-        });
-    };
-
-    let childPhotoData = null;
-    window.handleChildPhotoSelect = (e) => {
-        const file = e.target.files && e.target.files[0];
-        if (!file) return;
-        if (file.size > 5 * 1024 * 1024) {
-            showAlert('❌ Photo is too large (max 5MB)', 'error', 'childrenAlert');
+    document.addEventListener('click', (event) => {
+        const lightboxTrigger = event.target.closest('[data-lightbox-url]');
+        if (lightboxTrigger) {
+            window.openLightbox(lightboxTrigger.dataset.lightboxUrl);
             return;
         }
-        childPhotoData = { file };
-        const reader = new FileReader();
-        reader.onload = (event) => {
-            document.getElementById('chPhotoPreview').innerHTML = `<div class="preview-item"><img src="${event.target.result}" alt="Preview"><button class="remove-btn" onclick="childPhotoData=null; document.getElementById('chPhotoPreview').innerHTML=''; document.getElementById('chPhotoInput').value='';">✕</button></div>`;
-        };
-        reader.readAsDataURL(file);
-    };
 
+        const childActionTrigger = event.target.closest('[data-child-action]');
+        if (!childActionTrigger) return;
+
+        const { childAction, childId } = childActionTrigger.dataset;
+        if (childAction === 'edit') {
+            window.editChild(childId);
+        } else if (childAction === 'delete') {
+            window.deleteChild(childId);
+        }
+    });
+
+    // ── LOAD CHILDREN LIST ──
     window.loadChildrenList = async () => {
         const list = document.getElementById('childrenList');
         try {
@@ -2559,40 +2705,38 @@
                 window.allChildrenData.push({ id: doc.id, ...ch });
             });
             
-            childrenArray.sort((a, b) => (a.name || '').localeCompare(b.name || ''));
-            
-            let html = '<div style="width:100%; overflow-x:auto;"><table class="data-table" style="width:100%; table-layout:fixed;"><thead><tr>' +
-                '<th style="width:45px; text-align:center;">S.No</th>' +
-                '<th style="width:130px;">Name</th>' +
-                '<th style="width:110px;">Mother</th>' +
-                '<th style="width:110px;">Father</th>' +
-                '<th style="width:90px;">DOB</th>' +
-                '<th style="width:95px;">Phone</th>' +
-                '<th style="width:55px; text-align:center;">Class</th>' +
-                '<th style="width:150px;">School</th>' +
-                '<th style="width:75px; text-align:center;">Family</th>' +
-                '<th style="width:55px; text-align:center;">Photo</th>' +
-                '<th style="width:85px; text-align:center;">Actions</th>' +
-                '</tr></thead><tbody>';
+            childrenArray.sort((a, b) => String(a.name || '').localeCompare(String(b.name || '')));
+
+            let html = '<div class="children-table-wrap"><table class="data-table children-table"><thead><tr><th>S.No</th><th>Name</th><th>Mother\'s Name</th><th>Father\'s Name</th><th>DOB</th><th>Ph. Number</th><th>Class</th><th>School</th><th>Family Group</th><th>Photo</th><th>Actions</th></tr></thead><tbody>';
             
             let idx = 1;
             childrenArray.forEach((ch) => {
-                const photoSrc = ch.photo || '';
-                const photoCell = photoSrc ? `<img src="${photoSrc}" onclick="window.openLightbox('${photoSrc}')" style="width:32px;height:32px;object-fit:cover;border-radius:4px;cursor:pointer;border:1px solid #d4c9bc" title="Click to enlarge">` : '-';
+                const name = escapeHtml(ch.name || '-');
+                const mother = escapeHtml(ch.mother || '-');
+                const father = escapeHtml(ch.father || '-');
+                const dob = escapeHtml(ch.dob || '-');
+                const phone = escapeHtml(ch.phone || '-');
+                const className = escapeHtml(ch.class || '-');
+                const school = escapeHtml(ch.school || '-');
+                const familyGroup = escapeHtml(ch.family_group || '-');
+                const photoHtml = ch.photo
+                    ? `<img src="${escapeHtml(ch.photo)}" data-lightbox-url="${escapeHtml(ch.photo)}" style="width:40px;height:40px;object-fit:cover;border-radius:4px;cursor:pointer;border:1px solid #d4c9bc" title="Click to enlarge" alt="Child photo">`
+                    : '-';
+
                 html += `<tr class="child-row" data-name="${(ch.name || '').toLowerCase()}" data-mother="${(ch.mother || '').toLowerCase()}" data-father="${(ch.father || '').toLowerCase()}" data-dob="${ch.dob || ''}" data-phone="${(ch.phone || '').toLowerCase()}" data-family-group="${(ch.family_group || '').toLowerCase()}">
-                    <td style="text-align:center; font-weight:600;">${idx++}</td>
-                    <td style="word-break:break-word;"><strong>${ch.name || '-'}</strong></td>
-                    <td style="word-break:break-word;">${ch.mother || '-'}</td>
-                    <td style="word-break:break-word;">${ch.father || '-'}</td>
-                    <td>${ch.dob || '-'}</td>
-                    <td>${ch.phone || '-'}</td>
-                    <td style="text-align:center;">${ch.class || '-'}</td>
-                    <td style="word-break:break-word;">${ch.school || '-'}</td>
-                    <td style="text-align:center;">${ch.family_group || '-'}</td>
-                    <td style="text-align:center;">${photoCell}</td>
+                    <td>${idx++}</td>
+                    <td>${name}</td>
+                    <td>${mother}</td>
+                    <td>${father}</td>
+                    <td>${dob}</td>
+                    <td>${phone}</td>
+                    <td>${className}</td>
+                    <td>${school}</td>
+                    <td>${familyGroup}</td>
+                    <td>${photoHtml}</td>
                     <td style="text-align:center;white-space:nowrap">
-                        <button class="action-btn edit" onclick="window.editChild('${ch.id}')" title="Edit" style="padding:4px 6px;margin-right:2px;">✏️</button>
-                        <button class="action-btn delete" onclick="window.deleteChild('${ch.id}')" title="Delete" style="padding:4px 6px;">🗑️</button>
+                        <button type="button" data-child-action="edit" data-child-id="${escapeHtml(ch.id)}" style="background:none;border:none;cursor:pointer;font-size:1.1rem;padding:0.25rem;margin-right:0.5rem" title="Edit" aria-label="Edit child">✏️</button>
+                        <button type="button" data-child-action="delete" data-child-id="${escapeHtml(ch.id)}" style="background:none;border:none;cursor:pointer;font-size:1.1rem;padding:0.25rem" title="Delete" aria-label="Delete child">🗑️</button>
                     </td>
                 </tr>`;
             });
@@ -2606,24 +2750,101 @@
     };
 
     // ── EDIT CHILD ──
+    window.openEditChildModal = (childId) => {
+        const modal = document.getElementById('editChildModal');
+        if (!modal) return;
+
+        modal.dataset.childId = childId || window.editingChildId || '';
+        modal.classList.add('show');
+        modal.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    };
+
+    window.closeEditChildModal = () => {
+        const modal = document.getElementById('editChildModal');
+        if (modal) {
+            modal.classList.remove('show');
+            modal.dataset.childId = '';
+        }
+        document.getElementById('editChPhotoInput').value = '';
+        document.getElementById('editChPhotoPreview').innerHTML = '';
+        childPhotoData = null;
+        window.editingChildId = null;
+    };
+
     window.editChild = (id) => {
         const child = window.allChildrenData?.find(c => c.id === id);
         if (!child) return;
-        
-        // Populate form with child data
-        document.getElementById('chName').value = child.name || '';
-        document.getElementById('chDOB').value = child.dob || '';
-        document.getElementById('chMother').value = child.mother || '';
-        document.getElementById('chFather').value = child.father || '';
-        document.getElementById('chClass').value = child.class || '';
-        document.getElementById('chSchool').value = child.school || '';
-        
-        // Store the ID for update
+
+        document.getElementById('editChName').value = child.name || '';
+        document.getElementById('editChDOB').value = child.dob || '';
+        document.getElementById('editChMother').value = child.mother || '';
+        document.getElementById('editChFather').value = child.father || '';
+        document.getElementById('editChPhone').value = child.phone || '';
+        document.getElementById('editChClass').value = child.class || '';
+        document.getElementById('editChSchool').value = child.school || '';
+        document.getElementById('editChFamilyGroup').value = child.family_group || '';
+        document.getElementById('editChPhotoPreview').innerHTML = child.photo ? `<div class="preview-item"><img src="${child.photo}" alt="Current child photo"><button class="remove-btn" onclick="childPhotoData=null; document.getElementById('editChPhotoPreview').innerHTML=''; document.getElementById('editChPhotoInput').value='';">✕</button></div>` : '';
+        document.getElementById('editChPhotoInput').value = '';
+        childPhotoData = null;
+
         window.editingChildId = id;
-        
-        // Show form
-        toggleChildrenForm();
-        window.scrollTo({ top: 0, behavior: 'smooth' });
+        document.getElementById('editChildModal').dataset.childId = id;
+        window.openEditChildModal(id);
+    };
+
+    window.updateChild = async () => {
+        const modal = document.getElementById('editChildModal');
+        const childId = modal?.dataset.childId || window.editingChildId;
+        const name = document.getElementById('editChName').value.trim();
+        const dob = document.getElementById('editChDOB').value;
+        const mother = document.getElementById('editChMother').value.trim();
+        const father = document.getElementById('editChFather').value.trim();
+        const phone = document.getElementById('editChPhone').value.trim();
+        const chClass = document.getElementById('editChClass').value;
+        const school = document.getElementById('editChSchool').value.trim();
+        const familyGroup = document.getElementById('editChFamilyGroup').value.trim();
+
+        if (!childId) {
+            showAlert('❌ No child selected for update.', 'error', 'childrenAlert');
+            return;
+        }
+
+        if (!name || !dob || !mother || !father || !chClass) {
+            showAlert('❌ Please fill all required fields', 'error', 'childrenAlert');
+            return;
+        }
+
+        try {
+            let photoUrl = null;
+            if (childPhotoData) {
+                photoUrl = await uploadChildPhoto(childPhotoData.file);
+            }
+
+            const currentPreviewImage = document.querySelector('#editChPhotoPreview img');
+            const existingPhoto = currentPreviewImage ? currentPreviewImage.getAttribute('src') || '' : '';
+            const finalPhoto = photoUrl || (existingPhoto && !existingPhoto.startsWith('data:') ? existingPhoto : '');
+
+            const updateData = {
+                name,
+                dob,
+                mother,
+                father,
+                phone,
+                family_group: familyGroup,
+                class: chClass,
+                school,
+                photo: finalPhoto,
+            };
+
+            await updateDoc(doc(db, 'children', childId), updateData);
+            showAlert('✅ Child updated!', 'success', 'childrenAlert');
+            window.editingChildId = null;
+            closeEditChildModal();
+            await window.loadChildrenList();
+        } catch (err) {
+            console.error(err);
+            showAlert('❌ Error: ' + err.message, 'error', 'childrenAlert');
+        }
     };
 
     // ── DELETE CHILD ──
@@ -2899,8 +3120,10 @@
             const mother = row.dataset.mother || '';
             const father = row.dataset.father || '';
             const dob = row.dataset.dob || '';
+            const phone = row.dataset.phone || '';
+            const familyGroup = row.dataset.familyGroup || '';
             
-            const matches = name.includes(searchTerm) || mother.includes(searchTerm) || father.includes(searchTerm) || dob.includes(searchTerm);
+            const matches = name.includes(searchTerm) || mother.includes(searchTerm) || father.includes(searchTerm) || dob.includes(searchTerm) || phone.includes(searchTerm) || familyGroup.includes(searchTerm);
             row.style.display = matches ? '' : 'none';
         });
     };
