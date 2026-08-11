@@ -828,9 +828,10 @@
         }
 
         .data-table td {
-            padding: 0.6rem;
+            padding: 0.5rem 0.6rem;
             border-bottom: 1px solid #e0dbd0;
-            white-space: nowrap;
+            white-space: normal;
+            word-break: break-word;
             vertical-align: middle;
         }
 
@@ -2494,6 +2495,51 @@
     };
 
     // ── LOAD CHILDREN LIST ──
+    window.toggleChildrenForm = () => {
+        const formCard = document.getElementById('addChildrenFormCard');
+        if (formCard) {
+            const isHidden = formCard.style.display === 'none' || !formCard.style.display;
+            formCard.style.display = isHidden ? 'block' : 'none';
+            if (isHidden) {
+                formCard.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }
+        }
+    };
+
+    window.filterChildren = () => {
+        const queryVal = (document.getElementById('childrenSearch')?.value || '').toLowerCase().trim();
+        const rows = document.querySelectorAll('#childrenList tr.child-row');
+        rows.forEach(row => {
+            const name = row.dataset.name || '';
+            const mother = row.dataset.mother || '';
+            const father = row.dataset.father || '';
+            const dob = row.dataset.dob || '';
+            const phone = row.dataset.phone || '';
+            const family = row.dataset.familyGroup || '';
+            if (!queryVal || name.includes(queryVal) || mother.includes(queryVal) || father.includes(queryVal) || dob.includes(queryVal) || phone.includes(queryVal) || family.includes(queryVal)) {
+                row.style.display = '';
+            } else {
+                row.style.display = 'none';
+            }
+        });
+    };
+
+    let childPhotoData = null;
+    window.handleChildPhotoSelect = (e) => {
+        const file = e.target.files && e.target.files[0];
+        if (!file) return;
+        if (file.size > 5 * 1024 * 1024) {
+            showAlert('❌ Photo is too large (max 5MB)', 'error', 'childrenAlert');
+            return;
+        }
+        childPhotoData = { file };
+        const reader = new FileReader();
+        reader.onload = (event) => {
+            document.getElementById('chPhotoPreview').innerHTML = `<div class="preview-item"><img src="${event.target.result}" alt="Preview"><button class="remove-btn" onclick="childPhotoData=null; document.getElementById('chPhotoPreview').innerHTML=''; document.getElementById('chPhotoInput').value='';">✕</button></div>`;
+        };
+        reader.readAsDataURL(file);
+    };
+
     window.loadChildrenList = async () => {
         const list = document.getElementById('childrenList');
         try {
@@ -2513,26 +2559,40 @@
                 window.allChildrenData.push({ id: doc.id, ...ch });
             });
             
-            childrenArray.sort((a, b) => a.name.localeCompare(b.name));
+            childrenArray.sort((a, b) => (a.name || '').localeCompare(b.name || ''));
             
-            let html = '<div style="width:100%; overflow-x:auto;"><table class="data-table" style="width:100%; table-layout:auto;"><thead><tr><th style="width:40px; text-align:center;">S.No</th><th>Name</th><th>Mother\'s Name</th><th>Father\'s Name</th><th style="width:85px;">DOB</th><th style="width:90px;">Ph. Number</th><th style="width:55px; text-align:center;">Class</th><th>Name of the School</th><th style="width:75px; text-align:center;">Family</th><th style="width:55px; text-align:center;">Photo</th><th style="width:75px; text-align:center;">Actions</th></tr></thead><tbody>';
+            let html = '<div style="width:100%; overflow-x:auto;"><table class="data-table" style="width:100%; table-layout:fixed;"><thead><tr>' +
+                '<th style="width:45px; text-align:center;">S.No</th>' +
+                '<th style="width:130px;">Name</th>' +
+                '<th style="width:110px;">Mother</th>' +
+                '<th style="width:110px;">Father</th>' +
+                '<th style="width:90px;">DOB</th>' +
+                '<th style="width:95px;">Phone</th>' +
+                '<th style="width:55px; text-align:center;">Class</th>' +
+                '<th style="width:150px;">School</th>' +
+                '<th style="width:75px; text-align:center;">Family</th>' +
+                '<th style="width:55px; text-align:center;">Photo</th>' +
+                '<th style="width:85px; text-align:center;">Actions</th>' +
+                '</tr></thead><tbody>';
             
             let idx = 1;
             childrenArray.forEach((ch) => {
-                html += `<tr class="child-row" data-name="${(ch.name || '').toLowerCase()}" data-mother="${(ch.mother || '').toLowerCase()}" data-father="${(ch.father || '').toLowerCase()}" data-dob="${ch.dob || ''}">
+                const photoSrc = ch.photo || '';
+                const photoCell = photoSrc ? `<img src="${photoSrc}" onclick="window.openLightbox('${photoSrc}')" style="width:32px;height:32px;object-fit:cover;border-radius:4px;cursor:pointer;border:1px solid #d4c9bc" title="Click to enlarge">` : '-';
+                html += `<tr class="child-row" data-name="${(ch.name || '').toLowerCase()}" data-mother="${(ch.mother || '').toLowerCase()}" data-father="${(ch.father || '').toLowerCase()}" data-dob="${ch.dob || ''}" data-phone="${(ch.phone || '').toLowerCase()}" data-family-group="${(ch.family_group || '').toLowerCase()}">
                     <td style="text-align:center; font-weight:600;">${idx++}</td>
-                    <td><strong>${ch.name || '-'}</strong></td>
-                    <td>${ch.mother || '-'}</td>
-                    <td>${ch.father || '-'}</td>
+                    <td style="word-break:break-word;"><strong>${ch.name || '-'}</strong></td>
+                    <td style="word-break:break-word;">${ch.mother || '-'}</td>
+                    <td style="word-break:break-word;">${ch.father || '-'}</td>
                     <td>${ch.dob || '-'}</td>
                     <td>${ch.phone || '-'}</td>
                     <td style="text-align:center;">${ch.class || '-'}</td>
-                    <td>${ch.school || '-'}</td>
+                    <td style="word-break:break-word;">${ch.school || '-'}</td>
                     <td style="text-align:center;">${ch.family_group || '-'}</td>
-                    <td style="text-align:center;">${ch.photo ? `<img src="${ch.photo}" onclick="window.openLightbox('${ch.photo}')" style="width:32px;height:32px;object-fit:cover;border-radius:4px;cursor:pointer;border:1px solid #d4c9bc" title="Click to enlarge">` : '-'}</td>
+                    <td style="text-align:center;">${photoCell}</td>
                     <td style="text-align:center;white-space:nowrap">
-                        <button class="action-btn edit" onclick="window.editChild('${ch.id}')" title="Edit">✏️ Edit</button>
-                        <button class="action-btn delete" onclick="window.deleteChild('${ch.id}')" title="Delete">🗑️</button>
+                        <button class="action-btn edit" onclick="window.editChild('${ch.id}')" title="Edit" style="padding:4px 6px;margin-right:2px;">✏️</button>
+                        <button class="action-btn delete" onclick="window.deleteChild('${ch.id}')" title="Delete" style="padding:4px 6px;">🗑️</button>
                     </td>
                 </tr>`;
             });
