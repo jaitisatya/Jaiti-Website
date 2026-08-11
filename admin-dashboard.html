@@ -2750,18 +2750,20 @@
     };
 
     // ── EDIT CHILD ──
-    window.openEditChildModal = () => {
+    window.openEditChildModal = (childId) => {
         const modal = document.getElementById('editChildModal');
-        if (modal) {
-            modal.classList.add('show');
-            modal.scrollIntoView({ behavior: 'smooth', block: 'center' });
-        }
+        if (!modal) return;
+
+        modal.dataset.childId = childId || window.editingChildId || '';
+        modal.classList.add('show');
+        modal.scrollIntoView({ behavior: 'smooth', block: 'center' });
     };
 
     window.closeEditChildModal = () => {
         const modal = document.getElementById('editChildModal');
         if (modal) {
             modal.classList.remove('show');
+            modal.dataset.childId = '';
         }
         document.getElementById('editChPhotoInput').value = '';
         document.getElementById('editChPhotoPreview').innerHTML = '';
@@ -2786,10 +2788,13 @@
         childPhotoData = null;
 
         window.editingChildId = id;
-        window.openEditChildModal();
+        document.getElementById('editChildModal').dataset.childId = id;
+        window.openEditChildModal(id);
     };
 
     window.updateChild = async () => {
+        const modal = document.getElementById('editChildModal');
+        const childId = modal?.dataset.childId || window.editingChildId;
         const name = document.getElementById('editChName').value.trim();
         const dob = document.getElementById('editChDOB').value;
         const mother = document.getElementById('editChMother').value.trim();
@@ -2798,6 +2803,11 @@
         const chClass = document.getElementById('editChClass').value;
         const school = document.getElementById('editChSchool').value.trim();
         const familyGroup = document.getElementById('editChFamilyGroup').value.trim();
+
+        if (!childId) {
+            showAlert('❌ No child selected for update.', 'error', 'childrenAlert');
+            return;
+        }
 
         if (!name || !dob || !mother || !father || !chClass) {
             showAlert('❌ Please fill all required fields', 'error', 'childrenAlert');
@@ -2810,15 +2820,27 @@
                 photoUrl = await uploadChildPhoto(childPhotoData.file);
             }
 
+            const currentPreviewImage = document.querySelector('#editChPhotoPreview img');
+            const existingPhoto = currentPreviewImage ? currentPreviewImage.getAttribute('src') || '' : '';
+            const finalPhoto = photoUrl || (existingPhoto && !existingPhoto.startsWith('data:') ? existingPhoto : '');
+
             const updateData = {
-                name, dob, mother, father, phone, family_group: familyGroup, class: chClass, school,
-                photo: photoUrl || document.querySelector('#editChPhotoPreview img')?.src || ''
+                name,
+                dob,
+                mother,
+                father,
+                phone,
+                family_group: familyGroup,
+                class: chClass,
+                school,
+                photo: finalPhoto,
             };
 
-            await updateDoc(doc(db, 'children', window.editingChildId), updateData);
+            await updateDoc(doc(db, 'children', childId), updateData);
             showAlert('✅ Child updated!', 'success', 'childrenAlert');
+            window.editingChildId = null;
             closeEditChildModal();
-            window.loadChildrenList();
+            await window.loadChildrenList();
         } catch (err) {
             console.error(err);
             showAlert('❌ Error: ' + err.message, 'error', 'childrenAlert');
