@@ -2076,8 +2076,17 @@
         }
     };
 
+    window.openChildrenForm = () => {
+        const formCard = document.getElementById('addChildrenFormCard');
+        if (formCard) {
+            formCard.style.display = 'block';
+            formCard.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+    };
+
     window.toggleChildrenForm = () => {
         const formCard = document.getElementById('addChildrenFormCard');
+        if (!formCard) return;
         if (formCard.style.display === 'none') {
             formCard.style.display = 'block';
             formCard.scrollIntoView({ behavior: 'smooth', block: 'start' });
@@ -2385,6 +2394,7 @@
             document.getElementById('chPhotoInput').value = '';
             childPhotoData = null;
             window.editingChildId = null;
+            document.getElementById('chSaveBtn').innerHTML = '💾 Save Child';
 
             window.loadChildrenList();
         } catch (err) {
@@ -2657,12 +2667,16 @@
         document.getElementById('chClass').value = child.class || '';
         document.getElementById('chSchool').value = child.school || '';
         document.getElementById('chFamilyGroup').value = child.family_group || '';
+        document.getElementById('chPhotoPreview').innerHTML = child.photo ? `<div class="preview-item"><img src="${child.photo}" alt="Current child photo"><button class="remove-btn" onclick="childPhotoData=null; document.getElementById('chPhotoPreview').innerHTML=''; document.getElementById('chPhotoInput').value='';">✕</button></div>` : '';
+        document.getElementById('chPhotoInput').value = '';
+        childPhotoData = null;
         
         // Store the ID for update
         window.editingChildId = id;
+        document.getElementById('chSaveBtn').innerHTML = '💾 Update Child';
         
         // Show form
-        toggleChildrenForm();
+        window.openChildrenForm();
         window.scrollTo({ top: 0, behavior: 'smooth' });
     };
 
