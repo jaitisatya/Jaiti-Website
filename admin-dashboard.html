@@ -812,11 +812,9 @@
         /* ── DATA TABLE ── */
         .data-table {
             width: 100%;
-            min-width: 980px;
             border-collapse: collapse;
             margin-top: 1rem;
-            font-size: 0.78rem;
-            overflow-x: auto;
+            font-size: 0.8rem;
         }
 
         .data-table th {
@@ -2517,13 +2515,13 @@
             
             childrenArray.sort((a, b) => a.name.localeCompare(b.name));
             
-            let html = '<div style="overflow-x:auto"><table class="data-table" style="font-size:0.85rem; width:100%;"><thead><tr><th style="width:50px;">S.No</th><th>Name</th><th>Mother\'s Name</th><th>Father\'s Name</th><th style="width:95px;">DOB</th><th style="width:95px;">Ph. Number</th><th style="width:60px;">Class</th><th>Name of the School</th><th style="width:80px;">Family Group</th><th style="width:60px;">Photo</th><th style="width:80px;">Actions</th></tr></thead><tbody>';
+            let html = '<div style="width:100%; overflow-x:auto;"><table class="data-table" style="width:100%; table-layout:auto;"><thead><tr><th style="width:40px; text-align:center;">S.No</th><th>Name</th><th>Mother\'s Name</th><th>Father\'s Name</th><th style="width:85px;">DOB</th><th style="width:90px;">Ph. Number</th><th style="width:55px; text-align:center;">Class</th><th>Name of the School</th><th style="width:75px; text-align:center;">Family</th><th style="width:55px; text-align:center;">Photo</th><th style="width:75px; text-align:center;">Actions</th></tr></thead><tbody>';
             
             let idx = 1;
             childrenArray.forEach((ch) => {
                 html += `<tr class="child-row" data-name="${(ch.name || '').toLowerCase()}" data-mother="${(ch.mother || '').toLowerCase()}" data-father="${(ch.father || '').toLowerCase()}" data-dob="${ch.dob || ''}">
-                    <td style="text-align:center;">${idx++}</td>
-                    <td>${ch.name || '-'}</td>
+                    <td style="text-align:center; font-weight:600;">${idx++}</td>
+                    <td><strong>${ch.name || '-'}</strong></td>
                     <td>${ch.mother || '-'}</td>
                     <td>${ch.father || '-'}</td>
                     <td>${ch.dob || '-'}</td>
@@ -2531,10 +2529,10 @@
                     <td style="text-align:center;">${ch.class || '-'}</td>
                     <td>${ch.school || '-'}</td>
                     <td style="text-align:center;">${ch.family_group || '-'}</td>
-                    <td style="text-align:center;">${ch.photo ? `<img src="${ch.photo}" onclick="openLightbox('${ch.photo}')" style="width:36px;height:36px;object-fit:cover;border-radius:4px;cursor:pointer;border:1px solid #d4c9bc" title="Click to enlarge">` : '-'}</td>
+                    <td style="text-align:center;">${ch.photo ? `<img src="${ch.photo}" onclick="window.openLightbox('${ch.photo}')" style="width:32px;height:32px;object-fit:cover;border-radius:4px;cursor:pointer;border:1px solid #d4c9bc" title="Click to enlarge">` : '-'}</td>
                     <td style="text-align:center;white-space:nowrap">
-                        <button class="action-btn edit" onclick="editChild('${ch.id}')" style="background:#f0f9f7;border:1px solid #3a7260;color:#3a7260;padding:4px 6px;margin-right:4px;cursor:pointer;border-radius:4px;font-size:0.8rem">✏️</button>
-                        <button class="action-btn delete" onclick="deleteChild('${ch.id}')" style="background:#fff5f5;border:1px solid #e53e3e;color:#e53e3e;padding:4px 6px;cursor:pointer;border-radius:4px;font-size:0.8rem">🗑️</button>
+                        <button class="action-btn edit" onclick="window.editChild('${ch.id}')" title="Edit">✏️ Edit</button>
+                        <button class="action-btn delete" onclick="window.deleteChild('${ch.id}')" title="Delete">🗑️</button>
                     </td>
                 </tr>`;
             });
