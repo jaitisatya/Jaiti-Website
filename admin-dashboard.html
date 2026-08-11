@@ -836,6 +836,33 @@
             vertical-align: middle;
         }
 
+        .children-table-wrap {
+            overflow-x: auto;
+        }
+
+        .children-table {
+            min-width: 1180px;
+            table-layout: fixed;
+        }
+
+        .children-table th,
+        .children-table td {
+            overflow-wrap: anywhere;
+            word-break: break-word;
+        }
+
+        .children-table th:nth-child(1), .children-table td:nth-child(1) { width: 52px; }
+        .children-table th:nth-child(2), .children-table td:nth-child(2) { width: 120px; }
+        .children-table th:nth-child(3), .children-table td:nth-child(3) { width: 120px; }
+        .children-table th:nth-child(4), .children-table td:nth-child(4) { width: 120px; }
+        .children-table th:nth-child(5), .children-table td:nth-child(5) { width: 90px; }
+        .children-table th:nth-child(6), .children-table td:nth-child(6) { width: 110px; }
+        .children-table th:nth-child(7), .children-table td:nth-child(7) { width: 72px; }
+        .children-table th:nth-child(8), .children-table td:nth-child(8) { width: 120px; }
+        .children-table th:nth-child(9), .children-table td:nth-child(9) { width: 90px; }
+        .children-table th:nth-child(10), .children-table td:nth-child(10) { width: 70px; }
+        .children-table th:nth-child(11), .children-table td:nth-child(11) { width: 90px; }
+
         .data-table tr:hover {
             background: #fdf9f4;
         }
@@ -2524,6 +2551,34 @@
         }
     };
 
+    const escapeHtml = (value) => {
+        const stringValue = value == null ? '' : String(value);
+        return stringValue
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/\"/g, '&quot;')
+            .replace(/'/g, '&#039;');
+    };
+
+    document.addEventListener('click', (event) => {
+        const lightboxTrigger = event.target.closest('[data-lightbox-url]');
+        if (lightboxTrigger) {
+            window.openLightbox(lightboxTrigger.dataset.lightboxUrl);
+            return;
+        }
+
+        const childActionTrigger = event.target.closest('[data-child-action]');
+        if (!childActionTrigger) return;
+
+        const { childAction, childId } = childActionTrigger.dataset;
+        if (childAction === 'edit') {
+            window.editChild(childId);
+        } else if (childAction === 'delete') {
+            window.deleteChild(childId);
+        }
+    });
+
     // ── LOAD CHILDREN LIST ──
     window.loadChildrenList = async () => {
         const list = document.getElementById('childrenList');
@@ -2544,26 +2599,38 @@
                 window.allChildrenData.push({ id: doc.id, ...ch });
             });
             
-            childrenArray.sort((a, b) => a.name.localeCompare(b.name));
-            
-            let html = '<div style="overflow-x:auto"><table class="data-table"><thead><tr><th>S.No</th><th>Name</th><th>Mother\'s Name</th><th>Father\'s Name</th><th>DOB</th><th>Ph. Number</th><th>Class</th><th>School</th><th>Family Group</th><th>Photo</th><th>Actions</th></tr></thead><tbody>';
+            childrenArray.sort((a, b) => String(a.name || '').localeCompare(String(b.name || '')));
+
+            let html = '<div class="children-table-wrap"><table class="data-table children-table"><thead><tr><th>S.No</th><th>Name</th><th>Mother\'s Name</th><th>Father\'s Name</th><th>DOB</th><th>Ph. Number</th><th>Class</th><th>School</th><th>Family Group</th><th>Photo</th><th>Actions</th></tr></thead><tbody>';
             
             let idx = 1;
             childrenArray.forEach((ch) => {
+                const name = escapeHtml(ch.name || '-');
+                const mother = escapeHtml(ch.mother || '-');
+                const father = escapeHtml(ch.father || '-');
+                const dob = escapeHtml(ch.dob || '-');
+                const phone = escapeHtml(ch.phone || '-');
+                const className = escapeHtml(ch.class || '-');
+                const school = escapeHtml(ch.school || '-');
+                const familyGroup = escapeHtml(ch.family_group || '-');
+                const photoHtml = ch.photo
+                    ? `<img src="${escapeHtml(ch.photo)}" data-lightbox-url="${escapeHtml(ch.photo)}" style="width:40px;height:40px;object-fit:cover;border-radius:4px;cursor:pointer;border:1px solid #d4c9bc" title="Click to enlarge" alt="Child photo">`
+                    : '-';
+
                 html += `<tr class="child-row" data-name="${(ch.name || '').toLowerCase()}" data-mother="${(ch.mother || '').toLowerCase()}" data-father="${(ch.father || '').toLowerCase()}" data-dob="${ch.dob || ''}" data-phone="${(ch.phone || '').toLowerCase()}" data-family-group="${(ch.family_group || '').toLowerCase()}">
                     <td>${idx++}</td>
-                    <td>${ch.name || '-'}</td>
-                    <td>${ch.mother || '-'}</td>
-                    <td>${ch.father || '-'}</td>
-                    <td>${ch.dob || '-'}</td>
-                    <td>${ch.phone || '-'}</td>
-                    <td>${ch.class || '-'}</td>
-                    <td>${ch.school || '-'}</td>
-                    <td>${ch.family_group || '-'}</td>
-                    <td>${ch.photo ? `<img src="${ch.photo}" onclick="openLightbox('${ch.photo}')" style="width:40px;height:40px;object-fit:cover;border-radius:4px;cursor:pointer;border:1px solid #d4c9bc" title="Click to enlarge">` : '-'}</td>
+                    <td>${name}</td>
+                    <td>${mother}</td>
+                    <td>${father}</td>
+                    <td>${dob}</td>
+                    <td>${phone}</td>
+                    <td>${className}</td>
+                    <td>${school}</td>
+                    <td>${familyGroup}</td>
+                    <td>${photoHtml}</td>
                     <td style="text-align:center;white-space:nowrap">
-                        <button onclick="editChild('${ch.id}')" style="background:none;border:none;cursor:pointer;font-size:1.1rem;padding:0.25rem;margin-right:0.5rem" title="Edit">✏️</button>
-                        <button onclick="deleteChild('${ch.id}')" style="background:none;border:none;cursor:pointer;font-size:1.1rem;padding:0.25rem" title="Delete">🗑️</button>
+                        <button type="button" data-child-action="edit" data-child-id="${escapeHtml(ch.id)}" style="background:none;border:none;cursor:pointer;font-size:1.1rem;padding:0.25rem;margin-right:0.5rem" title="Edit" aria-label="Edit child">✏️</button>
+                        <button type="button" data-child-action="delete" data-child-id="${escapeHtml(ch.id)}" style="background:none;border:none;cursor:pointer;font-size:1.1rem;padding:0.25rem" title="Delete" aria-label="Delete child">🗑️</button>
                     </td>
                 </tr>`;
             });
