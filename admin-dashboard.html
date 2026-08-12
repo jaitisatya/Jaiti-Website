@@ -1319,7 +1319,7 @@
                 </div>
             </div>
             <input type="file" id="childrenCsvInput" accept=".csv,text/csv" style="display:none" onchange="window.importChildrenCSV(event)">
-            <div style="position:sticky;top:0;z-index:20;background:#fff8f3;padding:0.5rem 0;margin-bottom:1rem;border-bottom:1px solid #e6ded6">
+            <div style="position:sticky;top:65px;z-index:20;background:#fff8f3;padding:0.5rem 0;margin-bottom:1rem;border-bottom:1px solid #e6ded6">
                 <input type="text" id="childrenSearch" placeholder="Search by child name, parent name, DOB..." style="width:100%;padding:0.75rem;border:2px solid #d4c9bc;border-radius:10px;font-size:0.9rem;outline:none;background:white" oninput="filterChildren()">
             </div>
             <div id="childrenList">
@@ -2775,9 +2775,63 @@
                 return;
             }
 
+            // Automatic Family Group Migration for existing records missing family_group
+            const familyMap = new Map();
+            let maxFamilyNum = 0;
+            let needsMigration = false;
+
+            snap.forEach(docSnap => {
+                const data = docSnap.data();
+                const motherKey = (data.mother || '').toLowerCase().trim();
+                const fatherKey = (data.father || '').toLowerCase().trim();
+                const fg = (data.family_group || '').trim();
+                if (motherKey || fatherKey) {
+                    const familyKey = `${motherKey}|${fatherKey}`;
+                    if (fg && !familyMap.has(familyKey)) {
+                        familyMap.set(familyKey, fg);
+                        const matchNum = fg.match(/\d+/);
+                        if (matchNum) {
+                            const n = parseInt(matchNum[0], 10);
+                            if (n > maxFamilyNum) maxFamilyNum = n;
+                        }
+                    }
+                }
+            });
+
+            for (const docSnap of snap.docs) {
+                const data = docSnap.data();
+                const motherKey = (data.mother || '').toLowerCase().trim();
+                const fatherKey = (data.father || '').toLowerCase().trim();
+                const familyKey = `${motherKey}|${fatherKey}`;
+                let fg = (data.family_group || '').trim();
+
+                if (!fg && (motherKey || fatherKey)) {
+                    if (familyMap.has(familyKey)) {
+                        fg = familyMap.get(familyKey);
+                    } else {
+                        maxFamilyNum++;
+                        fg = `Family ${maxFamilyNum}`;
+                        familyMap.set(familyKey, fg);
+                    }
+                    needsMigration = true;
+                    await updateDoc(doc(db, 'children', docSnap.id), { family_group: fg });
+                } else if (!fg) {
+                    maxFamilyNum++;
+                    fg = `Family ${maxFamilyNum}`;
+                    if (motherKey || fatherKey) familyMap.set(familyKey, fg);
+                    needsMigration = true;
+                    await updateDoc(doc(db, 'children', docSnap.id), { family_group: fg });
+                }
+            }
+
+            let freshSnap = snap;
+            if (needsMigration) {
+                freshSnap = await getDocs(query(collection(db, 'children'), orderBy('createdAt', 'asc')));
+            }
+
             window.allChildrenData = [];
             const childrenArray = [];
-            snap.forEach((doc) => {
+            freshSnap.forEach((doc) => {
                 const ch = doc.data();
                 childrenArray.push({ id: doc.id, ...ch });
                 window.allChildrenData.push({ id: doc.id, ...ch });
