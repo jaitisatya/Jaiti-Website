@@ -2638,8 +2638,30 @@
                 throw new Error('No valid child records were found. Please check your CSV headers and row values.');
             }
 
+            // Fetch existing children from Firestore to check for duplicates
+            const existingSnapshot = await getDocs(collection(db, 'children'));
+            const existingKeys = new Set();
+            existingSnapshot.forEach(docSnap => {
+                const data = docSnap.data();
+                const key = `${(data.name || '').toLowerCase().trim()}|${(data.mother || '').toLowerCase().trim()}|${(data.father || '').toLowerCase().trim()}`;
+                existingKeys.add(key);
+            });
+
             let imported = 0;
+            let skipped = 0;
+
             for (const row of validRows) {
+                const rowKey = `${(row.name || '').toLowerCase().trim()}|${(row.mother || '').toLowerCase().trim()}|${(row.father || '').toLowerCase().trim()}`;
+                
+                // If this exact child (Name + Mother + Father) already exists in database, skip it
+                if (existingKeys.has(rowKey)) {
+                    skipped++;
+                    continue;
+                }
+
+                // Add to set so duplicates within the same CSV upload are also skipped
+                existingKeys.add(rowKey);
+
                 await addDoc(collection(db, 'children'), {
                     name: row.name,
                     dob: row.dob,
@@ -2655,7 +2677,7 @@
                 imported++;
             }
 
-            showAlert('✅ Imported ' + imported + ' child records from ' + file.name, 'success', 'childrenAlert');
+            showAlert(`✅ Import complete: ${imported} added, ${skipped} duplicate(s) skipped from ${file.name}`, 'success', 'childrenAlert');
             window.loadChildrenList();
         } catch (err) {
             console.error(err);
