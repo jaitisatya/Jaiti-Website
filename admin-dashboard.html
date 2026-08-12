@@ -1372,6 +1372,9 @@
                     <label>Class *</label>
                     <select id="chClass">
                         <option value="">Select Class</option>
+                        <option value="LKG">LKG</option>
+                        <option value="UKG">UKG</option>
+                        <option value="Prep">Prep</option>
                         <option value="1st">1st</option>
                         <option value="2nd">2nd</option>
                         <option value="3rd">3rd</option>
@@ -1384,6 +1387,7 @@
                         <option value="10th">10th</option>
                         <option value="11th">11th</option>
                         <option value="12th">12th</option>
+                        <option value="NA">NA — Not Available</option>
                     </select>
                 </div>
                 <div class="form-group">
@@ -1453,6 +1457,9 @@
                 <label>Class *</label>
                 <select id="editChClass">
                     <option value="">Select Class</option>
+                    <option value="LKG">LKG</option>
+                    <option value="UKG">UKG</option>
+                    <option value="Prep">Prep</option>
                     <option value="1st">1st</option>
                     <option value="2nd">2nd</option>
                     <option value="3rd">3rd</option>
@@ -1465,6 +1472,7 @@
                     <option value="10th">10th</option>
                     <option value="11th">11th</option>
                     <option value="12th">12th</option>
+                    <option value="NA">NA — Not Available</option>
                 </select>
             </div>
             <div class="form-group">
@@ -2871,12 +2879,8 @@
             clearEditFieldError('editChName');
         }
 
-        if (!dob) {
-            setEditFieldError('editChDOB', 'Please select a date of birth.');
-            if (!firstInvalid) firstInvalid = dobEl;
-        } else {
-            clearEditFieldError('editChDOB');
-        }
+        // DOB is optional as requested
+        clearEditFieldError('editChDOB');
 
         if (!mother) {
             setEditFieldError('editChMother', 'Please fill out this field.');
