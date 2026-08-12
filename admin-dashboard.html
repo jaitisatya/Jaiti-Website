@@ -1687,9 +1687,10 @@
     };
 
     // ── TAB SWITCH ──
-    window.switchTab = (tabId) => {
-        // Update tab active state
+    window.switchTab = (tabId, updateHistory = true) => {
         const tabIds = ['new-entry','all-entries','summary','educators','children'];
+        if (!tabIds.includes(tabId)) tabId = 'new-entry';
+
         document.querySelectorAll('.tab').forEach((t, i) => {
             if (tabIds[i] === tabId) {
                 t.classList.add('active');
@@ -1698,7 +1699,6 @@
             }
         });
         
-        // Update panel active state
         document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
         const panel = document.getElementById('panel-' + tabId);
         if (panel) {
@@ -1707,7 +1707,18 @@
             console.error('Panel not found:', 'panel-' + tabId);
             return;
         }
+
+        // Update URL hash without jumping page scroll so each tab has its own shareable state
+        if (updateHistory) {
+            const cleanHash = tabId === 'new-entry' ? '' : '#' + tabId;
+            history.replaceState(null, '', window.location.pathname + cleanHash);
+        }
         
+        // Save current tab in localStorage as a robust fallback for page refresh
+        try {
+            localStorage.setItem('jaiti_admin_active_tab', tabId);
+        } catch (e) {}
+
         // Load data for the tab
         if (tabId === 'all-entries' && window.loadEntries) {
             window.loadEntries();
@@ -1719,6 +1730,35 @@
             window.loadChildrenList();
         }
     };
+
+    // Restore active tab on load based on URL hash or localStorage
+    window.addEventListener('DOMContentLoaded', () => {
+        const hash = window.location.hash.replace('#', '').trim();
+        const savedTab = localStorage.getItem('jaiti_admin_active_tab');
+        const tabIds = ['new-entry','all-entries','summary','educators','children'];
+
+        let initialTab = 'new-entry';
+        if (hash && tabIds.includes(hash)) {
+            initialTab = hash;
+        } else if (savedTab && tabIds.includes(savedTab)) {
+            initialTab = savedTab;
+        }
+
+        setTimeout(() => {
+            window.switchTab(initialTab, false);
+        }, 50);
+    });
+
+    // Handle browser back/forward buttons
+    window.addEventListener('popstate', () => {
+        const hash = window.location.hash.replace('#', '').trim();
+        const tabIds = ['new-entry','all-entries','summary','educators','children'];
+        if (hash && tabIds.includes(hash)) {
+            window.switchTab(hash, false);
+        } else {
+            window.switchTab('new-entry', false);
+        }
+    });
 
     // ── MOOD ──
     window.selectMood = (el, mood) => {
