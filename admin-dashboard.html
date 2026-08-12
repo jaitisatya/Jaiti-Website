@@ -1319,8 +1319,8 @@
                 </div>
             </div>
             <input type="file" id="childrenCsvInput" accept=".csv,text/csv" style="display:none" onchange="window.importChildrenCSV(event)">
-            <div style="margin-bottom:1rem">
-                <input type="text" id="childrenSearch" placeholder="Search by child name, parent name, DOB..." style="width:100%;padding:0.75rem;border:2px solid #d4c9bc;border-radius:10px;font-size:0.9rem;outline:none" oninput="filterChildren()">
+            <div style="position:sticky;top:0;z-index:20;background:#fff8f3;padding:0.5rem 0;margin-bottom:1rem;border-bottom:1px solid #e6ded6">
+                <input type="text" id="childrenSearch" placeholder="Search by child name, parent name, DOB..." style="width:100%;padding:0.75rem;border:2px solid #d4c9bc;border-radius:10px;font-size:0.9rem;outline:none;background:white" oninput="filterChildren()">
             </div>
             <div id="childrenList">
                 <div class="empty-state">
@@ -2638,13 +2638,31 @@
                 throw new Error('No valid child records were found. Please check your CSV headers and row values.');
             }
 
-            // Fetch existing children from Firestore to check for duplicates
+            // Fetch existing children from Firestore to check for duplicates and assign automatic family groups
             const existingSnapshot = await getDocs(collection(db, 'children'));
             const existingKeys = new Set();
+            const familyMap = new Map(); // Map parent key "mother|father" -> family group name
+            let maxFamilyNum = 0;
+
             existingSnapshot.forEach(docSnap => {
                 const data = docSnap.data();
-                const key = `${(data.name || '').toLowerCase().trim()}|${(data.mother || '').toLowerCase().trim()}|${(data.father || '').toLowerCase().trim()}`;
-                existingKeys.add(key);
+                const nameKey = `${(data.name || '').toLowerCase().trim()}|${(data.mother || '').toLowerCase().trim()}|${(data.father || '').toLowerCase().trim()}`;
+                existingKeys.add(nameKey);
+
+                const motherKey = (data.mother || '').toLowerCase().trim();
+                const fatherKey = (data.father || '').toLowerCase().trim();
+                if (motherKey || fatherKey) {
+                    const familyKey = `${motherKey}|${fatherKey}`;
+                    const fg = (data.family_group || '').trim();
+                    if (fg && !familyMap.has(familyKey)) {
+                        familyMap.set(familyKey, fg);
+                        const matchNum = fg.match(/\d+/);
+                        if (matchNum) {
+                            const n = parseInt(matchNum[0], 10);
+                            if (n > maxFamilyNum) maxFamilyNum = n;
+                        }
+                    }
+                }
             });
 
             let imported = 0;
@@ -2662,6 +2680,36 @@
                 // Add to set so duplicates within the same CSV upload are also skipped
                 existingKeys.add(rowKey);
 
+                // Automatic Family Group assignment based on Mother + Father
+                const motherKey = (row.mother || '').toLowerCase().trim();
+                const fatherKey = (row.father || '').toLowerCase().trim();
+                const familyKey = `${motherKey}|${fatherKey}`;
+
+                let assignedFamily = row.family_group ? row.family_group.trim() : '';
+
+                if (!assignedFamily && (motherKey || fatherKey)) {
+                    if (familyMap.has(familyKey)) {
+                        assignedFamily = familyMap.get(familyKey);
+                    } else {
+                        maxFamilyNum++;
+                        assignedFamily = `Family ${maxFamilyNum}`;
+                        familyMap.set(familyKey, assignedFamily);
+                    }
+                } else if (!assignedFamily) {
+                    maxFamilyNum++;
+                    assignedFamily = `Family ${maxFamilyNum}`;
+                } else {
+                    // Update map with user-provided or CSV family group
+                    if (motherKey || fatherKey) {
+                        familyMap.set(familyKey, assignedFamily);
+                        const matchNum = assignedFamily.match(/\d+/);
+                        if (matchNum) {
+                            const n = parseInt(matchNum[0], 10);
+                            if (n > maxFamilyNum) maxFamilyNum = n;
+                        }
+                    }
+                }
+
                 await addDoc(collection(db, 'children'), {
                     name: row.name,
                     dob: row.dob,
@@ -2670,14 +2718,14 @@
                     phone: row.phone || '',
                     class: row.class,
                     school: row.school,
-                    family_group: row.family_group || '',
+                    family_group: assignedFamily,
                     photo: row.photo || '',
                     createdAt: Timestamp.now(),
                 });
                 imported++;
             }
 
-            showAlert(`✅ Import complete: ${imported} added, ${skipped} duplicate(s) skipped from ${file.name}`, 'success', 'childrenAlert');
+            showAlert(`✅ Import complete: ${imported} added, ${skipped} duplicate(s) skipped with auto-family groups assigned.`, 'success', 'childrenAlert');
             window.loadChildrenList();
         } catch (err) {
             console.error(err);
