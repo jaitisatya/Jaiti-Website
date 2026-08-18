@@ -2,7 +2,12 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="preconnect" href="https://www.youtube-nocookie.com" crossorigin>
+    <link rel="preconnect" href="https://i.ytimg.com" crossorigin>
+    <link rel="dns-prefetch" href="//www.youtube-nocookie.com">
+    <link rel="dns-prefetch" href="//i.ytimg.com">
+
     <title>Child Education NGO in Jaipur | Jaiti Foundation</title>
     <meta name="description" content="Jaiti Foundation is a child education NGO in Jaipur serving underprivileged children from Jagatpura, Pratap Nagar, and nearby communities with free education, moral learning, nutritious meals, and mentorship. 100+ students enrolled, 200+ children impacted since 2024.">
 
@@ -171,28 +176,11 @@
 
 <!-- ================= HERO SECTION ================= -->
 <section class="hero">
-    <!-- Hero video backgrounds: 16:9 desktop and 9:16 mobile. Both are muted for autoplay. -->
+    <!-- Only the video for the current device is created; the poster remains visible while YouTube loads. -->
     <div class="hero-video-bg" aria-hidden="true">
-        <iframe
-            class="hero-video hero-video-desktop"
-            src="https://www.youtube-nocookie.com/embed/VYFl_hT3be4?autoplay=1&mute=1&controls=0&loop=1&playlist=VYFl_hT3be4&playsinline=1&rel=0&modestbranding=1&iv_load_policy=3&disablekb=1"
-            title="Jaiti Foundation impact story — desktop video"
-            loading="eager"
-            tabindex="-1"
-            allow="autoplay; encrypted-media; picture-in-picture"
-            referrerpolicy="strict-origin-when-cross-origin"
-        ></iframe>
-        <iframe
-            class="hero-video hero-video-mobile"
-            src="https://www.youtube-nocookie.com/embed/madh265kT8g?autoplay=1&mute=1&controls=0&loop=1&playlist=madh265kT8g&playsinline=1&rel=0&modestbranding=1&iv_load_policy=3&disablekb=1"
-            title="Jaiti Foundation impact story — mobile video"
-            loading="eager"
-            tabindex="-1"
-            allow="autoplay; encrypted-media; picture-in-picture"
-            referrerpolicy="strict-origin-when-cross-origin"
-        ></iframe>
+        <div class="hero-video-poster" aria-hidden="true"></div>
     </div>
-    
+
     <div class="hero-content">
         <h1 class="fade-in">Empowering Underprivileged Children Through Education in Jaipur</h1>
         
@@ -217,7 +205,56 @@
     </div>
 </section>
 
+<script>
+(function () {
+    const hero = document.querySelector('.hero');
+    const videoBackground = document.querySelector('.hero-video-bg');
+    if (!hero || !videoBackground) return;
+
+    const desktopVideoId = 'VYFl_hT3be4';
+    const mobileVideoId = 'madh265kT8g';
+    const query = window.matchMedia('(max-width: 768px)');
+    let activeIframe;
+
+    function mountHeroVideo(isMobile) {
+        const videoId = isMobile ? mobileVideoId : desktopVideoId;
+        const videoClass = isMobile ? 'hero-video-mobile' : 'hero-video-desktop';
+        const title = isMobile
+            ? 'Jaiti Foundation impact story — mobile video'
+            : 'Jaiti Foundation impact story — desktop video';
+
+        if (activeIframe) activeIframe.remove();
+
+        const iframe = document.createElement('iframe');
+        iframe.className = `hero-video ${videoClass}`;
+        iframe.title = title;
+        iframe.src = `https://www.youtube-nocookie.com/embed/${videoId}?autoplay=1&mute=1&controls=0&loop=1&playlist=${videoId}&playsinline=1&rel=0&modestbranding=1&iv_load_policy=3&disablekb=1`;
+        iframe.loading = 'eager';
+        iframe.tabIndex = -1;
+        iframe.allow = 'autoplay; encrypted-media; picture-in-picture';
+        iframe.referrerPolicy = 'strict-origin-when-cross-origin';
+        iframe.setAttribute('aria-hidden', 'true');
+
+        iframe.addEventListener('load', function () {
+            window.setTimeout(function () {
+                iframe.classList.add('is-ready');
+                hero.classList.add('hero-video-ready');
+            }, 450);
+        }, { once: true });
+
+        videoBackground.appendChild(iframe);
+        activeIframe = iframe;
+    }
+
+    mountHeroVideo(query.matches);
+    query.addEventListener('change', function (event) {
+        mountHeroVideo(event.matches);
+    });
+}());
+</script>
+
 <!-- ================= WHY WE EXIST ================= -->
+
 <section class="section why-section">
     <div class="container">
         <div class="section-header text-center">
