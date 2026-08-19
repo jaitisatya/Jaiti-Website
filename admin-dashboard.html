@@ -1341,7 +1341,7 @@
                     <input type="text" id="chName" placeholder="Full Name">
                 </div>
                 <div class="form-group">
-                    <label>Date of Birth *</label>
+                    <label>Date of Birth</label>
                     <input type="date" id="chDOB">
                 </div>
             </div>
@@ -2496,7 +2496,7 @@
         const school = document.getElementById('chSchool').value.trim();
         const familyGroup = document.getElementById('chFamilyGroup').value.trim();
 
-        if (!name || !dob || !mother || !father || !chClass) {
+        if (!name || !mother || !father || !chClass) {
             showAlert('❌ Please fill all required fields', 'error', 'childrenAlert');
             return;
         }
