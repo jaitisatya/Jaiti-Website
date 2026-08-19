@@ -1534,14 +1534,13 @@
             </div>
         </div>
 
-        <div class="form-group">
+                <div class="form-group">
             <label>Educators Present</label>
-            <div id="educatorsCheckboxes" class="educators-checkboxes"></div>
+            <div id="editEducatorsCheckboxes" class="educators-checkboxes"></div>
         </div>
-
         <div class="att-card" style="background:#e8f2ee;border:2px solid #3a7260;text-align:center;padding:1rem;border-radius:10px;margin-bottom:1rem">
             <label style="font-size:0.8rem;color:#5c4a38;display:block;margin-bottom:0.5rem;font-weight:600">Total Educators Present</label>
-            <div style="font-size:2rem;font-weight:700;color:#2f5f4f" id="educatorCountDisplay">0</div>
+            <div style="font-size:2rem;font-weight:700;color:#2f5f4f" id="editEducatorCountDisplay">0</div>
         </div>
 
         <div class="form-group">
@@ -1990,13 +1989,41 @@
         document.getElementById('editHighlights').value = entry.highlights || '';
         document.getElementById('editChallenges').value = entry.challenges || '';
 
-        // Load educators checkboxes
-        document.querySelectorAll('#editEducatorsCheckboxes input[type="checkbox"]').forEach(cb => {
-            cb.checked = entry.educatorsPresent?.includes(allEducators.find(e => e.id === cb.value)?.name) || false;
-        });
+        // Render and check educators checkboxes in edit modal
+        const container = document.getElementById('editEducatorsCheckboxes');
+        if (container) {
+            let html = '';
+            (window.allEducators || []).forEach(ed => {
+                const isChecked = entry.educatorsPresent?.includes(ed.name) ? 'checked' : '';
+                html += `<label class="educator-checkbox-item" style="display:flex;align-items:center;gap:0.5rem;padding:0.4rem;cursor:pointer">
+                    <input type="checkbox" value="${ed.id}" ${isChecked} onchange="updateEditEducatorCount()" style="width:18px;height:18px;accent-color:#3a7260">
+                    <span>${ed.name} (${ed.professional})</span>
+                </label>`;
+            });
+            container.innerHTML = html || '<p style="color:#7a6b5d;font-size:0.9rem">No educators found. Please add educators in Educators Data tab.</p>';
+        }
+        updateEditEducatorCount();
 
         document.getElementById('editEntryModal').classList.add('show');
     };
+
+    window.updateEditEducatorCount = () => {
+        const checked = document.querySelectorAll('#editEducatorsCheckboxes input[type="checkbox"]:checked');
+        const countEl = document.getElementById('editEducatorCountDisplay');
+        if (countEl) countEl.textContent = checked.length;
+    };
+
+    // Live attendance total calculation for edit modal
+    const editBoysInput = document.getElementById('editAttBoys');
+    const editGirlsInput = document.getElementById('editAttGirls');
+    const updateEditTotal = () => {
+        const boys = parseInt(editBoysInput?.value) || 0;
+        const girls = parseInt(editGirlsInput?.value) || 0;
+        const totalEl = document.getElementById('editAttTotal');
+        if (totalEl) totalEl.value = boys + girls;
+    };
+    if (editBoysInput) editBoysInput.addEventListener('input', updateEditTotal);
+    if (editGirlsInput) editGirlsInput.addEventListener('input', updateEditTotal);
 
     window.closeEditEntryModal = () => {
         document.getElementById('editEntryModal').classList.remove('show');
