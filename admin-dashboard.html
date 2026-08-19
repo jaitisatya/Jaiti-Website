@@ -1968,7 +1968,7 @@
     let editingEntryData = null;
 
     // ── OPEN EDIT ENTRY MODAL ──
-    window.openEditEntryModal = (entryId) => {
+    window.openEditEntryModal = async (entryId) => {
         const entry = allSummaryEntries.find(e => e.id === entryId)
             || (window.allEntries || []).find(e => e.id === entryId);
         if (!entry) {
@@ -1989,18 +1989,30 @@
         document.getElementById('editHighlights').value = entry.highlights || '';
         document.getElementById('editChallenges').value = entry.challenges || '';
 
+        // Ensure educators are loaded
+        if (!window.allEducators || window.allEducators.length === 0) {
+            try {
+                const q = query(collection(db, 'educators'), orderBy('createdAt', 'asc'));
+                const snap = await getDocs(q);
+                window.allEducators = [];
+                snap.forEach(d => window.allEducators.push({ id: d.id, ...d.data() }));
+            } catch (err) {
+                console.error('Error fetching educators for edit modal:', err);
+            }
+        }
+
         // Render and check educators checkboxes in edit modal
         const container = document.getElementById('editEducatorsCheckboxes');
         if (container) {
             let html = '';
             (window.allEducators || []).forEach(ed => {
                 const isChecked = entry.educatorsPresent?.includes(ed.name) ? 'checked' : '';
-                html += `<label class="educator-checkbox-item" style="display:flex;align-items:center;gap:0.5rem;padding:0.4rem;cursor:pointer">
-                    <input type="checkbox" value="${ed.id}" ${isChecked} onchange="updateEditEducatorCount()" style="width:18px;height:18px;accent-color:#3a7260">
-                    <span>${ed.name} (${ed.professional})</span>
-                </label>`;
+                html += `<div class="checkbox-item" style="display:flex;align-items:center;gap:0.5rem;padding:0.4rem;cursor:pointer">
+                    <input type="checkbox" id="edit-ed-${ed.id}" value="${ed.id}" ${isChecked} onchange="updateEditEducatorCount()" style="width:18px;height:18px;accent-color:#3a7260">
+                    <label for="edit-ed-${ed.id}" style="cursor:pointer">${ed.name} ${ed.professional ? '(' + ed.professional + ')' : ''}</label>
+                </div>`;
             });
-            container.innerHTML = html || '<p style="color:#7a6b5d;font-size:0.9rem">No educators found. Please add educators in Educators Data tab.</p>';
+            container.innerHTML = html || '<p style="color:#a08878;font-size:0.875rem">No educators added yet. Please add educators in Educators Data tab.</p>';
         }
         updateEditEducatorCount();
 
