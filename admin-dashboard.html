@@ -2558,10 +2558,23 @@
         const list = document.getElementById('adminSessionsList');
         list.innerHTML = '<div class="empty-state"><div class="icon">⏳</div><p>Loading active sessions...</p></div>';
         try {
-            const q = query(collection(db, 'admin-sessions'), orderBy('lastActive', 'desc'));
-            const snap = await getDocs(q);
+            let snap;
+            try {
+                const q = query(collection(db, 'admin-sessions'), orderBy('lastActive', 'desc'));
+                snap = await getDocs(q);
+            } catch (indexErr) {
+                console.warn('Index missing for orderBy, falling back to unordered fetch:', indexErr);
+                const snapFallback = await getDocs(collection(db, 'admin-sessions'));
+                snap = snapFallback;
+            }
             const sessions = [];
             snap.forEach(d => sessions.push({ id: d.id, ...d.data() }));
+            // Sort in memory safely
+            sessions.sort((a, b) => {
+                const tA = a.lastActive?.toDate ? a.lastActive.toDate().getTime() : 0;
+                const tB = b.lastActive?.toDate ? b.lastActive.toDate().getTime() : 0;
+                return tB - tA;
+            });
 
             const currentUser = auth.currentUser;
             const isSuperAdmin = currentUser && currentUser.email === 'jaitifoundation@gmail.com';
@@ -2625,7 +2638,7 @@
             list.innerHTML = html;
         } catch (err) {
             console.error(err);
-            list.innerHTML = '<div class="empty-state"><div class="icon">❌</div><p>Error loading sessions.</p></div>';
+            list.innerHTML = `<div class="empty-state"><div class="icon">❌</div><p>Error loading sessions: ${escapeHtml(err.message)}</p></div>`;
         }
     };
 
