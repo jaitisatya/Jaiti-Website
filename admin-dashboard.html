@@ -2052,7 +2052,7 @@
 
     // ── OPEN EDIT ENTRY MODAL ──
     window.openEditEntryModal = (entryId) => {
-        const entry = allSummaryEntries.find(e => e.id === entryId);
+        const entry = [...(allSummaryEntries || []), ...(window.allEntries || [])].find(e => e.id === entryId);
         if (!entry) return;
 
         editingEntryId = entryId;
@@ -3358,7 +3358,7 @@
 
     // ── OPEN ENTRY DETAIL MODAL ──
     window.openEntryDetailModal = (entryId) => {
-        const entry = allSummaryEntries.find(e => e.id === entryId);
+        const entry = [...(allSummaryEntries || []), ...(window.allEntries || [])].find(e => e.id === entryId);
         if (!entry) return;
 
         let html = `
@@ -3736,7 +3736,7 @@ window.renderEntriesTable = function(entries) {
         }
         html += '<td style="padding:1rem;border:1px solid #d4c9bc">' + educatorsHtml + '</td>';
         html += '<td style="padding:1rem;border:1px solid #d4c9bc">' + photosHtml + '</td>';
-        html += '<td style="padding:1rem;border:1px solid #d4c9bc"><button onclick="editEntry(\'' + entry.id + '\')" style="padding:0.4rem 0.8rem;background:#3a7260;color:white;border:none;border-radius:5px;cursor:pointer;font-size:0.8rem;margin-right:0.5rem">✏️ Edit</button><button onclick="deleteEntry(\'' + entry.id + '\')" style="padding:0.4rem 0.8rem;background:#d9534f;color:white;border:none;border-radius:5px;cursor:pointer;font-size:0.8rem">🗑️ Delete</button></td>';
+        html += '<td style="padding:1rem;border:1px solid #d4c9bc"><button onclick="openEditEntryModal(\'' + entry.id + '\')" style="padding:0.4rem 0.8rem;background:#3a7260;color:white;border:none;border-radius:5px;cursor:pointer;font-size:0.8rem;margin-right:0.5rem">✏️ Edit</button><button onclick="deleteEntry(\'' + entry.id + '\')" style="padding:0.4rem 0.8rem;background:#d9534f;color:white;border:none;border-radius:5px;cursor:pointer;font-size:0.8rem">🗑️ Delete</button></td>';
         html += '</tr>';
     });
     
@@ -3830,7 +3830,7 @@ window.openEntryModal = function(entryId, event) {
     }
     
     html += '<div style="margin-top:1.5rem;display:flex;gap:0.5rem">';
-    html += '<button onclick="editEntry(\'' + entryId + '\')" style="flex:1;padding:0.75rem;background:#3a7260;color:white;border:none;border-radius:5px;cursor:pointer;font-weight:600">✏️ Edit</button>';
+    html += '<button onclick="openEditEntryModal(\'' + entryId + '\')" style="flex:1;padding:0.75rem;background:#3a7260;color:white;border:none;border-radius:5px;cursor:pointer;font-weight:600">✏️ Edit</button>';
     html += '<button onclick="deleteEntry(\'' + entryId + '\')" style="flex:1;padding:0.75rem;background:#d9534f;color:white;border:none;border-radius:5px;cursor:pointer;font-weight:600">🗑️ Delete</button>';
     html += '<button onclick="closeEntryModal()" style="flex:1;padding:0.75rem;background:#a08878;color:white;border:none;border-radius:5px;cursor:pointer;font-weight:600">✕ Close</button>';
     html += '</div>';
