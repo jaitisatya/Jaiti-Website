@@ -1516,73 +1516,7 @@
     </div>
 </div>
 
-        <!-- EDIT ENTRY MODAL -->
-<div class="edit-entry-modal" id="editEntryModal">
-    <div class="edit-entry-content">
-        <div class="edit-entry-header">
-            <span>Edit Entry</span>
-            <button class="edit-entry-close" onclick="closeEditEntryModal()">✕</button>
-        </div>
-        
-        <div class="form-row">
-            <div class="form-group">
-                <label>Date *</label>
-                <input type="date" id="editEntryDate">
-            </div>
-            <div class="form-group">
-                <label>Session Type</label>
-                <select id="editSessionType">
-                    <option value="regular">Regular Class</option>
-                    <option value="workshop">Workshop</option>
-                    <option value="event">Event</option>
-                </select>
-            </div>
-        </div>
-
-        <div class="form-row">
-            <div class="form-group">
-                <label>Boys Present</label>
-                <input type="number" id="editAttBoys" min="0" value="0">
-            </div>
-            <div class="form-group">
-                <label>Girls Present</label>
-                <input type="number" id="editAttGirls" min="0" value="0">
-            </div>
-            <div class="form-group">
-                <label>Total Present</label>
-                <input type="number" id="editAttTotal" min="0" value="0" readonly>
-            </div>
-        </div>
-
-        <div class="form-group">
-            <label>Educators Present</label>
-            <div id="educatorsCheckboxes" class="educators-checkboxes"></div>
-        </div>
-
-        <div class="att-card" style="background:#e8f2ee;border:2px solid #3a7260;text-align:center;padding:1rem;border-radius:10px;margin-bottom:1rem">
-            <label style="font-size:0.8rem;color:#5c4a38;display:block;margin-bottom:0.5rem;font-weight:600">Total Educators Present</label>
-            <div style="font-size:2rem;font-weight:700;color:#2f5f4f" id="educatorCountDisplay">0</div>
-        </div>
-
-        <div class="form-group">
-            <label>Activities *</label>
-            <textarea id="editActivities" maxlength="500" placeholder="Describe today's activities" style="height:80px"></textarea>
-        </div>
-
-        <div class="form-group">
-            <label>Highlights</label>
-            <textarea id="editHighlights" maxlength="300" placeholder="Any highlights?" style="height:60px"></textarea>
-        </div>
-
-        <div class="form-group">
-            <label>Challenges</label>
-            <textarea id="editChallenges" maxlength="300" placeholder="Any challenges faced?" style="height:60px"></textarea>
-        </div>
-
-        <button class="btn-save" id="updateEntryBtn" onclick="updateEntry()" style="width:100%">✅ Update Entry</button>
-    </div>
-</div>
-
+        <!-- Edit Entry uses the shared New Entry form in Edit Mode. -->
         <!-- ENTRY DETAIL MODAL -->
 <div class="entry-detail-modal" id="entryDetailModal">
     <div class="entry-detail-content">
@@ -1675,6 +1609,7 @@
 
     let selectedMood = '😊 Good';
     let selectedFiles = [];
+    let editingExistingPhotos = [];
     let educatorPhotoData = null;
     let childPhotoData = null;
     let editEducatorPhotoData = null;
@@ -1924,6 +1859,14 @@
     function renderPreviews() {
         const grid = document.getElementById('photoPreviewGrid');
         grid.innerHTML = '';
+        if (editingEntryId && editingExistingPhotos.length > 0) {
+            editingExistingPhotos.forEach((url, index) => {
+                const div = document.createElement('div');
+                div.className = 'preview-item';
+                div.innerHTML = `<img src="${url}" alt="Existing entry photo"><button class="remove-btn" type="button" onclick="removeExistingEditPhoto(${index})">✕</button>`;
+                grid.appendChild(div);
+            });
+        }
         selectedFiles.forEach((file, i) => {
             const reader = new FileReader();
             reader.onload = (e) => {
@@ -1931,7 +1874,7 @@
                 div.className = 'preview-item';
                 div.innerHTML = `
                     <img src="${e.target.result}" alt="Preview">
-                    <button class="remove-btn" onclick="removePhoto(${i})">✕</button>
+                    <button class="remove-btn" type="button" onclick="removePhoto(${i})">✕</button>
                 `;
                 grid.appendChild(div);
             };
@@ -2041,8 +1984,11 @@
         document.querySelectorAll('.mood-btn').forEach(b => b.classList.remove('selected'));
         document.querySelectorAll('#educatorsCheckboxes input[type="checkbox"]').forEach(cb => cb.checked = false);
         selectedFiles = [];
+        editingExistingPhotos = [];
         document.getElementById('photoPreviewGrid').innerHTML = '';
         document.getElementById('photoInput').value = '';
+        document.getElementById('saveBtn').onclick = window.saveEntry;
+        document.getElementById('saveBtn').innerHTML = "✅ Save Today's Entry";
         selectedMood = '😊 Good';
     }
 
@@ -2050,87 +1996,152 @@
     let editingEntryId = null;
     let editingEntryData = null;
 
-    // ── OPEN EDIT ENTRY MODAL ──
-    window.openEditEntryModal = (entryId) => {
-        const entry = [...(allSummaryEntries || []), ...(window.allEntries || [])].find(e => e.id === entryId);
-        if (!entry) return;
+    function formatEntryDateForInput(value) {
+        if (!value) return '';
+        if (/^\d{4}-\d{2}-\d{2}$/.test(value)) return value;
+        const parts = String(value).split(/[./-]/);
+        if (parts.length === 3) {
+            const [a, b, c] = parts;
+            if (c.length === 4) return `${c}-${b.padStart(2, '0')}-${a.padStart(2, '0')}`;
+        }
+        return value;
+    }
 
+    function setSelectedMood(mood) {
+        selectedMood = mood || '😊 Good';
+        document.querySelectorAll('#moodRow .mood-btn').forEach((button) => {
+            button.classList.toggle('selected', button.textContent.trim() === selectedMood);
+        });
+    }
+
+    function renderEditPhotoPreviews() {
+        const grid = document.getElementById('photoPreviewGrid');
+        if (!grid) return;
+        grid.innerHTML = '';
+        editingExistingPhotos.forEach((url, index) => {
+            const div = document.createElement('div');
+            div.className = 'preview-item';
+            div.innerHTML = `<img src="${url}" alt="Existing entry photo"><button class="remove-btn" type="button" onclick="removeExistingEditPhoto(${index})">✕</button>`;
+            grid.appendChild(div);
+        });
+        selectedFiles.forEach((file, index) => {
+            const reader = new FileReader();
+            reader.onload = (event) => {
+                const div = document.createElement('div');
+                div.className = 'preview-item';
+                div.innerHTML = `<img src="${event.target.result}" alt="New photo preview"><button class="remove-btn" type="button" onclick="removePhoto(${index})">✕</button>`;
+                grid.appendChild(div);
+            };
+            reader.readAsDataURL(file);
+        });
+    }
+
+    window.removeExistingEditPhoto = (index) => {
+        editingExistingPhotos.splice(index, 1);
+        renderEditPhotoPreviews();
+    };
+
+    // All Entries Edit opens the exact current New Entry form, not a legacy modal.
+    window.openEditEntryModal = async (entryId) => {
+        const entries = [...(Array.isArray(allSummaryEntries) ? allSummaryEntries : []), ...(Array.isArray(window.allEntries) ? window.allEntries : [])];
+        const entry = entries.find((item) => item.id === entryId);
+        if (!entry) {
+            showAlert('❌ Entry could not be found.', 'error');
+            return;
+        }
         editingEntryId = entryId;
         editingEntryData = entry;
+        editingExistingPhotos = Array.isArray(entry.photos) ? [...entry.photos] : [];
+        selectedFiles = [];
 
-        document.getElementById('editEntryDate').value = entry.date || '';
-        document.getElementById('editSessionType').value = entry.sessionType || 'regular';
-        document.getElementById('editAttBoys').value = entry.attendance?.boys || 0;
-        document.getElementById('editAttGirls').value = entry.attendance?.girls || 0;
-        document.getElementById('editAttTotal').value = entry.attendance?.total || 0;
-        document.getElementById('editActivities').value = entry.activities || '';
-        document.getElementById('editHighlights').value = entry.highlights || '';
-        document.getElementById('editChallenges').value = entry.challenges || '';
+        window.switchTab('new-entry');
+        document.getElementById('entryDate').value = formatEntryDateForInput(entry.date);
+        document.getElementById('sessionType').value = entry.sessionType || 'regular';
+        document.getElementById('attBoys').value = Number(entry.attendance?.boys) || 0;
+        document.getElementById('attGirls').value = Number(entry.attendance?.girls) || 0;
+        document.getElementById('attTotal').value = (Number(entry.attendance?.boys) || 0) + (Number(entry.attendance?.girls) || 0);
+        document.getElementById('activities').value = entry.activities || '';
+        window.updateCharCount(document.getElementById('activities'), 'activitiesCount');
+        setSelectedMood(entry.mood);
 
-        // Load educators checkboxes
-        document.querySelectorAll('#editEducatorsCheckboxes input[type="checkbox"]').forEach(cb => {
-            cb.checked = entry.educatorsPresent?.includes(allEducators.find(e => e.id === cb.value)?.name) || false;
+        const present = new Set(Array.isArray(entry.educatorsPresent) ? entry.educatorsPresent : []);
+        document.querySelectorAll('#educatorsCheckboxes input[type="checkbox"]').forEach((checkbox) => {
+            const educator = allEducators.find((item) => item.id === checkbox.value);
+            checkbox.checked = Boolean(educator && present.has(educator.name));
         });
+        window.updateEducatorCount();
+        renderEditPhotoPreviews();
 
-        document.getElementById('editEntryModal').classList.add('show');
+        const button = document.getElementById('saveBtn');
+        button.onclick = window.updateEntry;
+        button.innerHTML = '✅ Update Entry';
+        document.getElementById('formAlert').className = 'alert';
+        document.getElementById('formAlert').textContent = '';
+        document.querySelector('#panel-new-entry')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
     };
 
     window.closeEditEntryModal = () => {
-        document.getElementById('editEntryModal').classList.remove('show');
+        // Kept as a compatibility function for any older detail view links.
         editingEntryId = null;
         editingEntryData = null;
+        editingExistingPhotos = [];
+        resetForm();
     };
 
-    // ── UPDATE ENTRY ──
+    // Update the same Firebase document while using the shared New Entry fields.
     window.updateEntry = async () => {
-        const date = document.getElementById('editEntryDate').value;
-        const activities = document.getElementById('editActivities').value.trim();
+        const date = document.getElementById('entryDate')?.value || '';
+        const activities = document.getElementById('activities')?.value.trim() || '';
+        if (!date) { showAlert('Please select a date.', 'error'); return; }
+        if (!activities) { showAlert("Please describe today's activities.", 'error'); return; }
+        if (!editingEntryId) { showAlert('❌ No entry selected for editing.', 'error'); return; }
 
-        if (!date || !activities) {
-            showAlert('❌ Please fill required fields', 'error');
-            return;
-        }
-
-        const btn = document.getElementById('updateEntryBtn');
-        btn.disabled = true;
-        btn.innerHTML = '<span class="spinner"></span> Updating...';
-
+        const button = document.getElementById('saveBtn');
+        button.disabled = true;
+        button.innerHTML = '<span class="spinner"></span> Updating...';
         try {
             const selectedEducators = [];
-            document.querySelectorAll('#editEducatorsCheckboxes input[type="checkbox"]:checked').forEach(cb => {
-                const educator = allEducators.find(e => e.id === cb.value);
+            document.querySelectorAll('#educatorsCheckboxes input[type="checkbox"]:checked').forEach((checkbox) => {
+                const educator = allEducators.find((item) => item.id === checkbox.value);
                 if (educator) selectedEducators.push(educator.name);
             });
-
-            const updateData = {
+            const newPhotoUrls = [];
+            if (selectedFiles.length > 0) {
+                document.getElementById('uploadProgress').classList.add('show');
+                document.getElementById('progressFill').style.width = '0%';
+                for (let i = 0; i < selectedFiles.length; i += 1) {
+                    newPhotoUrls.push(await uploadToCloudinary(selectedFiles[i], i, selectedFiles.length));
+                }
+                document.getElementById('uploadProgress').classList.remove('show');
+            }
+            const boys = parseInt(document.getElementById('attBoys').value, 10) || 0;
+            const girls = parseInt(document.getElementById('attGirls').value, 10) || 0;
+            await updateDoc(doc(db, 'daily-updates', editingEntryId), {
                 date,
-                sessionType: document.getElementById('editSessionType').value,
-                mood: editingEntryData.mood,
-                attendance: {
-                    boys: parseInt(document.getElementById('editAttBoys').value) || 0,
-                    girls: parseInt(document.getElementById('editAttGirls').value) || 0,
-                    total: parseInt(document.getElementById('editAttTotal').value) || 0,
-                },
+                sessionType: document.getElementById('sessionType').value,
+                mood: selectedMood,
+                attendance: { boys, girls, total: boys + girls },
                 educatorsPresent: selectedEducators,
-                activities: activities,
-                highlights: document.getElementById('editHighlights').value.trim(),
-                challenges: document.getElementById('editChallenges').value.trim(),
-            };
-
-            await updateDoc(doc(db, 'daily-updates', editingEntryId), updateData);
-            showAlert('✅ Entry updated!', 'success');
-            closeEditEntryModal();
-            window.loadEntries();
-            window.loadSummary();
-        } catch (err) {
-            console.error(err);
-            showAlert('❌ Error updating. ' + err.message, 'error');
+                activities,
+                photos: [...editingExistingPhotos, ...newPhotoUrls],
+                updatedAt: Timestamp.now(),
+                updatedBy: auth.currentUser?.email || 'unknown'
+            });
+            showAlert('✅ Entry updated successfully!', 'success');
+            editingEntryId = null;
+            editingEntryData = null;
+            editingExistingPhotos = [];
+            resetForm();
+            await window.loadEntries();
+            await window.loadSummary();
+        } catch (error) {
+            console.error(error);
+            showAlert('❌ Error updating. ' + error.message, 'error');
         } finally {
-            btn.disabled = false;
-            btn.innerHTML = '✅ Update Entry';
+            button.disabled = false;
+            button.innerHTML = "✅ Save Today's Entry";
         }
     };
-
     // ── LOAD ENTRIES ──
     window.loadEntries = async () => {
         const list = document.getElementById('entriesList');
