@@ -1131,8 +1131,10 @@
                     </tr>
                 </tbody>
             </table>
+                </div>
+        <div id="entriesLoadMoreWrap" style="display:none;text-align:center;margin:1.25rem 0">
+            <button id="entriesLoadMoreBtn" type="button" onclick="window.loadMoreEntries()" style="padding:0.7rem 1.4rem;background:#3a7260;color:white;border:none;border-radius:8px;font-family:Inter,sans-serif;font-size:0.9rem;font-weight:600;cursor:pointer">Load More Entries</button>
         </div>
-
         <!-- Detail Modal -->
         <div id="entryModal" style="display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.5);z-index:1000;overflow-y:auto;padding:1rem">
             <div style="background:white;border-radius:10px;max-width:600px;margin:2rem auto;padding:2rem;box-shadow:0 10px 40px rgba(0,0,0,0.2)" id="modalContent">
@@ -1589,7 +1591,7 @@
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
     import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
-    import { getFirestore, collection, addDoc, getDocs, deleteDoc, doc, query, orderBy, where, Timestamp, updateDoc, setDoc, getDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+    import { getFirestore, collection, addDoc, getDocs, deleteDoc, doc, query, orderBy, where, Timestamp, updateDoc, setDoc, getDoc, serverTimestamp, limit, startAfter } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
     const firebaseConfig = {
         apiKey: "AIzaSyDCBb_tYSVUHHP46zYmspItDcJJPlUfuYk",
@@ -1615,6 +1617,10 @@
     let editEducatorPhotoData = null;
     let editingEducatorId = null;
     let allEducators = [];
+    const ENTRIES_PAGE_SIZE = 30;
+    let entriesLastVisible = null;
+    let entriesHasMore = false;
+    let entriesLoading = false;
 
     // ── AUTH CHECK & SESSION TRACKING ──
     onAuthStateChanged(auth, async (user) => {
@@ -2142,41 +2148,62 @@
             button.innerHTML = "✅ Save Today's Entry";
         }
     };
-    // ── LOAD ENTRIES ──
-    window.loadEntries = async () => {
+        // ── LOAD ENTRIES ──
+    async function fetchEntriesPage({ append = false } = {}) {
+        if (entriesLoading) return;
+        entriesLoading = true;
         const list = document.getElementById('entriesList');
-        list.innerHTML = '<div class="empty-state"><div class="icon">⏳</div><p>Loading...</p></div>';
+        const loadMoreWrap = document.getElementById('entriesLoadMoreWrap');
+        const loadMoreBtn = document.getElementById('entriesLoadMoreBtn');
+        const month = document.getElementById('filterMonth').value;
+
+        if (!append) {
+            entriesLastVisible = null;
+            entriesHasMore = false;
+            list.innerHTML = '<tr style="text-align:center"><td colspan="6" style="padding:2rem;color:#a08878">Loading entries...</td></tr>';
+            if (loadMoreWrap) loadMoreWrap.style.display = 'none';
+        } else if (loadMoreBtn) {
+            loadMoreBtn.disabled = true;
+            loadMoreBtn.textContent = 'Loading...';
+        }
 
         try {
-            const month = document.getElementById('filterMonth').value;
-            let q;
+            const constraints = [orderBy('date', 'desc'), limit(ENTRIES_PAGE_SIZE)];
+            if (entriesLastVisible) constraints.splice(1, 0, startAfter(entriesLastVisible));
+            const snap = await getDocs(query(collection(db, 'daily-updates'), ...constraints));
+            const pageEntries = [];
+            snap.forEach(d => pageEntries.push({ id: d.id, ...d.data() }));
+            entriesLastVisible = snap.docs.length ? snap.docs[snap.docs.length - 1] : entriesLastVisible;
+            entriesHasMore = snap.docs.length === ENTRIES_PAGE_SIZE;
 
-            if (month) {
-                const start = month + '-01';
-                const end = month + '-31';
-                q = query(collection(db, 'daily-updates'), orderBy('date', 'desc'));
+            const filteredPage = month ? pageEntries.filter(e => e.date && e.date.startsWith(month)) : pageEntries;
+            const existingEntries = append && Array.isArray(window.allEntries) ? window.allEntries : [];
+            const combined = existingEntries.concat(filteredPage);
+            window.allEntries = combined;
+
+            if (combined.length === 0) {
+                list.innerHTML = '<tr style="text-align:center"><td colspan="6" style="padding:2rem;color:#a08878">No entries found</td></tr>';
             } else {
-                q = query(collection(db, 'daily-updates'), orderBy('date', 'desc'));
+                window.renderEntriesTable(combined);
             }
 
-            const snap = await getDocs(q);
-            const entries = [];
-            snap.forEach(d => entries.push({ id: d.id, ...d.data() }));
-
-            const filtered = month ? entries.filter(e => e.date && e.date.startsWith(month)) : entries;
-
-            if (filtered.length === 0) {
-                list.innerHTML = '<div class="empty-state"><div class="icon">📭</div><p>No entries found for this month.</p></div>';
-                return;
+            if (loadMoreWrap) loadMoreWrap.style.display = entriesHasMore ? 'block' : 'none';
+            if (loadMoreBtn) {
+                loadMoreBtn.disabled = false;
+                loadMoreBtn.textContent = 'Load More Entries';
             }
-
-            window.allEntries = filtered;
-            window.renderEntriesTable(filtered);
-
         } catch (err) {
-            list.innerHTML = '<div class="empty-state"><div class="icon">❌</div><p>Error loading entries. Check connection.</p></div>';
+            if (!append) list.innerHTML = '<tr style="text-align:center"><td colspan="6" style="padding:2rem;color:#a08878">Error loading entries. Check connection.</td></tr>';
+            if (loadMoreWrap) loadMoreWrap.style.display = 'none';
             console.error(err);
+        } finally {
+            entriesLoading = false;
         }
+    }
+
+    window.loadEntries = async () => fetchEntriesPage({ append: false });
+    window.loadMoreEntries = async () => {
+        if (entriesHasMore) await fetchEntriesPage({ append: true });
     };
 
     // ── DELETE ENTRY ──
@@ -3729,7 +3756,7 @@ window.renderEntriesTable = function(entries) {
         if (entry.photos && entry.photos.length > 0) {
             photosHtml = '<div style="display:flex;gap:0.5rem;flex-wrap:wrap">';
             entry.photos.forEach(photo => {
-                photosHtml += '<img src="' + photo + '" style="width:40px;height:40px;object-fit:cover;border-radius:4px;cursor:pointer;border:1px solid #d4c9bc" onclick="openLightbox(\'' + photo + '\')" title="Click to enlarge" />';
+                photosHtml += '<img src="' + photo + '" loading="lazy" decoding="async" width="40" height="40" style="width:40px;height:40px;object-fit:cover;border-radius:4px;cursor:pointer;border:1px solid #d4c9bc" onclick="openLightbox(\'' + photo + '\')" title="Click to enlarge" />';
             });
             photosHtml += '</div>';
         } else {
