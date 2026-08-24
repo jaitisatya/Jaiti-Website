@@ -1332,6 +1332,9 @@
                     <p>Loading children...</p>
                 </div>
             </div>
+            <div id="childrenLoadMoreWrap" style="display:none;text-align:center;margin:1.25rem 0">
+                <button id="childrenLoadMoreBtn" type="button" onclick="window.loadMoreChildren()" style="padding:0.7rem 1.4rem;background:#3a7260;color:white;border:none;border-radius:8px;font-family:Inter,sans-serif;font-size:0.9rem;font-weight:600;cursor:pointer">Load More Children</button>
+            </div>
         </div>
 
         <!-- Add Child Form (Hidden by default) -->
@@ -1618,6 +1621,12 @@
     let editingEducatorId = null;
     let allEducators = [];
     const ENTRIES_PAGE_SIZE = 30;
+    const CHILDREN_PAGE_SIZE = 30;
+    let childrenLastVisible = null;
+    let childrenHasMore = false;
+    let childrenLoading = false;
+    let childrenSearchCache = null;
+    let childrenSearchTimer = null;
     let entriesLastVisible = null;
     let entriesHasMore = false;
     let entriesLoading = false;
@@ -3048,122 +3057,107 @@
         }
     });
 
-    // ── LOAD CHILDREN LIST ──
-    window.loadChildrenList = async () => {
+    // ── CHILDREN TABLE RENDERER ──
+    function renderChildrenTable(childrenArray) {
         const list = document.getElementById('childrenList');
-        try {
-            const q = query(collection(db, 'children'), orderBy('createdAt', 'asc'));
-            const snap = await getDocs(q);
-            
-            if (snap.empty) {
-                list.innerHTML = '<div class="empty-state"><div class="icon">👨‍👩‍👧‍👦</div><p>No children added yet</p></div>';
-                return;
-            }
+        if (!childrenArray || childrenArray.length === 0) {
+            list.innerHTML = '<div class="empty-state"><div class="icon">👨‍👩‍👧‍👦</div><p>No children found</p></div>';
+            return;
+        }
 
-            // Automatic Family Group Migration for existing records missing family_group
-            const familyMap = new Map();
-            let maxFamilyNum = 0;
-            let needsMigration = false;
+        const sortedChildren = [...childrenArray].sort((a, b) => String(a.name || '').localeCompare(String(b.name || '')));
+        let html = '<div class="children-table-wrap"><table class="data-table children-table"><thead><tr><th>S.No</th><th>Name</th><th>Mother\'s Name</th><th>Father\'s Name</th><th>DOB</th><th>Ph. Number</th><th>Class</th><th>School</th><th>Family Group</th><th>Photo</th><th>Actions</th></tr></thead><tbody>';
 
-            snap.forEach(docSnap => {
-                const data = docSnap.data();
-                const motherKey = (data.mother || '').toLowerCase().trim();
-                const fatherKey = (data.father || '').toLowerCase().trim();
-                const fg = (data.family_group || '').trim();
-                if (motherKey || fatherKey) {
-                    const familyKey = `${motherKey}|${fatherKey}`;
-                    if (fg && !familyMap.has(familyKey)) {
-                        familyMap.set(familyKey, fg);
-                        const matchNum = fg.match(/\d+/);
-                        if (matchNum) {
-                            const n = parseInt(matchNum[0], 10);
-                            if (n > maxFamilyNum) maxFamilyNum = n;
-                        }
-                    }
-                }
-            });
+        sortedChildren.forEach((ch, index) => {
+            const name = escapeHtml(ch.name || '-');
+            const mother = escapeHtml(ch.mother || '-');
+            const father = escapeHtml(ch.father || '-');
+            const dob = escapeHtml(ch.dob || '-');
+            const phone = escapeHtml(ch.phone || '-');
+            const className = escapeHtml(ch.class || '-');
+            const school = escapeHtml(ch.school || '-');
+            const familyGroup = escapeHtml(ch.family_group || '-');
+            const photoUrl = ch.photo ? escapeHtml(ch.photo) : '';
+            const photoHtml = photoUrl
+                ? `<img src="${photoUrl}" data-lightbox-url="${photoUrl}" loading="lazy" decoding="async" width="40" height="40" style="width:40px;height:40px;object-fit:cover;border-radius:4px;cursor:pointer;border:1px solid #d4c9bc" title="Click to enlarge" alt="Child photo">`
+                : '-';
 
-            for (const docSnap of snap.docs) {
-                const data = docSnap.data();
-                const motherKey = (data.mother || '').toLowerCase().trim();
-                const fatherKey = (data.father || '').toLowerCase().trim();
-                const familyKey = `${motherKey}|${fatherKey}`;
-                let fg = (data.family_group || '').trim();
+            html += `<tr class="child-row" data-name="${escapeHtml((ch.name || '').toLowerCase())}" data-mother="${escapeHtml((ch.mother || '').toLowerCase())}" data-father="${escapeHtml((ch.father || '').toLowerCase())}" data-dob="${escapeHtml(ch.dob || '')}" data-phone="${escapeHtml((ch.phone || '').toLowerCase())}" data-family-group="${escapeHtml((ch.family_group || '').toLowerCase())}">
+                <td>${index + 1}</td>
+                <td>${name}</td>
+                <td>${mother}</td>
+                <td>${father}</td>
+                <td>${dob}</td>
+                <td>${phone}</td>
+                <td>${className}</td>
+                <td>${school}</td>
+                <td>${familyGroup}</td>
+                <td>${photoHtml}</td>
+                <td style="text-align:center;white-space:nowrap">
+                    <button type="button" data-child-action="edit" data-child-id="${escapeHtml(ch.id)}" style="background:none;border:none;cursor:pointer;font-size:1.1rem;padding:0.25rem;margin-right:0.5rem" title="Edit" aria-label="Edit child">✏️</button>
+                    <button type="button" data-child-action="delete" data-child-id="${escapeHtml(ch.id)}" style="background:none;border:none;cursor:pointer;font-size:1.1rem;padding:0.25rem" title="Delete" aria-label="Delete child">🗑️</button>
+                </td>
+            </tr>`;
+        });
 
-                if (!fg && (motherKey || fatherKey)) {
-                    if (familyMap.has(familyKey)) {
-                        fg = familyMap.get(familyKey);
-                    } else {
-                        maxFamilyNum++;
-                        fg = `Family ${maxFamilyNum}`;
-                        familyMap.set(familyKey, fg);
-                    }
-                    needsMigration = true;
-                    await updateDoc(doc(db, 'children', docSnap.id), { family_group: fg });
-                } else if (!fg) {
-                    maxFamilyNum++;
-                    fg = `Family ${maxFamilyNum}`;
-                    if (motherKey || fatherKey) familyMap.set(familyKey, fg);
-                    needsMigration = true;
-                    await updateDoc(doc(db, 'children', docSnap.id), { family_group: fg });
-                }
-            }
+        html += '</tbody></table></div>';
+        list.innerHTML = html;
+    }
 
-            let freshSnap = snap;
-            if (needsMigration) {
-                freshSnap = await getDocs(query(collection(db, 'children'), orderBy('createdAt', 'asc')));
-            }
+    async function fetchChildrenPage({ append = false } = {}) {
+        if (childrenLoading) return;
+        childrenLoading = true;
+        const list = document.getElementById('childrenList');
+        const loadMoreWrap = document.getElementById('childrenLoadMoreWrap');
+        const loadMoreBtn = document.getElementById('childrenLoadMoreBtn');
 
+        if (!append) {
+            childrenLastVisible = null;
+            childrenHasMore = false;
             window.allChildrenData = [];
-            const childrenArray = [];
-            freshSnap.forEach((doc) => {
-                const ch = doc.data();
-                childrenArray.push({ id: doc.id, ...ch });
-                window.allChildrenData.push({ id: doc.id, ...ch });
-            });
-            
-            childrenArray.sort((a, b) => String(a.name || '').localeCompare(String(b.name || '')));
+            list.innerHTML = '<div class="empty-state"><div class="icon">⏳</div><p>Loading children...</p></div>';
+            if (loadMoreWrap) loadMoreWrap.style.display = 'none';
+        } else if (loadMoreBtn) {
+            loadMoreBtn.disabled = true;
+            loadMoreBtn.textContent = 'Loading...';
+        }
 
-            let html = '<div class="children-table-wrap"><table class="data-table children-table"><thead><tr><th>S.No</th><th>Name</th><th>Mother\'s Name</th><th>Father\'s Name</th><th>DOB</th><th>Ph. Number</th><th>Class</th><th>School</th><th>Family Group</th><th>Photo</th><th>Actions</th></tr></thead><tbody>';
-            
-            let idx = 1;
-            childrenArray.forEach((ch) => {
-                const name = escapeHtml(ch.name || '-');
-                const mother = escapeHtml(ch.mother || '-');
-                const father = escapeHtml(ch.father || '-');
-                const dob = escapeHtml(ch.dob || '-');
-                const phone = escapeHtml(ch.phone || '-');
-                const className = escapeHtml(ch.class || '-');
-                const school = escapeHtml(ch.school || '-');
-                const familyGroup = escapeHtml(ch.family_group || '-');
-                const photoHtml = ch.photo
-                    ? `<img src="${escapeHtml(ch.photo)}" data-lightbox-url="${escapeHtml(ch.photo)}" style="width:40px;height:40px;object-fit:cover;border-radius:4px;cursor:pointer;border:1px solid #d4c9bc" title="Click to enlarge" alt="Child photo">`
-                    : '-';
+        try {
+            const constraints = [orderBy('createdAt', 'desc'), limit(CHILDREN_PAGE_SIZE)];
+            if (childrenLastVisible) constraints.splice(1, 0, startAfter(childrenLastVisible));
+            const snap = await getDocs(query(collection(db, 'children'), ...constraints));
+            const pageChildren = [];
+            snap.forEach(docSnap => pageChildren.push({ id: docSnap.id, ...docSnap.data() }));
+            childrenLastVisible = snap.docs.length ? snap.docs[snap.docs.length - 1] : childrenLastVisible;
+            childrenHasMore = snap.docs.length === CHILDREN_PAGE_SIZE;
 
-                html += `<tr class="child-row" data-name="${(ch.name || '').toLowerCase()}" data-mother="${(ch.mother || '').toLowerCase()}" data-father="${(ch.father || '').toLowerCase()}" data-dob="${ch.dob || ''}" data-phone="${(ch.phone || '').toLowerCase()}" data-family-group="${(ch.family_group || '').toLowerCase()}">
-                    <td>${idx++}</td>
-                    <td>${name}</td>
-                    <td>${mother}</td>
-                    <td>${father}</td>
-                    <td>${dob}</td>
-                    <td>${phone}</td>
-                    <td>${className}</td>
-                    <td>${school}</td>
-                    <td>${familyGroup}</td>
-                    <td>${photoHtml}</td>
-                    <td style="text-align:center;white-space:nowrap">
-                        <button type="button" data-child-action="edit" data-child-id="${escapeHtml(ch.id)}" style="background:none;border:none;cursor:pointer;font-size:1.1rem;padding:0.25rem;margin-right:0.5rem" title="Edit" aria-label="Edit child">✏️</button>
-                        <button type="button" data-child-action="delete" data-child-id="${escapeHtml(ch.id)}" style="background:none;border:none;cursor:pointer;font-size:1.1rem;padding:0.25rem" title="Delete" aria-label="Delete child">🗑️</button>
-                    </td>
-                </tr>`;
-            });
+            const existingChildren = append && Array.isArray(window.allChildrenData) ? window.allChildrenData : [];
+            window.allChildrenData = existingChildren.concat(pageChildren);
+            renderChildrenTable(window.allChildrenData);
 
-            html += '</tbody></table></div>';
-            list.innerHTML = html;
+            if (loadMoreWrap) loadMoreWrap.style.display = childrenHasMore ? 'block' : 'none';
+            if (loadMoreBtn) {
+                loadMoreBtn.disabled = false;
+                loadMoreBtn.textContent = 'Load More Children';
+            }
         } catch (err) {
             console.error(err);
             list.innerHTML = '<div class="empty-state"><div class="icon">⚠️</div><p>Error loading children</p></div>';
+            if (loadMoreWrap) loadMoreWrap.style.display = 'none';
+        } finally {
+            childrenLoading = false;
         }
+    }
+
+    // ── LOAD CHILDREN LIST ──
+    window.loadChildrenList = async () => {
+        childrenSearchCache = null;
+        await fetchChildrenPage({ append: false });
+    };
+
+    window.loadMoreChildren = async () => {
+        if (!childrenHasMore) return;
+        await fetchChildrenPage({ append: true });
     };
 
     // ── EDIT CHILD ──
@@ -3615,23 +3609,41 @@
 
     // ── FILTER CHILDREN ──
     window.filterChildren = () => {
+        clearTimeout(childrenSearchTimer);
         const searchBox = document.getElementById('childrenSearch');
-        const searchTerm = searchBox.value.toLowerCase();
-        const rows = document.querySelectorAll('.child-row');
-        
-        rows.forEach(row => {
-            const name = row.dataset.name || '';
-            const mother = row.dataset.mother || '';
-            const father = row.dataset.father || '';
-            const dob = row.dataset.dob || '';
-            const phone = row.dataset.phone || '';
-            const familyGroup = row.dataset.familyGroup || '';
-            
-            const matches = name.includes(searchTerm) || mother.includes(searchTerm) || father.includes(searchTerm) || dob.includes(searchTerm) || phone.includes(searchTerm) || familyGroup.includes(searchTerm);
-            row.style.display = matches ? '' : 'none';
-        });
-    };
+        const searchTerm = (searchBox?.value || '').trim().toLowerCase();
+        childrenSearchTimer = setTimeout(async () => {
+            if (!searchTerm) {
+                await window.loadChildrenList();
+                return;
+            }
 
+            const list = document.getElementById('childrenList');
+            const loadMoreWrap = document.getElementById('childrenLoadMoreWrap');
+            if (loadMoreWrap) loadMoreWrap.style.display = 'none';
+            list.innerHTML = '<div class="empty-state"><div class="icon">⏳</div><p>Searching all children...</p></div>';
+
+            try {
+                if (!Array.isArray(childrenSearchCache)) {
+                    const snap = await getDocs(query(collection(db, 'children'), orderBy('createdAt', 'asc')));
+                    childrenSearchCache = [];
+                    snap.forEach(docSnap => childrenSearchCache.push({ id: docSnap.id, ...docSnap.data() }));
+                }
+
+                const matches = childrenSearchCache.filter(ch => {
+                    const haystack = [ch.name, ch.mother, ch.father, ch.dob, ch.phone, ch.family_group, ch.class, ch.school]
+                        .map(value => String(value || '').toLowerCase())
+                        .join(' ');
+                    return haystack.includes(searchTerm);
+                });
+                window.allChildrenData = childrenSearchCache;
+                renderChildrenTable(matches);
+            } catch (err) {
+                console.error(err);
+                list.innerHTML = '<div class="empty-state"><div class="icon">⚠️</div><p>Error searching children</p></div>';
+            }
+        }, 250);
+    };
     window.switchFilterType = (type) => {
         document.getElementById('dateRangeFilter').style.display = type === 'date-range' ? 'block' : 'none';
         document.getElementById('monthFilter').style.display = type === 'month' ? 'block' : 'none';
