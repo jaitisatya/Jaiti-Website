@@ -1641,12 +1641,10 @@
             document.getElementById('entryDate').value = today;
             const ym = today.substring(0, 7);
             document.getElementById('filterMonth').value = ym;
-            window.loadEntries();
-            window.loadSummary();
-            window.loadEducatorsList();
-            window.loadEducatorsCheckboxes();
-            window.loadChildrenList();
-
+            // Load only the currently selected section after authentication.
+            // Inactive sections are loaded on demand when their tab is opened.
+            const initialTab = window.getInitialDashboardTab ? window.getInitialDashboardTab() : 'new-entry';
+            window.switchTab(initialTab, false);
             // Register session & heartbeat
             try {
                 let currentSessionId = localStorage.getItem('jaiti_admin_session_id');
@@ -1750,8 +1748,11 @@
             localStorage.setItem('jaiti_admin_active_tab', tabId);
         } catch (e) {}
 
-        // Load data for the tab
-        if (tabId === 'all-entries' && window.loadEntries) {
+        // Load only the active section, and only after Firebase authentication is ready.
+        if (!auth.currentUser) return;
+        if (tabId === 'new-entry' && window.loadEducatorsCheckboxes) {
+            window.loadEducatorsCheckboxes();
+        } else if (tabId === 'all-entries' && window.loadEntries) {
             window.loadEntries();
         } else if (tabId === 'summary' && window.loadSummary) {
             window.loadSummary();
@@ -1764,23 +1765,16 @@
         }
     };
 
-    // Restore active tab on load based on URL hash or localStorage
-    window.addEventListener('DOMContentLoaded', () => {
+    // Restore active tab on load based on URL hash or localStorage.
+    // The authenticated callback performs the actual data load.
+    window.getInitialDashboardTab = () => {
         const hash = window.location.hash.replace('#', '').trim();
         const savedTab = localStorage.getItem('jaiti_admin_active_tab');
         const tabIds = ['new-entry','all-entries','summary','educators','children','sessions'];
-
-        let initialTab = 'new-entry';
-        if (hash && tabIds.includes(hash)) {
-            initialTab = hash;
-        } else if (savedTab && tabIds.includes(savedTab)) {
-            initialTab = savedTab;
-        }
-
-        setTimeout(() => {
-            window.switchTab(initialTab, false);
-        }, 50);
-    });
+        if (hash && tabIds.includes(hash)) return hash;
+        if (savedTab && tabIds.includes(savedTab)) return savedTab;
+        return 'new-entry';
+    };
 
     // Handle browser back/forward buttons
     window.addEventListener('popstate', () => {
@@ -1973,8 +1967,8 @@
                 createdBy: auth.currentUser?.email || 'unknown',
             };
 
-            await addDoc(collection(db, 'daily-updates'), entry);
-
+                        await addDoc(collection(db, 'daily-updates'), entry);
+            summaryLoaded = false;
             showAlert('✅ Entry saved successfully!', 'success');
             resetForm();
 
@@ -2148,7 +2142,8 @@
             editingExistingPhotos = [];
             resetForm();
             await window.loadEntries();
-            await window.loadSummary();
+            summaryLoaded = false;
+            await window.loadSummary(true);
         } catch (error) {
             console.error(error);
             showAlert('❌ Error updating. ' + error.message, 'error');
@@ -2228,13 +2223,15 @@
 
     // ── LOAD SUMMARY ──
     let allSummaryEntries = [];
-    window.loadSummary = async () => {
+    let summaryLoaded = false;
+    window.loadSummary = async (force = false) => {
+        if (summaryLoaded && !force) return;
         try {
             const snap = await getDocs(query(collection(db, 'daily-updates'), orderBy('date', 'desc')));
             const entries = [];
             snap.forEach(d => entries.push({ id: d.id, ...d.data() }));
             allSummaryEntries = entries;
-
+            summaryLoaded = true;
             const thisMonth = new Date().toISOString().substring(0, 7);
             const thisMonthEntries = entries.filter(e => e.date?.startsWith(thisMonth));
             const totalPhotos = entries.reduce((sum, e) => sum + (e.photos?.length || 0), 0);
@@ -2511,7 +2508,7 @@
                 html += `<tr class="educator-row" data-name="${(ed.name || '').toLowerCase()}" data-phone="${ed.phone || ''}" data-professional="${(ed.professional || '').toLowerCase()}">
                     <td>${idx++}</td>
                     <td>${ed.name}</td>
-                    <td>${ed.photo ? `<img src="${ed.photo}" onclick="openLightbox('${ed.photo}')">` : '-'}</td>
+                    <td>${ed.photo ? `<img src="${ed.photo}" loading="lazy" decoding="async" width="56" height="56" onclick="openLightbox('${ed.photo}')" alt="${ed.name || 'Educator'} photo">` : '-'}</td>
                     <td>${ed.phone}</td>
                     <td>${ed.joiningDate || '-'}</td>
                     <td>${ed.professional}</td>
