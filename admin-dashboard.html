@@ -851,12 +851,12 @@
             word-break: break-word;
         }
 
-        .children-table th:nth-child(1), .children-table td:nth-child(1) { width: 52px; }
+        .children-table th:nth-child(1), .children-table td:nth-child(1) { width: 145px; }
         .children-table th:nth-child(2), .children-table td:nth-child(2) { width: 120px; }
         .children-table th:nth-child(3), .children-table td:nth-child(3) { width: 120px; }
-        .children-table th:nth-child(4), .children-table td:nth-child(4) { width: 120px; }
-        .children-table th:nth-child(5), .children-table td:nth-child(5) { width: 90px; }
-        .children-table th:nth-child(6), .children-table td:nth-child(6) { width: 110px; }
+        .children-table th:nth-child(4), .children-table td:nth-child(4) { width: 90px; }
+        .children-table th:nth-child(5), .children-table td:nth-child(5) { width: 110px; }
+        .children-table th:nth-child(6), .children-table td:nth-child(6) { width: 72px; }
         .children-table th:nth-child(7), .children-table td:nth-child(7) { width: 72px; }
         .children-table th:nth-child(8), .children-table td:nth-child(8) { width: 120px; }
         .children-table th:nth-child(9), .children-table td:nth-child(9) { width: 90px; }
@@ -1376,7 +1376,11 @@
 
             <div class="form-row">
                 <div class="form-group">
-                    <label>Class *</label>
+                    <label>J Class</label>
+                    <input type="text" id="chJClass" placeholder="Jaiti class (e.g. J1, J2)">
+                </div>
+                <div class="form-group">
+                    <label>School Class *</label>
                     <select id="chClass">
                         <option value="">Select Class</option>
                         <option value="LKG">LKG</option>
@@ -1480,7 +1484,11 @@
 
         <div class="form-row">
             <div class="form-group">
-                <label>Class *</label>
+                <label>J Class</label>
+                <input type="text" id="editChJClass" placeholder="Jaiti class (e.g. J1, J2)">
+            </div>
+            <div class="form-group">
+                <label>School Class *</label>
                 <select id="editChClass">
                     <option value="">Select Class</option>
                     <option value="LKG">LKG</option>
@@ -2742,6 +2750,7 @@
         const mother = document.getElementById('chMother').value.trim();
         const father = document.getElementById('chFather').value.trim();
         const phone = document.getElementById('chPhone').value.trim();
+        const jClass = document.getElementById('chJClass').value.trim();
         const chClass = document.getElementById('chClass').value;
         const school = document.getElementById('chSchool').value.trim();
         const familyGroup = document.getElementById('chFamilyGroup').value.trim();
@@ -2762,7 +2771,7 @@
             }
 
             const childData = {
-                name, dob, mother, father, phone, family_group: familyGroup, class: chClass, school,
+                name, dob, mother, father, phone, family_group: familyGroup, j_class: jClass, class: chClass, school,
                 photo: photoUrl,
                 createdBy: auth.currentUser.email,
                 createdAt: Timestamp.now()
@@ -2782,6 +2791,7 @@
             document.getElementById('chMother').value = '';
             document.getElementById('chFather').value = '';
             document.getElementById('chPhone').value = '';
+            document.getElementById('chJClass').value = '';
             document.getElementById('chClass').value = '';
             document.getElementById('chSchool').value = '';
             document.getElementById('chFamilyGroup').value = '';
@@ -2916,14 +2926,15 @@
                 mother: getCsvValue(row, ["Mother's Name", 'Mother Name']),
                 father: getCsvValue(row, ["Father's Name", 'Father Name']),
                 phone: getCsvValue(row, ['Ph. Number', 'Ph. Numbaer', 'Phone Number', 'Phone', 'Contact Number', 'Contact']),
-                class: getCsvValue(row, ['Class', 'Class Name', 'Student Class', 'Grade']),
+                j_class: getCsvValue(row, ['J Class', 'Jaiti Class', 'JClass', 'JaitiClass']),
+                class: getCsvValue(row, ['S Class', 'School Class', 'Class', 'Class Name', 'Student Class', 'Grade']),
                 school: getCsvValue(row, ['School', 'School Name']),
                 family_group: getCsvValue(row, ['Family Group', 'Family Group Name', 'Group']),
                 photo: getCsvValue(row, ['Photo', 'Photo URL', 'Image', 'Image URL']),
             }));
 
             const validRows = normalizedRows.filter(row =>
-                row.name || row.mother || row.father || row.phone || row.class || row.school || row.family_group || row.photo
+                row.name || row.mother || row.father || row.phone || row.j_class || row.class || row.school || row.family_group || row.photo
             );
             if (!validRows.length) {
                 throw new Error('No valid child records were found. Please check your CSV headers and row values.');
@@ -3007,6 +3018,7 @@
                     mother: row.mother,
                     father: row.father,
                     phone: row.phone || '',
+                    j_class: row.j_class,
                     class: row.class,
                     school: row.school,
                     family_group: assignedFamily,
@@ -3063,7 +3075,7 @@
         }
 
         const sortedChildren = [...childrenArray].sort((a, b) => String(a.name || '').localeCompare(String(b.name || '')));
-        let html = '<div class="children-table-wrap"><table class="data-table children-table"><thead><tr><th>S.No</th><th>Name</th><th>Mother\'s Name</th><th>Father\'s Name</th><th>DOB</th><th>Ph. Number</th><th>Class</th><th>School</th><th>Family Group</th><th>Photo</th><th>Actions</th></tr></thead><tbody>';
+        let html = '<div class="children-table-wrap"><table class="data-table children-table"><thead><tr><th>Name</th><th>Mother\'s Name</th><th>Father\'s Name</th><th>DOB</th><th>Ph. Number</th><th>J Class</th><th>S Class</th><th>School</th><th>Family Group</th><th>Photo</th><th>Actions</th></tr></thead><tbody>';
 
         sortedChildren.forEach((ch, index) => {
             const name = escapeHtml(ch.name || '-');
@@ -3071,6 +3083,7 @@
             const father = escapeHtml(ch.father || '-');
             const dob = escapeHtml(ch.dob || '-');
             const phone = escapeHtml(ch.phone || '-');
+            const jClass = escapeHtml(ch.j_class || ch.jClass || '-');
             const className = escapeHtml(ch.class || '-');
             const school = escapeHtml(ch.school || '-');
             const familyGroup = escapeHtml(ch.family_group || '-');
@@ -3079,13 +3092,13 @@
                 ? `<img src="${photoUrl}" data-lightbox-url="${photoUrl}" loading="lazy" decoding="async" width="40" height="40" style="width:40px;height:40px;object-fit:cover;border-radius:4px;cursor:pointer;border:1px solid #d4c9bc" title="Click to enlarge" alt="Child photo">`
                 : '-';
 
-            html += `<tr class="child-row" data-name="${escapeHtml((ch.name || '').toLowerCase())}" data-mother="${escapeHtml((ch.mother || '').toLowerCase())}" data-father="${escapeHtml((ch.father || '').toLowerCase())}" data-dob="${escapeHtml(ch.dob || '')}" data-phone="${escapeHtml((ch.phone || '').toLowerCase())}" data-family-group="${escapeHtml((ch.family_group || '').toLowerCase())}">
-                <td>${index + 1}</td>
-                <td>${name}</td>
+            html += `<tr class="child-row" data-name="${escapeHtml((ch.name || '').toLowerCase())}" data-j-class="${escapeHtml((ch.j_class || ch.jClass || '').toLowerCase())}" data-mother="${escapeHtml((ch.mother || '').toLowerCase())}" data-father="${escapeHtml((ch.father || '').toLowerCase())}" data-dob="${escapeHtml(ch.dob || '')}" data-phone="${escapeHtml((ch.phone || '').toLowerCase())}" data-family-group="${escapeHtml((ch.family_group || '').toLowerCase())}">
+                <td><strong>${index + 1}.</strong> ${name}</td>
                 <td>${mother}</td>
                 <td>${father}</td>
                 <td>${dob}</td>
                 <td>${phone}</td>
+                <td>${jClass}</td>
                 <td>${className}</td>
                 <td>${school}</td>
                 <td>${familyGroup}</td>
@@ -3188,6 +3201,7 @@
         document.getElementById('editChMother').value = child.mother || '';
         document.getElementById('editChFather').value = child.father || '';
         document.getElementById('editChPhone').value = child.phone || '';
+        document.getElementById('editChJClass').value = child.j_class || child.jClass || '';
         document.getElementById('editChClass').value = child.class || '';
         document.getElementById('editChSchool').value = child.school || '';
         document.getElementById('editChFamilyGroup').value = child.family_group || '';
@@ -3230,7 +3244,7 @@
     }
 
     // Attach live input/change listeners for edit form fields
-    ['editChName', 'editChDOB', 'editChMother', 'editChFather', 'editChClass'].forEach(id => {
+    ['editChName', 'editChDOB', 'editChMother', 'editChFather', 'editChJClass', 'editChClass'].forEach(id => {
         const el = document.getElementById(id);
         if (el && !el.dataset.listenerAttached) {
             el.dataset.listenerAttached = 'true';
@@ -3326,6 +3340,7 @@
                 father,
                 phone,
                 family_group: familyGroup,
+                j_class: jClass,
                 class: chClass,
                 school,
                 photo: finalPhoto,
@@ -3628,7 +3643,7 @@
                 }
 
                 const matches = childrenSearchCache.filter(ch => {
-                    const haystack = [ch.name, ch.mother, ch.father, ch.dob, ch.phone, ch.family_group, ch.class, ch.school]
+                    const haystack = [ch.name, ch.j_class, ch.jClass, ch.mother, ch.father, ch.dob, ch.phone, ch.family_group, ch.class, ch.school]
                         .map(value => String(value || '').toLowerCase())
                         .join(' ');
                     return haystack.includes(searchTerm);
