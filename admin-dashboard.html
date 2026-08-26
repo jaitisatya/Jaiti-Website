@@ -3379,10 +3379,20 @@
             };
 
             await updateDoc(doc(db, 'children', childId), updateData);
+
+            // Update the visible local data immediately instead of blocking on a full 30-record reload.
+            const updateLocalChild = (items) => {
+                if (!Array.isArray(items)) return;
+                const index = items.findIndex(item => item.id === childId);
+                if (index !== -1) items[index] = { ...items[index], ...updateData, id: childId };
+            };
+            updateLocalChild(window.allChildrenData);
+            updateLocalChild(childrenSearchCache);
+            if (Array.isArray(window.allChildrenData)) renderChildrenTable(window.allChildrenData);
+
             showAlert('✅ Child updated!', 'success', 'childrenAlert');
             window.editingChildId = null;
             closeEditChildModal();
-            await window.loadChildrenList();
         } catch (err) {
             console.error(err);
             showAlert('❌ Error: ' + err.message, 'error', 'childrenAlert');
