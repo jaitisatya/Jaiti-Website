@@ -1377,7 +1377,22 @@
             <div class="form-row">
                 <div class="form-group">
                     <label>J Class</label>
-                    <input type="text" id="chJClass" placeholder="Jaiti class (e.g. J1, J2)">
+                    <select id="chJClass">
+                        <option value="">Select J Class</option>
+                        <option value="J Prep">J Prep</option>
+                        <option value="J1">J1</option>
+                        <option value="J2">J2</option>
+                        <option value="J3">J3</option>
+                        <option value="J4">J4</option>
+                        <option value="J5">J5</option>
+                        <option value="J6">J6</option>
+                        <option value="J7">J7</option>
+                        <option value="J8">J8</option>
+                        <option value="J9">J9</option>
+                        <option value="J10">J10</option>
+                        <option value="J11">J11</option>
+                        <option value="J12">J12</option>
+                    </select>
                 </div>
                 <div class="form-group">
                     <label>School Class *</label>
@@ -1455,7 +1470,7 @@
                 <input type="text" id="editChName" placeholder="Full Name">
             </div>
             <div class="form-group">
-                <label>Date of Birth *</label>
+                <label>Date of Birth</label>
                 <input type="date" id="editChDOB">
             </div>
         </div>
@@ -1485,7 +1500,22 @@
         <div class="form-row">
             <div class="form-group">
                 <label>J Class</label>
-                <input type="text" id="editChJClass" placeholder="Jaiti class (e.g. J1, J2)">
+                <select id="editChJClass">
+                    <option value="">Select J Class</option>
+                    <option value="J Prep">J Prep</option>
+                    <option value="J1">J1</option>
+                    <option value="J2">J2</option>
+                    <option value="J3">J3</option>
+                    <option value="J4">J4</option>
+                    <option value="J5">J5</option>
+                    <option value="J6">J6</option>
+                    <option value="J7">J7</option>
+                    <option value="J8">J8</option>
+                    <option value="J9">J9</option>
+                    <option value="J10">J10</option>
+                    <option value="J11">J11</option>
+                    <option value="J12">J12</option>
+                </select>
             </div>
             <div class="form-group">
                 <label>School Class *</label>
@@ -3244,7 +3274,7 @@
     }
 
     // Attach live input/change listeners for edit form fields
-    ['editChName', 'editChDOB', 'editChMother', 'editChFather', 'editChJClass', 'editChClass'].forEach(id => {
+    ['editChName', 'editChMother', 'editChFather', 'editChJClass', 'editChClass'].forEach(id => {
         const el = document.getElementById(id);
         if (el && !el.dataset.listenerAttached) {
             el.dataset.listenerAttached = 'true';
@@ -3275,6 +3305,8 @@
         const mother = motherEl.value.trim();
         const father = fatherEl.value.trim();
         const phone = phoneEl ? phoneEl.value.trim() : '';
+        const jClassEl = document.getElementById('editChJClass');
+        const jClass = jClassEl ? jClassEl.value : '';
         const chClass = classEl.value;
         const school = schoolEl ? schoolEl.value.trim() : '';
         const familyGroup = familyGroupEl ? familyGroupEl.value.trim() : '';
