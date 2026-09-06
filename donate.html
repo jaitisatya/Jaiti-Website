@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <!-- Jaiti Foundation donation page: earthy teal + warm coral, clear UPI-first flow. -->
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Support Jaiti Foundation's free education work for children in Jaipur through UPI donation.">
+    <meta property="og:title" content="Donate to Jaiti Foundation">
+    <meta property="og:description" content="Support free education and holistic development for underprivileged children in Jaipur through UPI.">
+    <meta property="og:type" content="website">
+    <meta property="og:image" content="images/logo.webp">
+    <title>Donate | Jaiti Foundation</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <header class="navbar">
+        <div class="container nav-container">
+            <a href="index.html" class="logo" aria-label="Jaiti Foundation home">
+                <img src="images/logo.webp" alt="Jaiti Foundation logo" loading="eager">
+                <span>Jaiti Foundation</span>
+            </a>
+            <button class="mobile-menu-btn" aria-label="Toggle menu" aria-expanded="false">
+                <span></span><span></span><span></span>
+            </button>
+            <ul class="nav-links">
+                <li><a href="index.html">Home</a></li>
+                <li><a href="about.html">About Us</a></li>
+                <li><a href="programs.html">Our Programs</a></li>
+                <li><a href="gallery.html">Gallery</a></li>
+                <li><a href="volunteer.html">Get Involved</a></li>
+                <li><a href="contact.html">Contact</a></li>
+                <li><a href="donate.html" class="nav-donate-btn active">Donate Now</a></li>
+            </ul>
+        </div>
+    </header>
+
+    <main>
+        <section class="donation-page-header">
+            <div class="container">
+                <span class="section-label">Support Jaiti</span>
+                <h1>Help a child learn, grow and thrive.</h1>
+                <p>Your contribution supports free education, learning materials and holistic care for children in Jaipur.</p>
+            </div>
+        </section>
+
+        <section class="donation-section section">
+            <div class="container donation-layout">
+                <div class="donation-card donation-main-card">
+                    <div class="donation-main-copy">
+                        <span class="donation-eyebrow">Support Jaiti Foundation</span>
+                        <h2>Support Jaiti through UPI.</h2>
+                        <p class="donation-copy">Your contribution supports free education, learning materials and holistic care for children in Jaipur. Use the QR code or copy the UPI ID below to donate any amount through your preferred UPI app.</p>
+                        <a id="upiPayButton" class="btn btn-primary btn-large donation-pay-btn" href="upi://pay?pa=6367916384%40sbi&amp;pn=Jaiti%20Foundation&amp;cu=INR" aria-label="Open a UPI app to donate to Jaiti Foundation">Open UPI App</a>
+                        <p class="donation-note">This button works on mobile devices with a UPI app installed. On desktop, scan the QR code with your phone or copy the UPI ID manually.</p>
+                        <p class="donation-verification"><strong>Before paying:</strong> Please confirm that your UPI app shows Jaiti Foundation as the recipient.</p>
+                    </div>
+                    <div class="donation-main-qr donation-qr-card">
+                        <span class="donation-eyebrow">Scan to donate</span>
+                        <div class="qr-frame">
+                            <img id="donationQr" src="images/donation/jaiti-upi-qr.png" alt="Jaiti Foundation UPI QR code" loading="eager">
+                        </div>
+                        <button type="button" class="qr-open-btn" id="openQrButton">Open QR code larger</button>
+                        <div class="upi-box">
+                            <span class="upi-label">Jaiti Foundation UPI ID</span>
+                            <div class="upi-row">
+                                <strong id="upiId">6367916384@sbi</strong>
+                                <button type="button" class="copy-btn" id="copyUpiButton">Copy</button>
+                            </div>
+                            <span class="copy-status" id="copyStatus" role="status" aria-live="polite"></span>
+                        </div>
+                        <p class="donation-note">After completing your donation, please save the transaction reference number. Contact Jaiti Foundation if you need donation confirmation.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="donation-steps" aria-labelledby="donationStepsTitle">
+                <span class="section-label">Simple donation process</span>
+                <h2 id="donationStepsTitle">How to donate</h2>
+                <ol class="donation-steps-list">
+                    <li><strong>Scan or copy:</strong> Scan the QR code or copy <strong>6367916384@sbi</strong>.</li>
+                    <li><strong>Verify:</strong> Confirm the recipient name in your UPI app before paying.</li>
+                    <li><strong>Save:</strong> Keep your transaction reference for your records.</li>
+                </ol>
+            </div>
+        </section>
+
+        <section class="donation-trust section">
+            <div class="container donation-trust-inner">
+                <div>
+                    <span class="section-label">Make an impact</span>
+                    <h2>Thank you for standing with Jaipur’s children.</h2>
+                </div>
+                <a href="contact.html" class="btn btn-secondary">Contact Jaiti Foundation</a>
+            </div>
+        </section>
+    </main>
+
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-column">
+                    <a href="index.html" class="footer-logo"><img src="images/logo.webp" alt="Jaiti Foundation logo" loading="lazy"><span>Jaiti Foundation</span></a>
+                    <p class="footer-description">Free education and holistic support for underprivileged children in Jaipur.</p>
+                </div>
+                <div class="footer-column">
+                    <h4>Quick Links</h4>
+                    <ul class="footer-links">
+                        <li><a href="about.html">About Us</a></li>
+                        <li><a href="programs.html">Our Programs</a></li>
+                        <li><a href="gallery.html">Gallery</a></li>
+                        <li><a href="volunteer.html">Get Involved</a></li>
+                        <li><a href="contact.html">Contact Us</a></li>
+                        <li><a href="donate.html" class="footer-donate-link">Donate Now</a></li>
+                    </ul>
+                </div>
+                <div class="footer-column">
+                    <h4>UPI Donations</h4>
+                    <p class="footer-description">UPI ID: <strong>6367916384@sbi</strong></p>
+                    <p class="footer-description">Scan the QR code or use the UPI ID on the donation page.</p>
+                </div>
+                <div class="footer-column">
+                    <h4>Contact Info</h4>
+                    <ul class="footer-contact">
+                        <li><a href="mailto:jaitifoundation@gmail.com">jaitifoundation@gmail.com</a></li>
+                        <li><a href="tel:+916367916384">+91 6367916384</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="footer-bottom"><p>&copy; 2026 Jaiti Foundation. All rights reserved.</p></div>
+        </div>
+    </footer>
+
+    <div class="qr-modal" id="qrModal" role="dialog" aria-modal="true" aria-label="Enlarged Jaiti Foundation UPI QR code" tabindex="-1" hidden>
+        <button type="button" class="qr-modal-close" id="closeQrButton" aria-label="Close QR code">&times;</button>
+        <img src="images/donation/jaiti-upi-qr.png" alt="Jaiti Foundation UPI QR code enlarged">
+    </div>
+
+    <script>
+        // Donation page interactions: UPI copy, mobile UPI link, and QR modal.
+        const upiId = '6367916384@sbi';
+        const copyButton = document.getElementById('copyUpiButton');
+        const copyStatus = document.getElementById('copyStatus');
+        const qrModal = document.getElementById('qrModal');
+        const openQrButton = document.getElementById('openQrButton');
+        const closeQrButton = document.getElementById('closeQrButton');
+        let lastFocusedElement = null;
+
+        const closeQrModal = () => {
+            qrModal.hidden = true;
+            document.body.classList.remove('qr-modal-open');
+            lastFocusedElement?.focus();
+        };
+
+        copyButton.addEventListener('click', async () => {
+            try {
+                await navigator.clipboard.writeText(upiId);
+                copyStatus.textContent = 'UPI ID copied.';
+            } catch {
+                copyStatus.textContent = `Copy manually: ${upiId}`;
+            }
+            setTimeout(() => { copyStatus.textContent = ''; }, 3000);
+        });
+        openQrButton.addEventListener('click', () => {
+            lastFocusedElement = document.activeElement;
+            qrModal.hidden = false;
+            document.body.classList.add('qr-modal-open');
+            closeQrButton.focus();
+        });
+        closeQrButton.addEventListener('click', closeQrModal);
+        qrModal.addEventListener('click', event => { if (event.target === qrModal) closeQrModal(); });
+        document.addEventListener('keydown', event => {
+            if (event.key === 'Escape' && !qrModal.hidden) closeQrModal();
+        });
+        document.querySelector('.mobile-menu-btn').addEventListener('click', event => {
+            const button = event.currentTarget;
+            button.classList.toggle('active');
+            button.setAttribute('aria-expanded', String(button.classList.contains('active')));
+            document.querySelector('.nav-links').classList.toggle('active');
+        });
+    </script>
+</body>
+</html>
