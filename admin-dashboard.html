@@ -1665,6 +1665,7 @@
     let childrenLoading = false;
     let childrenSearchCache = null;
     let childrenSearchTimer = null;
+    let childrenRestoreState = null;
     let entriesLastVisible = null;
     let entriesHasMore = false;
     let entriesLoading = false;
@@ -3122,7 +3123,7 @@
                 ? `<img src="${photoUrl}" data-lightbox-url="${photoUrl}" loading="lazy" decoding="async" width="40" height="40" style="width:40px;height:40px;object-fit:cover;border-radius:4px;cursor:pointer;border:1px solid #d4c9bc" title="Click to enlarge" alt="Child photo">`
                 : '-';
 
-            html += `<tr class="child-row" data-name="${escapeHtml((ch.name || '').toLowerCase())}" data-j-class="${escapeHtml((ch.j_class || ch.jClass || '').toLowerCase())}" data-mother="${escapeHtml((ch.mother || '').toLowerCase())}" data-father="${escapeHtml((ch.father || '').toLowerCase())}" data-dob="${escapeHtml(ch.dob || '')}" data-phone="${escapeHtml((ch.phone || '').toLowerCase())}" data-family-group="${escapeHtml((ch.family_group || '').toLowerCase())}">
+            html += `<tr class="child-row" data-child-id="${escapeHtml(ch.id)}" data-name="${escapeHtml((ch.name || '').toLowerCase())}" data-j-class="${escapeHtml((ch.j_class || ch.jClass || '').toLowerCase())}" data-mother="${escapeHtml((ch.mother || '').toLowerCase())}" data-father="${escapeHtml((ch.father || '').toLowerCase())}" data-dob="${escapeHtml(ch.dob || '')}" data-phone="${escapeHtml((ch.phone || '').toLowerCase())}" data-family-group="${escapeHtml((ch.family_group || '').toLowerCase())}">
                 <td><strong>${index + 1}.</strong> ${name}</td>
                 <td>${mother}</td>
                 <td>${father}</td>
@@ -3142,6 +3143,22 @@
 
         html += '</tbody></table></div>';
         list.innerHTML = html;
+
+        // Restore the edited child to the same viewport position after the table re-renders.
+        if (childrenRestoreState) {
+            const restoreState = childrenRestoreState;
+            childrenRestoreState = null;
+            requestAnimationFrame(() => {
+                const targetRow = Array.from(list.querySelectorAll('.child-row'))
+                    .find(row => row.dataset.childId === restoreState.childId);
+                if (!targetRow) return;
+                const currentTop = targetRow.getBoundingClientRect().top;
+                window.scrollTo({
+                    top: Math.max(0, window.scrollY + currentTop - restoreState.viewportTop),
+                    behavior: 'auto'
+                });
+            });
+        }
     }
 
     async function fetchChildrenPage({ append = false } = {}) {
@@ -3225,6 +3242,16 @@
     window.editChild = (id) => {
         const child = window.allChildrenData?.find(c => c.id === id);
         if (!child) return;
+
+        childrenRestoreState = null;
+        const currentRow = Array.from(document.querySelectorAll('.child-row'))
+            .find(row => row.dataset.childId === id);
+        if (currentRow) {
+            childrenRestoreState = {
+                childId: id,
+                viewportTop: currentRow.getBoundingClientRect().top
+            };
+        }
 
         document.getElementById('editChName').value = child.name || '';
         document.getElementById('editChDOB').value = child.dob || '';
