@@ -1,0 +1,8 @@
+{
+  "name": "Jaiti Foundation Website",
+  "description": "Jaiti Foundation is a child education NGO in Jaipur serving underprivileged children from Jagatpura, Pratap Nagar, and nearby communities with free education, moral learning, nutritious meals, and mentorship.",
+  "requestFramePermissions": [],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}

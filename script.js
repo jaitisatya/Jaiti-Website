@@ -3,16 +3,19 @@
 // ==========================================
 
 // Copy to clipboard function
-function copyToClipboard(text) {
+function copyToClipboard(text, e) {
+    const evt = e || (typeof window !== 'undefined' && window.event ? window.event : null);
+    const button = evt ? (evt.currentTarget || evt.target) : null;
     navigator.clipboard.writeText(text).then(() => {
-        const button = event.target;
-        const originalText = button.textContent;
-        button.textContent = '✓ Copied!';
-        setTimeout(() => {
-            button.textContent = originalText;
-        }, 2000);
+        if (button) {
+            const originalText = button.textContent;
+            button.textContent = '✓ Copied!';
+            setTimeout(() => {
+                button.textContent = originalText;
+            }, 2000);
+        }
     }).catch(err => {
-        alert('Failed to copy: ' + text);
+        console.warn('Failed to copy: ', err);
     });
 }
 
@@ -75,13 +78,17 @@ document.addEventListener('DOMContentLoaded', function () {
     // ========== SMOOTH SCROLLING ==========
     document.querySelectorAll('a[href^="#"]').forEach(anchor => {
         anchor.addEventListener('click', function (e) {
-            e.preventDefault();
             const targetId = this.getAttribute('href');
-            if (targetId === '#') return;
-            const targetElement = document.querySelector(targetId);
-            if (targetElement) {
-                const offsetTop = targetElement.offsetTop - 80;
-                window.scrollTo({ top: offsetTop, behavior: 'smooth' });
+            if (!targetId || targetId === '#' || !targetId.startsWith('#')) return;
+            try {
+                const targetElement = document.querySelector(targetId);
+                if (targetElement) {
+                    e.preventDefault();
+                    const offsetTop = targetElement.getBoundingClientRect().top + window.pageYOffset - 80;
+                    window.scrollTo({ top: offsetTop, behavior: 'smooth' });
+                }
+            } catch (err) {
+                // Ignore invalid CSS selector syntax
             }
         });
     });
@@ -263,12 +270,12 @@ document.addEventListener('DOMContentLoaded', function () {
     });
 
     backToTopBtn.addEventListener('mouseenter', function () {
-        this.style.transform = 'translateY(-5px)';
+        this.style.transform = 'translateX(-50%) translateY(-5px)';
         this.style.boxShadow = '0 6px 25px rgba(30, 64, 175, 0.4)';
     });
 
     backToTopBtn.addEventListener('mouseleave', function () {
-        this.style.transform = 'translateY(0)';
+        this.style.transform = 'translateX(-50%) translateY(0)';
         this.style.boxShadow = '0 4px 20px rgba(30, 64, 175, 0.3)';
     });
     // Hero image carousel removed - using static background image
@@ -391,6 +398,17 @@ document.addEventListener('DOMContentLoaded', function () {
 
     if (contactForm) {
 
+        // --- Prefill subject from URL query param (e.g. ?subject=volunteer) ---
+        const urlParams = new URLSearchParams(window.location.search);
+        const subjectParam = urlParams.get('subject');
+        const subjectSelect = document.getElementById('subject');
+        if (subjectParam && subjectSelect) {
+            const option = subjectSelect.querySelector(`option[value="${subjectParam}"]`);
+            if (option) {
+                subjectSelect.value = subjectParam;
+            }
+        }
+
         // --- Helper: show error under a field ---
         function showError(input, msg) {
             clearError(input);
@@ -433,6 +451,32 @@ document.addEventListener('DOMContentLoaded', function () {
             });
         }
 
+        // --- Helper: show error popup ---
+        function showErrorPopup(title, msg) {
+            const overlay = document.createElement('div');
+            overlay.className = 'success-popup-overlay';
+            overlay.innerHTML = `
+                <div class="success-popup">
+                    <div class="success-popup-icon" style="background: rgba(239, 68, 68, 0.15); color: #ef4444;">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <circle cx="12" cy="12" r="10"></circle>
+                            <line x1="12" y1="8" x2="12" y2="12"></line>
+                            <line x1="12" y1="16" x2="12.01" y2="16"></line>
+                        </svg>
+                    </div>
+                    <h4>${title}</h4>
+                    <p>${msg}</p>
+                    <button class="success-popup-close" style="background: #ef4444;">Close</button>
+                </div>`;
+            document.body.appendChild(overlay);
+            overlay.querySelector('.success-popup-close').addEventListener('click', function () {
+                overlay.remove();
+            });
+            overlay.addEventListener('click', function (e) {
+                if (e.target === overlay) overlay.remove();
+            });
+        }
+
         // --- Validate full form, return true if valid ---
         function validateForm() {
             let valid = true;
@@ -456,11 +500,16 @@ document.addEventListener('DOMContentLoaded', function () {
                 showError(email, 'Please enter a valid email (e.g. name@example.com)'); valid = false;
             } else { clearError(email); }
 
-            // Phone — exactly 10 digits (optional but if filled must be valid)
+            // Phone — validate with intl-tel-input if active, otherwise check format
             const digitsOnly = phone.value.replace(/\D/g, '');
             if (phone.value.trim() !== '') {
-                if (digitsOnly.length !== 10) {
-                    showError(phone, 'Phone number must be exactly 10 digits (you entered ' + digitsOnly.length + ')'); valid = false;
+                const itiInstance = window.intlTelInputGlobals ? window.intlTelInputGlobals.getInstance(phone) : null;
+                if (itiInstance) {
+                    if (phone.classList.contains('ph-invalid') || (typeof intlTelInputUtils !== 'undefined' && !itiInstance.isValidNumber())) {
+                        showError(phone, 'Please enter a valid phone number'); valid = false;
+                    } else { clearError(phone); }
+                } else if (digitsOnly.length < 7 || digitsOnly.length > 15) {
+                    showError(phone, 'Please enter a valid phone number'); valid = false;
                 } else { clearError(phone); }
             } else { clearError(phone); }
 
@@ -495,6 +544,23 @@ document.addEventListener('DOMContentLoaded', function () {
 
             if (!validateForm()) return;
 
+            // Sync Formspree _replyto field with email
+            const emailInput = document.getElementById('email');
+            const replyToInput = contactForm.querySelector('input[name="_replyto"]');
+            if (replyToInput && emailInput) {
+                replyToInput.value = emailInput.value.trim();
+            }
+
+            // Sync hidden E.164 phone if intl-tel-input is available
+            const phoneInput = document.getElementById('phone');
+            const hiddenPhone = document.getElementById('phone_full');
+            if (phoneInput && hiddenPhone && window.intlTelInputGlobals) {
+                const itiInstance = window.intlTelInputGlobals.getInstance(phoneInput);
+                if (itiInstance && typeof intlTelInputUtils !== 'undefined') {
+                    hiddenPhone.value = itiInstance.getNumber(intlTelInputUtils.numberFormat.E164);
+                }
+            }
+
             const submitBtn = contactForm.querySelector('button[type="submit"]');
             const originalText = submitBtn.innerHTML;
             submitBtn.disabled = true;
@@ -514,13 +580,13 @@ document.addEventListener('DOMContentLoaded', function () {
                     contactForm.reset();
                     showSuccessPopup();
                 } else {
-                    alert('Something went wrong. Please try again or email us directly.');
+                    showErrorPopup('Submission Failed', 'Something went wrong while sending your message. Please try again or email us directly at jaitifoundation@gmail.com.');
                 }
             })
             .catch(function () {
                 submitBtn.disabled = false;
                 submitBtn.innerHTML = originalText;
-                alert('Network error. Please check your connection and try again.');
+                showErrorPopup('Connection Error', 'Network error detected. Please check your internet connection and try again.');
             });
         });
     }
@@ -564,12 +630,14 @@ document.addEventListener('click', function(e) {
     if (galleryItem) {
         const galleryGrid = galleryItem.closest('.gallery-grid');
         if (galleryGrid) {
-            const items = galleryGrid.querySelectorAll('.gallery-item img');
-            galleryImages = Array.from(items).map(img => ({
+            const items = Array.from(galleryGrid.querySelectorAll('.gallery-item img'));
+            galleryImages = items.map(img => ({
                 src: img.src,
                 alt: img.alt
             }));
-            currentLightboxIndex = Array.from(items).indexOf(e.target.closest('.gallery-item img'));
+            const clickedImg = galleryItem.querySelector('img');
+            const foundIndex = items.indexOf(clickedImg);
+            currentLightboxIndex = foundIndex !== -1 ? foundIndex : 0;
             openLightbox(currentLightboxIndex);
         }
     }
@@ -625,9 +693,29 @@ function openLightbox(index) {
                 closeLightbox();
             }
         });
-        
-        document.addEventListener('keydown', handleLightboxKeyboard);
+
+        // Touch swipe support for mobile
+        let touchStartX = 0;
+        let touchEndX = 0;
+        lightboxOverlay.addEventListener('touchstart', function(e) {
+            touchStartX = e.changedTouches[0].screenX;
+        }, { passive: true });
+        lightboxOverlay.addEventListener('touchend', function(e) {
+            touchEndX = e.changedTouches[0].screenX;
+            const diffX = touchEndX - touchStartX;
+            if (Math.abs(diffX) > 50) {
+                if (diffX < 0) {
+                    showNext();
+                } else {
+                    showPrevious();
+                }
+            }
+        }, { passive: true });
     }
+    
+    // Ensure keyboard listener is active whenever lightbox opens
+    document.removeEventListener('keydown', handleLightboxKeyboard);
+    document.addEventListener('keydown', handleLightboxKeyboard);
     
     // Update image and counter
     const img = lightboxOverlay.querySelector('.lightbox-image');
