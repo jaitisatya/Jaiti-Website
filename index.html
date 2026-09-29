@@ -25,20 +25,6 @@
         };
       })();
     </script>
-    <script>
-      (function(){
-        try {
-          const lastPage = localStorage.getItem('jaiti_last_admin_page');
-          const sessionId = localStorage.getItem('jaiti_admin_session_id');
-          const params = new URLSearchParams(window.location.search);
-          if (lastPage && sessionId && !params.has('home') && !params.has('noredirect')) {
-            const activeTab = localStorage.getItem('jaiti_admin_active_tab');
-            const targetUrl = activeTab && activeTab !== 'new-entry' ? (lastPage + '#' + activeTab) : lastPage;
-            window.location.replace(targetUrl);
-          }
-        } catch(e) {}
-      })();
-    </script>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="preconnect" href="https://www.youtube-nocookie.com" crossorigin>
     <link rel="preconnect" href="https://i.ytimg.com" crossorigin>
