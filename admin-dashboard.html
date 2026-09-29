@@ -951,7 +951,7 @@
 
 <!-- NAVBAR -->
 <nav class="navbar">
-    <div class="nav-left">
+    <div class="nav-left" onclick="window.location.href='index.html?home=1'" style="cursor:pointer" title="Go to Website Home">
         <img src="images/logo.webp" alt="Jaiti Foundation" onerror="this.style.display='none'">
         <div class="nav-title">
             Jaiti Foundation
@@ -960,6 +960,7 @@
     </div>
     <div class="nav-right">
         <span class="user-badge" id="userEmail">Loading...</span>
+        <button class="btn-logout" onclick="window.revokeAllOtherSessions()" title="Force logout all other devices" style="background:rgba(217,83,79,0.25);border-color:rgba(217,83,79,0.5);color:#ffdede;">🔒 Logout Others</button>
         <button class="btn-logout" onclick="handleLogout()">Logout</button>
     </div>
 </nav>
@@ -972,6 +973,7 @@
     <div class="tab" onclick="window.switchTab('educators')">👨‍🏫 Educators Data</div>
     <div class="tab" onclick="window.switchTab('children')">👶 Children Data</div>
     <div class="tab" onclick="window.switchTab('sessions')">🔑 Active Sessions</div>
+    <div class="tab" onclick="window.switchTab('supporters')">🤝 Supporters List</div>
 </div>
 
 <!-- MAIN CONTENT -->
@@ -1457,6 +1459,121 @@
         </div>
     </div>
 
+    <!-- ── TAB 7: SUPPORTERS LIST ── -->
+    <div class="panel" id="panel-supporters">
+        <div class="card" style="max-width:1200px;margin:0 auto">
+            <!-- Header Section -->
+            <div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:1rem;margin-bottom:1.5rem">
+                <div>
+                    <h2 style="color:#2f5f4f;margin:0">🤝 Supporters & Donors List</h2>
+                    <p style="color:#7a6b5d;font-size:0.9rem;margin:0.25rem 0 0 0">
+                        Monitor website donation leads, verify UPI payments, and maintain donor records.
+                    </p>
+                </div>
+                <div style="display:flex;gap:0.75rem;flex-wrap:wrap">
+                    <button onclick="window.openAddSupporterModal()" style="padding:0.55rem 1.1rem;background:#2f5f4f;color:white;border:none;border-radius:8px;font-family:Inter,sans-serif;font-size:0.875rem;font-weight:600;cursor:pointer;display:inline-flex;align-items:center;gap:6px">
+                        ➕ Add Supporter
+                    </button>
+                    <button onclick="window.exportSupportersCSV()" style="padding:0.55rem 1.1rem;background:#f2ede4;color:#2f5f4f;border:1px solid #dcd3c4;border-radius:8px;font-family:Inter,sans-serif;font-size:0.875rem;font-weight:600;cursor:pointer;display:inline-flex;align-items:center;gap:6px">
+                        📥 Export CSV
+                    </button>
+                    <button onclick="window.loadSupportersList()" style="padding:0.55rem 1rem;background:#3a7260;color:white;border:none;border-radius:8px;font-family:Inter,sans-serif;font-size:0.875rem;cursor:pointer;display:inline-flex;align-items:center;gap:6px">
+                        🔄 Refresh
+                    </button>
+                </div>
+            </div>
+
+            <!-- Stats Metric Cards -->
+            <div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(220px, 1fr));gap:1rem;margin-bottom:1.5rem">
+                <div style="background:#e8f5e9;border:1px solid #c8e6c9;border-radius:12px;padding:1.15rem;display:flex;flex-direction:column;gap:0.25rem">
+                    <div style="font-size:0.8rem;font-weight:700;color:#2e7d32;text-transform:uppercase;letter-spacing:0.5px">Verified Received</div>
+                    <div id="supVerifiedTotal" style="font-size:1.85rem;font-weight:800;color:#1b5e20">₹0</div>
+                    <div id="supVerifiedCount" style="font-size:0.8rem;color:#4caf50">0 verified contributions</div>
+                </div>
+
+                <div style="background:#fff8e1;border:1px solid #ffecb3;border-radius:12px;padding:1.15rem;display:flex;flex-direction:column;gap:0.25rem">
+                    <div style="font-size:0.8rem;font-weight:700;color:#b78103;text-transform:uppercase;letter-spacing:0.5px">Pending Verification</div>
+                    <div id="supPendingTotal" style="font-size:1.85rem;font-weight:800;color:#f57f17">₹0</div>
+                    <div id="supPendingCount" style="font-size:0.8rem;color:#fbc02d">0 unverified leads</div>
+                </div>
+
+                <div style="background:#f0fdf4;border:1px solid #dcfce7;border-radius:12px;padding:1.15rem;display:flex;flex-direction:column;gap:0.25rem">
+                    <div style="font-size:0.8rem;font-weight:700;color:#2f5f4f;text-transform:uppercase;letter-spacing:0.5px">Total Enquiries / Donors</div>
+                    <div id="supTotalCount" style="font-size:1.85rem;font-weight:800;color:#2f5f4f">0</div>
+                    <div style="font-size:0.8rem;color:#7a6b5d">All recorded supporters</div>
+                </div>
+            </div>
+
+            <!-- Filter & Search Bar -->
+            <div style="display:flex;gap:0.75rem;flex-wrap:wrap;align-items:center;margin-bottom:1.25rem;background:#fbf8f5;padding:0.85rem;border-radius:10px;border:1px solid #ebdccb">
+                <div style="flex:1;min-width:240px">
+                    <input type="text" id="supSearchInput" placeholder="🔍 Search by Name, Mobile, or Email..." oninput="window.filterSupporters()" style="width:100%;padding:0.6rem 0.85rem;border:1px solid #d5c7b7;border-radius:8px;font-family:Inter,sans-serif;font-size:0.875rem;background:white">
+                </div>
+                <div>
+                    <select id="supStatusFilter" onchange="window.filterSupporters()" style="padding:0.6rem 0.85rem;border:1px solid #d5c7b7;border-radius:8px;font-family:Inter,sans-serif;font-size:0.875rem;background:white;color:#2f5f4f;font-weight:500">
+                        <option value="all">All Statuses</option>
+                        <option value="pending">⏳ Pending Verification Only</option>
+                        <option value="verified">✅ Verified / Paid Only</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="alert" id="supportersAlert"></div>
+
+            <!-- Table Container -->
+            <div class="table-container" id="supportersTableContainer">
+                <div class="empty-state"><div class="icon">⏳</div><p>Loading supporters list...</p></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ADD OFFLINE SUPPORTER MODAL -->
+    <div class="modal" id="addSupporterModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                ➕ Add Supporter Record
+                <button class="modal-close" onclick="window.closeAddSupporterModal()">✕</button>
+            </div>
+            <form id="addSupporterForm" onsubmit="window.saveManualSupporter(event)">
+                <div class="form-group" style="margin-bottom:1rem">
+                    <label>Supporter's Full Name *</label>
+                    <input type="text" id="manualSupName" placeholder="e.g. Ramesh Sharma" required style="width:100%;padding:0.6rem;border:1px solid #ccc;border-radius:8px">
+                </div>
+                <div class="form-row" style="display:flex;gap:1rem;margin-bottom:1rem">
+                    <div class="form-group" style="flex:1">
+                        <label>Mobile Number (WhatsApp) *</label>
+                        <input type="tel" id="manualSupPhone" placeholder="10-digit number" required style="width:100%;padding:0.6rem;border:1px solid #ccc;border-radius:8px">
+                    </div>
+                    <div class="form-group" style="flex:1">
+                        <label>Email Address (Optional)</label>
+                        <input type="email" id="manualSupEmail" placeholder="name@domain.com" style="width:100%;padding:0.6rem;border:1px solid #ccc;border-radius:8px">
+                    </div>
+                </div>
+                <div class="form-row" style="display:flex;gap:1rem;margin-bottom:1rem">
+                    <div class="form-group" style="flex:1">
+                        <label>Contribution Amount (₹) *</label>
+                        <input type="number" id="manualSupAmount" min="1" placeholder="e.g. 1000" required style="width:100%;padding:0.6rem;border:1px solid #ccc;border-radius:8px">
+                    </div>
+                    <div class="form-group" style="flex:1">
+                        <label>Payment Status *</label>
+                        <select id="manualSupStatus" style="width:100%;padding:0.6rem;border:1px solid #ccc;border-radius:8px">
+                            <option value="Verified">✅ Verified / Paid (Received)</option>
+                            <option value="Pending">⏳ Pending Verification</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-group" style="margin-bottom:1.25rem">
+                    <label>Notes / Mode (Cash, Bank Transfer, UPI, Cheque)</label>
+                    <input type="text" id="manualSupNotes" placeholder="e.g. Direct Cash or NEFT reference" style="width:100%;padding:0.6rem;border:1px solid #ccc;border-radius:8px">
+                </div>
+                <div style="display:flex;justify-content:flex-end;gap:0.75rem">
+                    <button type="button" onclick="window.closeAddSupporterModal()" style="padding:0.6rem 1rem;background:#e5e7eb;border:none;border-radius:8px;font-weight:600;cursor:pointer">Cancel</button>
+                    <button type="submit" id="btnSaveManualSup" style="padding:0.6rem 1.25rem;background:#2f5f4f;color:white;border:none;border-radius:8px;font-weight:600;cursor:pointer">💾 Save Supporter</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
 <div class="modal" id="editChildModal">
     <div class="modal-content">
         <div class="modal-header">
@@ -1632,7 +1749,7 @@
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
     import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
-    import { getFirestore, collection, addDoc, getDocs, deleteDoc, doc, query, orderBy, where, Timestamp, updateDoc, setDoc, getDoc, serverTimestamp, limit, startAfter } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+    import { getFirestore, collection, addDoc, getDocs, deleteDoc, doc, query, orderBy, where, Timestamp, updateDoc, setDoc, getDoc, serverTimestamp, limit, startAfter, onSnapshot } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
     const firebaseConfig = {
         apiKey: "AIzaSyDCBb_tYSVUHHP46zYmspItDcJJPlUfuYk",
@@ -1670,72 +1787,124 @@
     let entriesHasMore = false;
     let entriesLoading = false;
 
-    // ── AUTH CHECK & SESSION TRACKING ──
+    // ── AUTH CHECK & FOOLPROOF SESSION TRACKING ──
     onAuthStateChanged(auth, async (user) => {
         if (!user) {
-            window.location.href = 'admin-login.html';
-        } else {
+            window.location.replace('admin-login.html');
+            return;
+        }
+
+        try {
             document.getElementById('userEmail').textContent = user.email;
             const today = new Date().toISOString().split('T')[0];
             document.getElementById('entryDate').value = today;
             const ym = today.substring(0, 7);
             document.getElementById('filterMonth').value = ym;
-            // Load only the currently selected section after authentication.
-            // Inactive sections are loaded on demand when their tab is opened.
             const initialTab = window.getInitialDashboardTab ? window.getInitialDashboardTab() : 'new-entry';
             window.switchTab(initialTab, false);
-            // Register session & heartbeat
             try {
-                let currentSessionId = localStorage.getItem('jaiti_admin_session_id');
-                if (!currentSessionId) {
-                    currentSessionId = 'sess_' + Math.random().toString(36).substring(2, 15) + Date.now();
-                    localStorage.setItem('jaiti_admin_session_id', currentSessionId);
-                }
+                localStorage.setItem('jaiti_last_admin_page', 'admin-dashboard.html');
+            } catch (e) {}
 
-                const ua = navigator.userAgent;
-                let browser = 'Web Browser';
-                if (ua.includes('Chrome') && !ua.includes('Edg')) browser = 'Google Chrome';
-                else if (ua.includes('Safari') && !ua.includes('Chrome')) browser = 'Apple Safari';
-                else if (ua.includes('Firefox')) browser = 'Mozilla Firefox';
-                else if (ua.includes('Edg')) browser = 'Microsoft Edge';
+            let currentSessionId = localStorage.getItem('jaiti_admin_session_id');
 
-                let os = 'Desktop OS';
-                if (ua.includes('Windows')) os = 'Windows';
-                else if (ua.includes('Mac')) os = 'macOS';
-                else if (ua.includes('Android')) os = 'Android';
-                else if (ua.includes('iPhone') || ua.includes('iPad')) os = 'iOS';
-
-                const deviceName = `${browser} on ${os}`;
+            // 1. Validate current session BEFORE touching or resetting any status
+            if (currentSessionId) {
                 const sessionRef = doc(db, 'admin-sessions', currentSessionId);
+                let sSnap;
+                try {
+                    sSnap = await getDoc(sessionRef);
+                } catch (e) {
+                    console.warn('Session doc read skipped:', e);
+                }
+                if (sSnap && sSnap.exists()) {
+                    const sData = sSnap.data();
+                    const isRevoked = sData.status === 'revoked' || sData.status === 'logged_out';
 
-                await setDoc(sessionRef, {
-                    email: user.email,
-                    device: deviceName,
-                    userAgent: ua,
-                    loginAt: serverTimestamp(),
-                    lastActive: serverTimestamp(),
-                    status: 'active'
-                }, { merge: true });
-
-                if (window._sessionHeartbeat) clearInterval(window._sessionHeartbeat);
-                window._sessionHeartbeat = setInterval(async () => {
-                    try {
-                        const snap = await getDoc(sessionRef);
-                        if (snap.exists() && snap.data().status === 'revoked') {
-                            clearInterval(window._sessionHeartbeat);
-                            localStorage.removeItem('jaiti_admin_session_id');
-                            await signOut(auth);
-                            window.location.href = 'admin-login.html?revoked=1';
-                            return;
-                        }
-                        await updateDoc(sessionRef, { lastActive: serverTimestamp() });
-                    } catch (e) {
-                        console.error('Session heartbeat error:', e);
+                    if (isRevoked) {
+                        localStorage.removeItem('jaiti_admin_session_id');
+                        localStorage.removeItem('jaiti_last_admin_page');
+                        sessionStorage.removeItem('jaiti_fresh_login');
+                        await signOut(auth);
+                        window.location.replace('admin-login.html?reason=session_revoked');
+                        return;
                     }
-                }, 25000);
-            } catch (e) {
-                console.error('Error registering session:', e);
+                }
+            } else {
+                // If there is no session ID in localStorage, check if this is an unauthorized reopening
+                const freshLogin = sessionStorage.getItem('jaiti_fresh_login') === '1';
+                if (!freshLogin) {
+                    localStorage.removeItem('jaiti_admin_session_id');
+                    localStorage.removeItem('jaiti_last_admin_page');
+                    sessionStorage.removeItem('jaiti_fresh_login');
+                    await signOut(auth);
+                    window.location.replace('admin-login.html?reason=session_revoked');
+                    return;
+                }
+                sessionStorage.removeItem('jaiti_fresh_login');
+                currentSessionId = 'sess_' + Math.random().toString(36).substring(2, 15) + Date.now();
+                localStorage.setItem('jaiti_admin_session_id', currentSessionId);
             }
+
+            // 2. Register / update active status ONLY AFTER passing validation
+            const ua = navigator.userAgent;
+            let browser = 'Web Browser';
+            if (ua.includes('Chrome') && !ua.includes('Edg')) browser = 'Google Chrome';
+            else if (ua.includes('Safari') && !ua.includes('Chrome')) browser = 'Apple Safari';
+            else if (ua.includes('Firefox')) browser = 'Mozilla Firefox';
+            else if (ua.includes('Edg')) browser = 'Microsoft Edge';
+
+            let os = 'Desktop OS';
+            if (ua.includes('Windows')) os = 'Windows';
+            else if (ua.includes('Mac')) os = 'macOS';
+            else if (ua.includes('Android')) os = 'Android';
+            else if (ua.includes('iPhone') || ua.includes('iPad')) os = 'iOS';
+
+            const deviceName = `${browser} on ${os}`;
+            const sessionRef = doc(db, 'admin-sessions', currentSessionId);
+            const nowMs = Date.now();
+
+            await setDoc(sessionRef, {
+                email: user.email,
+                device: deviceName,
+                userAgent: ua,
+                lastActive: serverTimestamp(),
+                status: 'active',
+                createdAtMs: nowMs
+            }, { merge: true });
+
+            // 3. Real-time instant listener with safe error callback
+            if (window._sessionUnsub) window._sessionUnsub();
+            window._sessionUnsub = onSnapshot(
+                sessionRef,
+                async (snap) => {
+                    if (snap && snap.exists()) {
+                        const data = snap.data();
+                        if (data.status === 'revoked' || data.status === 'logged_out') {
+                            if (window._sessionUnsub) window._sessionUnsub();
+                            localStorage.removeItem('jaiti_admin_session_id');
+                            localStorage.removeItem('jaiti_last_admin_page');
+                            sessionStorage.removeItem('jaiti_fresh_login');
+                            await signOut(auth);
+                            window.location.replace('admin-login.html?reason=session_revoked');
+                        }
+                    }
+                },
+                (err) => {
+                    console.warn('Session snapshot listener notice:', err.message);
+                }
+            );
+
+            // Heartbeat update every 30s to keep lastActive fresh
+            if (window._sessionHeartbeat) clearInterval(window._sessionHeartbeat);
+            window._sessionHeartbeat = setInterval(async () => {
+                try {
+                    await updateDoc(sessionRef, { lastActive: serverTimestamp() });
+                } catch (e) {}
+            }, 30000);
+
+        } catch (e) {
+            console.error('Session handling error:', e);
         }
     });
 
@@ -1743,20 +1912,25 @@
     window.handleLogout = async () => {
         if (confirm('Are you sure you want to logout?')) {
             try {
+                if (window._sessionUnsub) window._sessionUnsub();
+                if (window._secUnsub) window._secUnsub();
+                if (window._sessionHeartbeat) clearInterval(window._sessionHeartbeat);
                 const currentSessionId = localStorage.getItem('jaiti_admin_session_id');
                 if (currentSessionId) {
-                    await updateDoc(doc(db, 'admin-sessions', currentSessionId), { status: 'logged_out' });
+                    await updateDoc(doc(db, 'admin-sessions', currentSessionId), { status: 'logged_out', lastActive: serverTimestamp() });
                 }
             } catch (e) {}
             localStorage.removeItem('jaiti_admin_session_id');
+            localStorage.removeItem('jaiti_last_admin_page');
+            sessionStorage.removeItem('jaiti_fresh_login');
             await signOut(auth);
-            window.location.href = 'admin-login.html';
+            window.location.replace('admin-login.html');
         }
     };
 
     // ── TAB SWITCH ──
     window.switchTab = (tabId, updateHistory = true) => {
-        const tabIds = ['new-entry','all-entries','summary','educators','children','sessions'];
+        const tabIds = ['new-entry','all-entries','summary','educators','children','sessions','supporters'];
         if (!tabIds.includes(tabId)) tabId = 'new-entry';
 
         document.querySelectorAll('.tab').forEach((t, i) => {
@@ -1801,6 +1975,8 @@
             window.loadChildrenList();
         } else if (tabId === 'sessions' && window.loadAdminSessions) {
             window.loadAdminSessions();
+        } else if (tabId === 'supporters' && window.loadSupportersList) {
+            window.loadSupportersList();
         }
     };
 
@@ -1809,7 +1985,7 @@
     window.getInitialDashboardTab = () => {
         const hash = window.location.hash.replace('#', '').trim();
         const savedTab = localStorage.getItem('jaiti_admin_active_tab');
-        const tabIds = ['new-entry','all-entries','summary','educators','children','sessions'];
+        const tabIds = ['new-entry','all-entries','summary','educators','children','sessions','supporters'];
         if (hash && tabIds.includes(hash)) return hash;
         if (savedTab && tabIds.includes(savedTab)) return savedTab;
         return 'new-entry';
@@ -1818,7 +1994,7 @@
     // Handle browser back/forward buttons
     window.addEventListener('popstate', () => {
         const hash = window.location.hash.replace('#', '').trim();
-        const tabIds = ['new-entry','all-entries','summary','educators','children','sessions'];
+        const tabIds = ['new-entry','all-entries','summary','educators','children','sessions','supporters'];
         if (hash && tabIds.includes(hash)) {
             window.switchTab(hash, false);
         } else {
@@ -2660,10 +2836,9 @@
             });
 
             const currentUser = auth.currentUser;
-            const isSuperAdmin = currentUser && currentUser.email === 'jaitifoundation@gmail.com';
             const revokeAllBtn = document.getElementById('revokeAllBtn');
             if (revokeAllBtn) {
-                revokeAllBtn.style.display = isSuperAdmin ? 'inline-block' : 'none';
+                revokeAllBtn.style.display = currentUser ? 'inline-block' : 'none';
             }
 
             if (sessions.length === 0) {
@@ -2702,8 +2877,8 @@
 
                 let actionBtn = '-';
                 if (isCurrent) {
-                    actionBtn = '<span style="color:#3a7260;font-weight:600;font-size:0.85rem">This Device</span>';
-                } else if (isSuperAdmin && s.status === 'active') {
+                    actionBtn = '<span style="color:#3a7260;font-weight:600;font-size:0.85rem">⭐ This Device</span>';
+                } else if (s.status === 'active') {
                     actionBtn = `<button onclick="window.revokeAdminSession('${s.id}')" style="padding:0.3rem 0.7rem;background:#d9534f;color:white;border:none;border-radius:4px;cursor:pointer;font-size:0.8rem;font-family:Inter,sans-serif">🚫 Force Logout</button>`;
                 }
 
@@ -2726,10 +2901,13 @@
     };
 
     window.revokeAdminSession = async (sessionId) => {
-        if (confirm('Are you sure you want to log out this device/session?')) {
+        if (confirm('Are you sure you want to force logout this device/session?')) {
             try {
-                await updateDoc(doc(db, 'admin-sessions', sessionId), { status: 'revoked' });
-                showAlert('✅ Session revoked successfully.', 'success', 'sessionsAlert');
+                await updateDoc(doc(db, 'admin-sessions', sessionId), { 
+                    status: 'revoked',
+                    revokedAt: serverTimestamp() 
+                });
+                showAlert('✅ Device session revoked successfully.', 'success', 'sessionsAlert');
                 window.loadAdminSessions();
             } catch (err) {
                 console.error(err);
@@ -2742,17 +2920,23 @@
         if (confirm('Are you sure you want to force logout all other devices/sessions?')) {
             try {
                 const currentSessionId = localStorage.getItem('jaiti_admin_session_id');
-                const q = query(collection(db, 'admin-sessions'), where('status', '==', 'active'));
-                const snap = await getDocs(q);
+                const currentUser = auth.currentUser;
+                if (!currentUser) return;
+
+                // Mark all other sessions in admin-sessions collection as 'revoked'
+                const snap = await getDocs(collection(db, 'admin-sessions'));
                 const promises = [];
                 snap.forEach(d => {
                     if (d.id !== currentSessionId) {
-                        promises.push(updateDoc(doc(db, 'admin-sessions', d.id), { status: 'revoked' }));
+                        promises.push(updateDoc(doc(db, 'admin-sessions', d.id), { 
+                            status: 'revoked',
+                            revokedAt: serverTimestamp() 
+                        }));
                     }
                 });
                 await Promise.all(promises);
-                showAlert('✅ All other active sessions have been revoked.', 'success', 'sessionsAlert');
-                window.loadAdminSessions();
+                showAlert('✅ All other active sessions have been forced to log out immediately.', 'success', 'sessionsAlert');
+                if (window.loadAdminSessions) window.loadAdminSessions();
             } catch (err) {
                 console.error(err);
                 showAlert('❌ Error revoking sessions: ' + err.message, 'error', 'sessionsAlert');
@@ -4234,6 +4418,489 @@ document.addEventListener('click', function(event) {
         modal.style.display = 'none';
     }
 });
+
+// ── SUPPORTERS & DONORS MANAGEMENT ──
+let allSupportersData = [];
+let supportersLoading = false;
+
+window.loadSupportersList = async function() {
+    const container = document.getElementById('supportersTableContainer');
+    const alertEl = document.getElementById('supportersAlert');
+    if (!container) return;
+
+    supportersLoading = true;
+    container.innerHTML = '<div class="empty-state"><div class="icon">⏳</div><p>Loading supporters list...</p></div>';
+    if (alertEl) alertEl.className = 'alert';
+
+    try {
+        allSupportersData = [];
+
+        // 1. Fetch from Firestore daily-updates collection (where recordType == 'supporter')
+        try {
+            const qSupporters = query(collection(db, 'daily-updates'), where('recordType', '==', 'supporter'));
+            const snap = await getDocs(qSupporters);
+            snap.forEach(d => {
+                allSupportersData.push({ id: d.id, ...d.data(), _source: 'firestore_daily_updates' });
+            });
+        } catch (err) {
+            console.warn('Firestore daily-updates supporter query notice:', err.message);
+        }
+
+        // 2. Also fetch from Firestore supporters collection (if any records exist there)
+        try {
+            const q = query(collection(db, 'supporters'), orderBy('createdAtMs', 'desc'));
+            const snap = await getDocs(q);
+            snap.forEach(d => {
+                if (!allSupportersData.some(s => s.id === d.id)) {
+                    allSupportersData.push({ id: d.id, ...d.data(), _source: 'firestore_supporters' });
+                }
+            });
+        } catch (err) {
+            console.warn('Firestore supporters query notice:', err.message);
+        }
+
+        // 3. Fetch & merge from local leads (e.g. from support-modal.js on website)
+        try {
+            const localLeads = JSON.parse(localStorage.getItem('jaiti_support_leads') || '[]');
+            localLeads.forEach(lead => {
+                const already = allSupportersData.some(s => 
+                    s.id === lead.id || 
+                    (s.phone && lead.phone && s.phone === lead.phone && s.timestamp === lead.timestamp)
+                );
+                if (!already) {
+                    allSupportersData.push({ 
+                        ...lead, 
+                        id: lead.id || ('local_' + Math.random().toString(36).substring(2, 9)),
+                        _source: 'local'
+                    });
+                }
+            });
+        } catch (e) {}
+
+        // Sort by createdAtMs or timestamp descending
+        allSupportersData.sort((a, b) => {
+            const timeA = a.createdAtMs || (a.timestamp ? new Date(a.timestamp).getTime() : 0);
+            const timeB = b.createdAtMs || (b.timestamp ? new Date(b.timestamp).getTime() : 0);
+            return timeB - timeA;
+        });
+
+        window.renderSupportersTable();
+    } catch (e) {
+        console.error('Error loading supporters:', e);
+        container.innerHTML = '<div class="empty-state"><div class="icon">⚠️</div><p>Failed to load supporters list: ' + (e.message || 'Unknown error') + '</p></div>';
+    } finally {
+        supportersLoading = false;
+    }
+};
+
+window.renderSupportersTable = function() {
+    const container = document.getElementById('supportersTableContainer');
+    if (!container) return;
+
+    const searchVal = (document.getElementById('supSearchInput')?.value || '').toLowerCase().trim();
+    const statusVal = document.getElementById('supStatusFilter')?.value || 'all';
+
+    let verifiedTotal = 0;
+    let verifiedCount = 0;
+    let pendingTotal = 0;
+    let pendingCount = 0;
+
+    allSupportersData.forEach(sup => {
+        const amt = Number(sup.amount) || 0;
+        const isVer = (sup.status || '').toLowerCase() === 'verified' || (sup.status || '').toLowerCase() === 'paid';
+        if (isVer) {
+            verifiedTotal += amt;
+            verifiedCount++;
+        } else {
+            pendingTotal += amt;
+            pendingCount++;
+        }
+    });
+
+    // Update Metric Cards
+    const verTotalEl = document.getElementById('supVerifiedTotal');
+    const verCountEl = document.getElementById('supVerifiedCount');
+    const penTotalEl = document.getElementById('supPendingTotal');
+    const penCountEl = document.getElementById('supPendingCount');
+    const totCountEl = document.getElementById('supTotalCount');
+
+    if (verTotalEl) verTotalEl.textContent = '₹' + verifiedTotal.toLocaleString('en-IN');
+    if (verCountEl) verCountEl.textContent = verifiedCount + ' verified contributions';
+    if (penTotalEl) penTotalEl.textContent = '₹' + pendingTotal.toLocaleString('en-IN');
+    if (penCountEl) penCountEl.textContent = pendingCount + ' unverified leads';
+    if (totCountEl) totCountEl.textContent = allSupportersData.length;
+
+    // Filter displayed list
+    const filtered = allSupportersData.filter(sup => {
+        const nameMatch = (sup.name || '').toLowerCase().includes(searchVal);
+        const phoneMatch = (sup.phone || '').toLowerCase().includes(searchVal);
+        const emailMatch = (sup.email || '').toLowerCase().includes(searchVal);
+        const matchesSearch = !searchVal || nameMatch || phoneMatch || emailMatch;
+
+        const isVer = (sup.status || '').toLowerCase() === 'verified' || (sup.status || '').toLowerCase() === 'paid';
+        let matchesStatus = true;
+        if (statusVal === 'verified') matchesStatus = isVer;
+        else if (statusVal === 'pending') matchesStatus = !isVer;
+
+        return matchesSearch && matchesStatus;
+    });
+
+    if (filtered.length === 0) {
+        container.innerHTML = `
+            <div class="empty-state">
+                <div class="icon">🤝</div>
+                <p>No supporters found matching your filters.</p>
+            </div>
+        `;
+        return;
+    }
+
+    let html = `
+        <table style="width:100%;border-collapse:collapse;font-size:0.875rem;min-width:760px">
+            <thead>
+                <tr style="background:#2f5f4f;color:white;text-align:left">
+                    <th style="padding:0.75rem 1rem;border-top-left-radius:8px">#</th>
+                    <th style="padding:0.75rem 1rem">Supporter</th>
+                    <th style="padding:0.75rem 1rem">Mobile / WhatsApp</th>
+                    <th style="padding:0.75rem 1rem">Amount</th>
+                    <th style="padding:0.75rem 1rem">Date & Time</th>
+                    <th style="padding:0.75rem 1rem">Status</th>
+                    <th style="padding:0.75rem 1rem;text-align:right;border-top-right-radius:8px">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+    `;
+
+    filtered.forEach((sup, idx) => {
+        const isVer = (sup.status || '').toLowerCase() === 'verified' || (sup.status || '').toLowerCase() === 'paid';
+        const amtFormatted = '₹' + (Number(sup.amount) || 0).toLocaleString('en-IN');
+        const rawPhone = (sup.phone || '').trim();
+        let digits = rawPhone.replace(/\D/g, '');
+        if (digits.length === 10) digits = '91' + digits;
+        else if (digits.length === 11 && digits.startsWith('0')) digits = '91' + digits.substring(1);
+        const timeDisplay = sup.localTime || (sup.timestamp ? new Date(sup.timestamp).toLocaleString('en-IN') : '-');
+
+        const waMsg = encodeURIComponent(`Hello ${sup.name || 'Supporter'},\nGreetings from Jaiti Foundation!\nRegarding your support of ${amtFormatted} for underprivileged children in Jaipur:`);
+        const waLink = `https://wa.me/${digits}?text=${waMsg}`;
+
+        html += `
+            <tr style="border-bottom:1px solid #ebdccb;background:${idx % 2 === 0 ? '#ffffff' : '#fcfaf7'};transition:background 0.15s">
+                <td style="padding:0.75rem 1rem;color:#7a6b5d;font-weight:600">${idx + 1}</td>
+                <td style="padding:0.75rem 1rem">
+                    <div style="font-weight:600;color:#2f5f4f">${sup.name || 'Anonymous'}</div>
+                    ${sup.email ? `<div style="font-size:0.775rem;color:#7a6b5d">${sup.email}</div>` : ''}
+                    ${sup.notes ? `<div style="font-size:0.75rem;color:#b45309;font-style:italic">Note: ${sup.notes}</div>` : ''}
+                </td>
+                <td style="padding:0.75rem 1rem">
+                    <div style="display:flex;align-items:center;gap:6px">
+                        <span style="font-weight:500;color:#1e293b">${sup.phone || '-'}</span>
+                        ${digits ? `
+                            <a href="${waLink}" target="_blank" rel="noopener noreferrer" title="Chat on WhatsApp / Request Screenshot" style="display:inline-flex;align-items:center;justify-content:center;background:#25D366;color:white;width:24px;height:24px;border-radius:50%;text-decoration:none;font-size:0.75rem">
+                                💬
+                            </a>
+                        ` : ''}
+                    </div>
+                </td>
+                <td style="padding:0.75rem 1rem">
+                    <span style="font-size:1rem;font-weight:700;color:${isVer ? '#15803d' : '#b45309'}">
+                        ${amtFormatted}
+                    </span>
+                </td>
+                <td style="padding:0.75rem 1rem;color:#64748b;font-size:0.8rem">
+                    ${timeDisplay}
+                </td>
+                <td style="padding:0.75rem 1rem">
+                    ${isVer ? `
+                        <span style="background:#dcfce7;color:#166534;padding:0.25rem 0.6rem;border-radius:20px;font-size:0.75rem;font-weight:700;display:inline-flex;align-items:center;gap:4px">
+                            🟢 Verified / Paid
+                        </span>
+                    ` : `
+                        <span style="background:#fef3c7;color:#92400e;padding:0.25rem 0.6rem;border-radius:20px;font-size:0.75rem;font-weight:700;display:inline-flex;align-items:center;gap:4px">
+                            ⏳ Pending
+                        </span>
+                    `}
+                </td>
+                <td style="padding:0.75rem 1rem;text-align:right">
+                    <div style="display:inline-flex;gap:6px;align-items:center">
+                        ${!isVer ? `
+                            <button onclick="window.verifySupporter('${sup.id}', true)" style="padding:0.35rem 0.65rem;background:#15803d;color:white;border:none;border-radius:6px;font-size:0.75rem;font-weight:600;cursor:pointer" title="Confirm payment and add to verified total">
+                                ✅ Verify & Mark Paid
+                            </button>
+                        ` : `
+                            <button onclick="window.verifySupporter('${sup.id}', false)" style="padding:0.35rem 0.65rem;background:#f59e0b;color:white;border:none;border-radius:6px;font-size:0.75rem;font-weight:600;cursor:pointer" title="Revert to Pending">
+                                ↩️ Mark Pending
+                            </button>
+                        `}
+                        <button onclick="window.deleteSupporterPrompt(this, '${sup.id}')" style="padding:0.35rem 0.5rem;background:#fee2e2;color:#b91c1c;border:1px solid #fecaca;border-radius:6px;font-size:0.75rem;font-weight:600;cursor:pointer;transition:all 0.2s" title="Delete record">
+                            🗑️
+                        </button>
+                    </div>
+                </td>
+            </tr>
+        `;
+    });
+
+    html += `
+            </tbody>
+        </table>
+    `;
+
+    container.innerHTML = html;
+};
+
+window.filterSupporters = function() {
+    window.renderSupportersTable();
+};
+
+window.verifySupporter = async function(id, makeVerified) {
+    const targetStatus = makeVerified ? 'Verified' : 'Pending';
+    const alertEl = document.getElementById('supportersAlert');
+
+    try {
+        // Update in memory
+        const item = allSupportersData.find(s => s.id === id);
+        if (item) {
+            item.status = targetStatus;
+            item.verifiedAt = makeVerified ? new Date().toISOString() : null;
+            item.verifiedBy = auth.currentUser?.email || 'admin';
+        }
+
+        // 1. Try updating Firestore daily-updates doc
+        try {
+            const dailyRef = doc(db, 'daily-updates', id);
+            await setDoc(dailyRef, {
+                status: targetStatus,
+                verifiedAt: makeVerified ? serverTimestamp() : null,
+                verifiedBy: auth.currentUser?.email || 'admin'
+            }, { merge: true });
+        } catch (e) {
+            console.warn('daily-updates update notice:', e.message);
+        }
+
+        // 2. Try updating Firestore supporters doc
+        try {
+            const supRef = doc(db, 'supporters', id);
+            await setDoc(supRef, {
+                status: targetStatus,
+                verifiedAt: makeVerified ? serverTimestamp() : null,
+                verifiedBy: auth.currentUser?.email || 'admin'
+            }, { merge: true });
+        } catch (e) {
+            console.warn('supporters update notice:', e.message);
+        }
+
+        // 3. Update local storage leads
+        try {
+            const localLeads = JSON.parse(localStorage.getItem('jaiti_support_leads') || '[]');
+            const lead = localLeads.find(l => l.id === id);
+            if (lead) {
+                lead.status = targetStatus;
+                localStorage.setItem('jaiti_support_leads', JSON.stringify(localLeads));
+            }
+        } catch (e) {}
+
+        window.renderSupportersTable();
+
+        if (alertEl) {
+            alertEl.textContent = makeVerified ? '✅ Payment verified and added to Total Received!' : 'ℹ️ Status updated to Pending.';
+            alertEl.className = 'alert success show';
+            setTimeout(() => alertEl.className = 'alert', 3500);
+        }
+    } catch (e) {
+        console.error('Error verifying supporter:', e);
+        if (alertEl) {
+            alertEl.textContent = 'Error: ' + e.message;
+            alertEl.className = 'alert error show';
+        }
+    }
+};
+
+window.deleteSupporterPrompt = function(btn, id) {
+    if (btn.dataset.confirming === 'true') {
+        window.deleteSupporter(id);
+    } else {
+        btn.dataset.confirming = 'true';
+        btn.innerHTML = '⚠️ Confirm?';
+        btn.style.background = '#dc2626';
+        btn.style.color = '#ffffff';
+        btn.style.borderColor = '#b91c1c';
+        btn.style.fontSize = '0.75rem';
+        btn.style.padding = '0.35rem 0.65rem';
+        setTimeout(() => {
+            if (btn && btn.dataset.confirming === 'true') {
+                btn.dataset.confirming = 'false';
+                btn.innerHTML = '🗑️';
+                btn.style.background = '#fee2e2';
+                btn.style.color = '#b91c1c';
+                btn.style.borderColor = '#fecaca';
+                btn.style.padding = '0.35rem 0.5rem';
+            }
+        }, 4000);
+    }
+};
+
+window.deleteSupporter = async function(id) {
+    const alertEl = document.getElementById('supportersAlert');
+
+    try {
+        const itemToDelete = allSupportersData.find(s => s.id === id);
+        allSupportersData = allSupportersData.filter(s => s.id !== id);
+
+        // Delete from daily-updates doc
+        try {
+            await deleteDoc(doc(db, 'daily-updates', id));
+        } catch (e) {
+            console.warn('daily-updates delete notice:', e.message);
+        }
+
+        // Delete from supporters doc
+        try {
+            await deleteDoc(doc(db, 'supporters', id));
+        } catch (e) {
+            console.warn('supporters delete notice:', e.message);
+        }
+
+        // Delete from localStorage
+        try {
+            let localLeads = JSON.parse(localStorage.getItem('jaiti_support_leads') || '[]');
+            localLeads = localLeads.filter(l => {
+                if (l.id && l.id === id) return false;
+                if (itemToDelete && l.phone && l.phone === itemToDelete.phone && l.timestamp === itemToDelete.timestamp) return false;
+                if (itemToDelete && l.name === itemToDelete.name && l.phone === itemToDelete.phone) return false;
+                return true;
+            });
+            localStorage.setItem('jaiti_support_leads', JSON.stringify(localLeads));
+        } catch (e) {}
+
+        window.renderSupportersTable();
+
+        if (alertEl) {
+            alertEl.textContent = '🗑️ Supporter entry removed successfully.';
+            alertEl.className = 'alert success show';
+            setTimeout(() => alertEl.className = 'alert', 3000);
+        }
+    } catch (e) {
+        console.error('Error deleting supporter:', e);
+        if (alertEl) {
+            alertEl.textContent = 'Error: ' + e.message;
+            alertEl.className = 'alert error show';
+        }
+    }
+};
+
+window.openAddSupporterModal = function() {
+    const modal = document.getElementById('addSupporterModal');
+    if (modal) {
+        document.getElementById('addSupporterForm').reset();
+        modal.classList.add('show');
+    }
+};
+
+window.closeAddSupporterModal = function() {
+    const modal = document.getElementById('addSupporterModal');
+    if (modal) modal.classList.remove('show');
+};
+
+window.saveManualSupporter = async function(e) {
+    e.preventDefault();
+    const btn = document.getElementById('btnSaveManualSup');
+    if (btn) btn.disabled = true;
+
+    const name = document.getElementById('manualSupName').value.trim();
+    const phone = document.getElementById('manualSupPhone').value.trim();
+    const email = document.getElementById('manualSupEmail').value.trim();
+    const amount = Number(document.getElementById('manualSupAmount').value) || 0;
+    const status = document.getElementById('manualSupStatus').value || 'Verified';
+    const notes = document.getElementById('manualSupNotes').value.trim();
+
+    const record = {
+        id: 'sup_' + Date.now() + '_' + Math.random().toString(36).substr(2, 6),
+        name: name,
+        phone: phone,
+        email: email,
+        amount: amount,
+        status: status,
+        notes: notes,
+        recordType: 'supporter',
+        source: 'Manual Admin Entry',
+        createdAtMs: Date.now(),
+        timestamp: new Date().toISOString(),
+        localTime: new Date().toLocaleString('en-IN', { timeZone: 'Asia/Kolkata', dateStyle: 'medium', timeStyle: 'short' }),
+        addedBy: auth.currentUser?.email || 'admin'
+    };
+
+    try {
+        // Save to daily-updates
+        try {
+            await setDoc(doc(db, 'daily-updates', record.id), {
+                ...record,
+                createdAt: serverTimestamp()
+            });
+        } catch (err) {
+            console.warn('daily-updates manual save notice:', err.message);
+        }
+
+        // Save to supporters
+        try {
+            await setDoc(doc(db, 'supporters', record.id), {
+                ...record,
+                createdAt: serverTimestamp()
+            });
+        } catch (err) {
+            console.warn('supporters manual save notice:', err.message);
+        }
+
+        // Save to local storage
+        try {
+            const localLeads = JSON.parse(localStorage.getItem('jaiti_support_leads') || '[]');
+            localLeads.unshift(record);
+            localStorage.setItem('jaiti_support_leads', JSON.stringify(localLeads));
+        } catch (e) {}
+
+        allSupportersData.unshift(record);
+        window.closeAddSupporterModal();
+        window.renderSupportersTable();
+
+        const alertEl = document.getElementById('supportersAlert');
+        if (alertEl) {
+            alertEl.textContent = '🎉 New supporter successfully saved!';
+            alertEl.className = 'alert success show';
+            setTimeout(() => alertEl.className = 'alert', 3500);
+        }
+    } catch (err) {
+        alert('Could not save supporter: ' + err.message);
+    } finally {
+        if (btn) btn.disabled = false;
+    }
+};
+
+window.exportSupportersCSV = function() {
+    if (!allSupportersData || allSupportersData.length === 0) {
+        alert('No supporters data to export.');
+        return;
+    }
+
+    const headers = ['Name', 'Mobile Number', 'Email ID', 'Amount (INR)', 'Status', 'Date and Time', 'Notes', 'Source'];
+    const rows = allSupportersData.map(s => [
+        `"${(s.name || '').replace(/"/g, '""')}"`,
+        `"${(s.phone || '').replace(/"/g, '""')}"`,
+        `"${(s.email || '').replace(/"/g, '""')}"`,
+        s.amount || 0,
+        `"${(s.status || '').replace(/"/g, '""')}"`,
+        `"${(s.localTime || s.timestamp || '').replace(/"/g, '""')}"`,
+        `"${(s.notes || '').replace(/"/g, '""')}"`,
+        `"${(s.source || '').replace(/"/g, '""')}"`
+    ]);
+
+    const csvContent = 'data:text/csv;charset=utf-8,\uFEFF' + [headers.join(','), ...rows.map(r => r.join(','))].join('\n');
+    const encodedUri = encodeURI(csvContent);
+    const link = document.createElement('a');
+    link.setAttribute('href', encodedUri);
+    link.setAttribute('download', `Jaiti_Foundation_Supporters_${new Date().toISOString().split('T')[0]}.csv`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+};
 
 </script>
 

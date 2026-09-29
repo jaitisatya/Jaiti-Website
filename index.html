@@ -2,7 +2,44 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script>
+      (function(){
+        const _origStringify = JSON.stringify;
+        JSON.stringify = function(val, replacer, space) {
+          try {
+            return _origStringify(val, replacer, space);
+          } catch(err) {
+            if (err && (err.name === 'TypeError' || String(err).includes('circular'))) {
+              const seen = new WeakSet();
+              return _origStringify(val, function(k, v) {
+                if (typeof v === 'object' && v !== null) {
+                  if (seen.has(v)) return;
+                  seen.add(v);
+                }
+                if (typeof replacer === 'function') return replacer.call(this, k, v);
+                return v;
+              }, space);
+            }
+            throw err;
+          }
+        };
+      })();
+    </script>
+    <script>
+      (function(){
+        try {
+          const lastPage = localStorage.getItem('jaiti_last_admin_page');
+          const sessionId = localStorage.getItem('jaiti_admin_session_id');
+          const params = new URLSearchParams(window.location.search);
+          if (lastPage && sessionId && !params.has('home') && !params.has('noredirect')) {
+            const activeTab = localStorage.getItem('jaiti_admin_active_tab');
+            const targetUrl = activeTab && activeTab !== 'new-entry' ? (lastPage + '#' + activeTab) : lastPage;
+            window.location.replace(targetUrl);
+          }
+        } catch(e) {}
+      })();
+    </script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="preconnect" href="https://www.youtube-nocookie.com" crossorigin>
     <link rel="preconnect" href="https://i.ytimg.com" crossorigin>
     <link rel="dns-prefetch" href="//www.youtube-nocookie.com">
@@ -126,6 +163,7 @@
     <link rel="apple-touch-icon" href="images/logo.webp">
     <meta name="theme-color" content="#3a7260">
     <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="support.css">
     
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -152,24 +190,36 @@
 <!-- ================= NAVIGATION ================= -->
 <nav class="navbar">
     <div class="container nav-container">
-        <a href="https://jaiti.in/" class="logo">
+        <a href="./" class="logo">
             <img src="images/logo.webp" alt="Jaiti Foundation Logo" width="38" height="38" decoding="async" fetchpriority="high">
             <span>Jaiti Foundation</span>
         </a>
 
-        <button class="mobile-menu-btn" aria-label="Toggle menu">
-            <span></span>
-            <span></span>
-            <span></span>
-        </button>
+        <!-- Mobile Action Group: Direct Support CTA + Hamburger -->
+        <div class="nav-actions-mobile-group">
+            <button type="button" class="mobile-header-support-btn open-support-modal" aria-label="Support Now">
+                <svg viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
+                <span>Support Now</span>
+            </button>
+            <button class="mobile-menu-btn" aria-label="Toggle menu">
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
+        </div>
 
         <ul class="nav-links">
-            <li><a href="./" class="active">Home</a></li>
-            <li><a href="about.html">About Us</a></li>
-            <li><a href="programs.html">Our Programs</a></li>
+            <li><a href="programs.html">Programs</a></li>
             <li><a href="gallery.html">Gallery</a></li>
             <li><a href="volunteer.html">Get Involved</a></li>
-            <li><a href="contact.html">Contact</a></li>
+            <li><a href="about.html">About Us</a></li>
+            <li><a href="contact.html">Contact Us</a></li>
+            <li>
+                <button type="button" class="nav-support-btn open-support-modal">
+                    <svg viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
+                    <span>Support Now</span>
+                </button>
+            </li>
         </ul>
     </div>
 </nav>
@@ -181,6 +231,14 @@
         <div class="hero-video-poster" aria-hidden="true"></div>
     </div>
     
+    <!-- Mobile Hero Video Support CTA (Sleek, transparent pill at lower video) -->
+    <div class="hero-video-support-container">
+        <button type="button" class="hero-video-support-btn open-support-modal">
+            <svg viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
+            <span>Support Now</span>
+        </button>
+    </div>
+
     <div class="hero-scroll-indicator">
         <div class="scroll-arrow"></div>
     </div>
@@ -267,7 +325,7 @@
             <span class="section-label">Our Purpose</span>
             <h2>Why Jaiti Foundation Exists</h2>
             <p class="section-description">
-                Jaiti Foundation is a child education NGO in Jaipur working with underserved communities to include, educate, and empower every child. Based near Mahal Road in Jagatpura, we serve families from Jagatpura, Pratap Nagar, and nearby areas with free education, moral learning, and holistic support.
+                Jaiti Foundation is a child education NGO in Jaipur working with underserved communities to include, educate, and empower every child. Based near Radha Rani Circle, Mahal Road, Jagatpura, Jaipur, we serve families from Jagatpura, Pratap Nagar, and nearby areas with free education, moral learning, and holistic support.
             </p>
         </div>
 
@@ -545,7 +603,7 @@
                     </svg>
                 </div>
                 <div class="faq-answer">
-                    <p>Jaiti Foundation is located on Mahal Road, Jagatpura, Jaipur (Rajasthan 302017), and serves children and families from Jagatpura, Pratap Nagar, Mahal Road, and nearby communities in Jaipur.</p>
+                    <p>Jaiti Foundation is located Near Radha Rani Circle, Mahal Road, Jagatpura, Jaipur (Rajasthan 302017), and serves children and families from Jagatpura, Pratap Nagar, Mahal Road, and nearby communities in Jaipur.</p>
                 </div>
             </div>
 
@@ -581,7 +639,7 @@
                     </svg>
                 </div>
                 <div class="faq-answer">
-                    <p>Jaiti Foundation primarily serves children and families from Jagatpura, Pratap Nagar, Mahal Road, and nearby Jaipur communities. We are based near Mahal Road in Jagatpura and work with underserved neighborhoods in the area.</p>
+                    <p>Jaiti Foundation primarily serves children and families from Jagatpura, Pratap Nagar, Mahal Road, and nearby Jaipur communities. We are based Near Radha Rani Circle, Mahal Road, Jagatpura and work with underserved neighborhoods in the area.</p>
                 </div>
             </div>
 
@@ -623,7 +681,7 @@
       "name": "Where is Jaiti Foundation located?",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "Jaiti Foundation is located on Mahal Road, Jagatpura, Jaipur (Rajasthan 302017), and serves children and families from Jagatpura, Pratap Nagar, Mahal Road, and nearby communities in Jaipur."
+        "text": "Jaiti Foundation is located Near Radha Rani Circle, Mahal Road, Jagatpura, Jaipur (Rajasthan 302017), and serves children and families from Jagatpura, Pratap Nagar, Mahal Road, and nearby communities in Jaipur."
       }
     },
     {
@@ -647,7 +705,7 @@
       "name": "Which areas does Jaiti Foundation serve?",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "Jaiti Foundation primarily serves children and families from Jagatpura, Pratap Nagar, Mahal Road, and nearby Jaipur communities. We are based near Mahal Road in Jagatpura and work with underserved neighborhoods in the area."
+        "text": "Jaiti Foundation primarily serves children and families from Jagatpura, Pratap Nagar, Mahal Road, and nearby Jaipur communities. We are based Near Radha Rani Circle, Mahal Road, Jagatpura and work with underserved neighborhoods in the area."
       }
     },
     {
@@ -716,6 +774,7 @@
                     <li><a href="youtube.html">YouTube</a></li>
                     <li><a href="volunteer.html">Get Involved</a></li>
                     <li><a href="contact.html">Contact Us</a></li>
+                    <li><a href="support.html" class="open-support-modal" style="color: #e67e22; font-weight:700;">Support Now ❤️</a></li>
                 </ul>
             </div>
 
@@ -775,6 +834,7 @@
 </a>
 
 <script src="script.js" defer></script>
+<script src="support-modal.js" defer></script>
 
 
 

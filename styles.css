@@ -260,19 +260,28 @@ p {
 
 .nav-links {
     display: flex;
-    gap: 2.8rem;
+    gap: 1.5rem;
     align-items: center;
+}
+
+.nav-links li {
+    list-style: none;
+    white-space: nowrap;
+}
+
+.nav-links li:last-child {
+    margin-left: 0.75rem; /* Distinct right-shift for Support Now button */
 }
 
 .nav-links a {
     font-weight: 500;
-    font-size: 1.05rem;
+    font-size: 0.98rem;
     color: var(--text-primary);
-    padding: 0.75rem 0;
+    padding: 0.5rem 0;
     position: relative;
     transition: var(--transition);
-    display: block;
-    width: 100%;
+    display: inline-block;
+    white-space: nowrap;
 }
 
 .nav-links a::after {
@@ -1319,6 +1328,7 @@ p {
         text-align: center;
     }
     .nav-links.active { display: flex; animation: slideDown 0.3s ease-out; }
+    .nav-links li:last-child { margin-left: 0; }
     
     @keyframes slideDown {
         from {
@@ -1747,5 +1757,21 @@ p {
     
     .faq-section {
         padding: 2.5rem 0;
+    }
+}
+
+/* Nav Actions Mobile Group */
+.nav-actions-mobile-group {
+    display: none;
+}
+
+@media (max-width: 768px) {
+    .nav-actions-mobile-group {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+    .nav-contact-btns {
+        display: none !important;
     }
 }

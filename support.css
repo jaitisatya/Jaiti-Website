@@ -1,0 +1,631 @@
+/* =========================================================
+   SUPPORT NOW MODAL & COMPONENT STYLING (support.css)
+   Clean, modern, responsive Thaagam-style popup & CTA
+   ========================================================= */
+
+/* --- Navbar & Mobile Action Buttons --- */
+.nav-support-btn {
+    display: inline-flex !important;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    background: linear-gradient(135deg, #e67e22, #d35400) !important;
+    color: #ffffff !important;
+    padding: 0.55rem 1.15rem !important;
+    border-radius: 50px !important;
+    font-weight: 700 !important;
+    font-size: 0.95rem !important;
+    letter-spacing: 0.2px;
+    box-shadow: 0 4px 14px rgba(211, 84, 0, 0.35) !important;
+    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1) !important;
+    cursor: pointer;
+    border: none;
+    text-decoration: none !important;
+    white-space: nowrap;
+}
+
+.nav-support-btn::after {
+    display: none !important;
+}
+
+.nav-support-btn:hover {
+    background: linear-gradient(135deg, #f39c12, #e67e22) !important;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(211, 84, 0, 0.5) !important;
+    color: #ffffff !important;
+}
+
+.nav-support-btn svg {
+    width: 17px;
+    height: 17px;
+    fill: currentColor;
+    flex-shrink: 0;
+}
+
+/* Mobile Header Direct Support Button */
+.mobile-header-support-btn {
+    display: none;
+}
+
+@media (max-width: 768px) {
+    .nav-actions-mobile-group {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .mobile-header-support-btn {
+        display: inline-flex !important;
+        align-items: center;
+        gap: 5px;
+        background: linear-gradient(135deg, #e67e22, #d35400);
+        color: #ffffff !important;
+        padding: 0.42rem 0.85rem;
+        border-radius: 50px;
+        font-weight: 700;
+        font-size: 0.82rem;
+        border: none;
+        cursor: pointer;
+        box-shadow: 0 3px 10px rgba(211, 84, 0, 0.35);
+        text-decoration: none;
+        white-space: nowrap;
+    }
+
+    .mobile-header-support-btn svg {
+        width: 14px;
+        height: 14px;
+        fill: currentColor;
+    }
+
+    /* Inside Hamburger Drawer full width */
+    .nav-links .nav-support-btn-mobile {
+        display: block !important;
+        width: 100% !important;
+        margin-top: 0.5rem;
+        padding: 0.75rem 1.25rem !important;
+        text-align: center;
+    }
+}
+
+/* --- Mobile Hero Video Support Button (Floating at Lower Video) --- */
+.hero-video-support-container {
+    display: none;
+}
+
+@media (max-width: 768px) {
+    .hero-video-support-container {
+        display: block;
+        position: absolute;
+        bottom: 2.8rem;
+        left: 50%;
+        transform: translateX(-50%);
+        z-index: 10;
+        width: calc(100% - 2.5rem);
+        max-width: 320px;
+        text-align: center;
+        pointer-events: auto;
+    }
+
+    .hero-video-support-btn {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        width: 100%;
+        background: rgba(230, 126, 34, 0.92);
+        backdrop-filter: blur(8px);
+        -webkit-backdrop-filter: blur(8px);
+        color: #ffffff;
+        font-weight: 700;
+        font-size: 1.02rem;
+        padding: 0.82rem 1.4rem;
+        border-radius: 50px;
+        border: 1px solid rgba(255, 255, 255, 0.35);
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35), 0 2px 8px rgba(230, 126, 34, 0.4);
+        cursor: pointer;
+        text-decoration: none;
+        transition: transform 0.2s ease, background 0.2s ease;
+        animation: pulseSubtle 2.5s infinite;
+    }
+
+    .hero-video-support-btn:active {
+        transform: scale(0.97);
+    }
+
+    .hero-video-support-btn svg {
+        width: 20px;
+        height: 20px;
+        fill: currentColor;
+    }
+
+    @keyframes pulseSubtle {
+        0%, 100% {
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35), 0 0 0 0 rgba(230, 126, 34, 0.5);
+        }
+        50% {
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35), 0 0 0 8px rgba(230, 126, 34, 0);
+        }
+    }
+}
+
+/* --- Support Modal Styles --- */
+.support-modal-backdrop {
+    position: fixed;
+    inset: 0;
+    background: rgba(15, 23, 42, 0.72);
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+    z-index: 99999;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: 1rem;
+    opacity: 0;
+    transition: opacity 0.28s ease;
+}
+
+.support-modal-backdrop.active {
+    display: flex;
+    opacity: 1;
+}
+
+.support-modal {
+    background: #ffffff;
+    border-radius: 20px;
+    width: 100%;
+    max-width: 480px;
+    box-shadow: 0 25px 60px -15px rgba(0, 0, 0, 0.35);
+    overflow: hidden;
+    position: relative;
+    transform: scale(0.94) translateY(12px);
+    transition: transform 0.28s cubic-bezier(0.34, 1.56, 0.64, 1);
+    max-height: 92vh;
+    display: flex;
+    flex-direction: column;
+}
+
+.support-modal-backdrop.active .support-modal {
+    transform: scale(1) translateY(0);
+}
+
+/* Modal Header */
+.support-modal-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1.1rem 1.4rem;
+    border-bottom: 1px solid #f1f5f9;
+    background: #ffffff;
+}
+
+.support-modal-title {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 1.15rem;
+    font-weight: 700;
+    color: #1e293b;
+    margin: 0;
+}
+
+.support-modal-title svg {
+    color: #e67e22;
+    width: 22px;
+    height: 22px;
+}
+
+.support-badge {
+    background: #fef3c7;
+    color: #b45309;
+    font-size: 0.75rem;
+    font-weight: 700;
+    padding: 0.25rem 0.6rem;
+    border-radius: 9999px;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.support-modal-close {
+    background: #f1f5f9;
+    border: none;
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    color: #64748b;
+    transition: all 0.2s;
+}
+
+.support-modal-close:hover {
+    background: #e2e8f0;
+    color: #0f172a;
+    transform: rotate(90deg);
+}
+
+.support-modal-body {
+    padding: 1.4rem;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+}
+
+/* Step 1: Donor & Amount Selection */
+.support-banner-card {
+    background: linear-gradient(135deg, #1b3d32 0%, #2f6b57 100%);
+    color: #ffffff;
+    border-radius: 12px;
+    padding: 1rem 1.2rem;
+    margin-bottom: 1.25rem;
+    position: relative;
+    overflow: hidden;
+}
+
+.support-banner-card::after {
+    content: '';
+    position: absolute;
+    right: -20px;
+    bottom: -20px;
+    width: 90px;
+    height: 90px;
+    background: rgba(255, 255, 255, 0.08);
+    border-radius: 50%;
+}
+
+.support-banner-tag {
+    font-size: 0.72rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: #fbd38d;
+    font-weight: 700;
+    display: block;
+    margin-bottom: 0.25rem;
+}
+
+.support-banner-title {
+    font-size: 1.05rem;
+    font-weight: 700;
+    line-height: 1.35;
+    margin: 0;
+}
+
+.support-banner-desc {
+    font-size: 0.8rem;
+    opacity: 0.9;
+    margin: 0.35rem 0 0;
+    line-height: 1.35;
+}
+
+/* Preset Amount Pills */
+.amount-pills-label {
+    display: block;
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: #475569;
+    margin-bottom: 0.6rem;
+}
+
+.amount-pills-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 0.55rem;
+    margin-bottom: 0.9rem;
+}
+
+.amount-pill-btn {
+    background: #f8fafc;
+    border: 1.5px solid #e2e8f0;
+    border-radius: 10px;
+    padding: 0.6rem 0.4rem;
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: #334155;
+    cursor: pointer;
+    transition: all 0.18s ease;
+    text-align: center;
+}
+
+.amount-pill-btn:hover {
+    border-color: #e67e22;
+    color: #e67e22;
+    background: #fffaf0;
+}
+
+.amount-pill-btn.active {
+    background: #e67e22;
+    border-color: #d35400;
+    color: #ffffff;
+    box-shadow: 0 4px 10px rgba(230, 126, 34, 0.3);
+}
+
+/* Custom Amount Box */
+.custom-amount-wrapper {
+    position: relative;
+    margin-bottom: 1.15rem;
+}
+
+.currency-symbol {
+    position: absolute;
+    left: 14px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: #64748b;
+}
+
+.custom-amount-input {
+    width: 100%;
+    padding: 0.75rem 1rem 0.75rem 2.2rem;
+    border: 1.5px solid #cbd5e1;
+    border-radius: 10px;
+    font-size: 1.05rem;
+    font-weight: 600;
+    color: #0f172a;
+    transition: border-color 0.2s, box-shadow 0.2s;
+    outline: none;
+    box-sizing: border-box;
+}
+
+.custom-amount-input:focus {
+    border-color: #e67e22;
+    box-shadow: 0 0 0 3px rgba(230, 126, 34, 0.18);
+}
+
+/* Form Fields */
+.support-input-group {
+    margin-bottom: 0.85rem;
+}
+
+.support-input-label {
+    display: block;
+    font-size: 0.82rem;
+    font-weight: 600;
+    color: #475569;
+    margin-bottom: 0.35rem;
+}
+
+.support-input-label span {
+    color: #ef4444;
+}
+
+.support-form-input {
+    width: 100%;
+    padding: 0.7rem 0.95rem;
+    border: 1.5px solid #cbd5e1;
+    border-radius: 10px;
+    font-size: 0.95rem;
+    color: #0f172a;
+    outline: none;
+    transition: all 0.2s;
+    box-sizing: border-box;
+    font-family: inherit;
+}
+
+.support-form-input:focus {
+    border-color: #e67e22;
+    box-shadow: 0 0 0 3px rgba(230, 126, 34, 0.18);
+}
+
+.support-form-input::placeholder {
+    color: #94a3b8;
+}
+
+/* Proceed Button */
+.btn-proceed-support {
+    width: 100%;
+    background: linear-gradient(135deg, #e67e22, #d35400);
+    color: #ffffff;
+    font-size: 1.05rem;
+    font-weight: 700;
+    padding: 0.85rem;
+    border: none;
+    border-radius: 12px;
+    cursor: pointer;
+    box-shadow: 0 4px 15px rgba(211, 84, 0, 0.4);
+    transition: all 0.2s;
+    margin-top: 0.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+}
+
+.btn-proceed-support:hover {
+    background: linear-gradient(135deg, #f39c12, #e67e22);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(211, 84, 0, 0.5);
+}
+
+.btn-proceed-support:active {
+    transform: translateY(0);
+}
+
+/* Step 2: QR & UPI Display */
+.support-step-qr {
+    display: none;
+    text-align: center;
+    animation: fadeIn 0.28s ease;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(6px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.qr-amount-summary {
+    background: #fffaf0;
+    border: 1px dashed #fbd38d;
+    border-radius: 12px;
+    padding: 0.75rem;
+    margin-bottom: 1.25rem;
+}
+
+.qr-amount-summary .donor-greet {
+    font-size: 0.85rem;
+    color: #78350f;
+    margin: 0 0 0.2rem;
+}
+
+.qr-amount-summary .summary-val {
+    font-size: 1.45rem;
+    font-weight: 800;
+    color: #c2410c;
+    margin: 0;
+}
+
+/* QR Code Card */
+.qr-frame {
+    display: inline-block;
+    padding: 10px;
+    background: #ffffff;
+    border: 2px solid #e2e8f0;
+    border-radius: 16px;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
+    margin-bottom: 1.15rem;
+}
+
+.qr-frame img {
+    display: block;
+    width: 210px;
+    height: 210px;
+    object-fit: contain;
+    border-radius: 8px;
+    background: #ffffff;
+}
+
+.qr-instruction {
+    font-size: 0.85rem;
+    color: #475569;
+    margin: 0 0 1rem;
+    line-height: 1.4;
+}
+
+/* UPI ID Box with 1-Tap Copy */
+.upi-copy-box {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: #f8fafc;
+    border: 1.5px solid #cbd5e1;
+    border-radius: 12px;
+    padding: 0.6rem 0.85rem;
+    margin-bottom: 1.15rem;
+}
+
+.upi-id-text {
+    font-family: monospace;
+    font-size: 1.02rem;
+    font-weight: 700;
+    color: #0f172a;
+    letter-spacing: 0.5px;
+}
+
+.btn-copy-upi {
+    background: #1b3d32;
+    color: #ffffff;
+    border: none;
+    padding: 0.45rem 0.85rem;
+    border-radius: 8px;
+    font-size: 0.82rem;
+    font-weight: 600;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    transition: all 0.2s;
+}
+
+.btn-copy-upi:hover {
+    background: #2f6b57;
+}
+
+.btn-copy-upi.copied {
+    background: #16a34a;
+}
+
+/* WhatsApp Confirmation Button (Option B) */
+.btn-whatsapp-confirm {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    width: 100%;
+    background: #25D366;
+    color: #ffffff !important;
+    text-decoration: none !important;
+    padding: 0.8rem 1rem;
+    border-radius: 12px;
+    font-size: 0.95rem;
+    font-weight: 700;
+    box-shadow: 0 4px 14px rgba(37, 211, 102, 0.35);
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    margin-bottom: 0.4rem;
+    box-sizing: border-box;
+}
+
+.btn-whatsapp-confirm:hover {
+    background: #1eb956;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(37, 211, 102, 0.5);
+    color: #ffffff !important;
+}
+
+.btn-whatsapp-confirm svg {
+    flex-shrink: 0;
+}
+
+.whatsapp-hint {
+    font-size: 0.76rem;
+    color: #64748b;
+    margin: 0 0 1rem;
+    line-height: 1.35;
+}
+
+/* Back button in Step 2 */
+.btn-back-step {
+    background: transparent;
+    border: 1px solid #cbd5e1;
+    color: #64748b;
+    padding: 0.6rem 1rem;
+    border-radius: 10px;
+    font-size: 0.88rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+    width: 100%;
+}
+
+.btn-back-step:hover {
+    background: #f1f5f9;
+    color: #0f172a;
+}
+
+/* Mobile Modal Full-width Bottom Sheet Polish */
+@media (max-width: 600px) {
+    .support-modal-backdrop {
+        padding: 0;
+        align-items: flex-end;
+    }
+
+    .support-modal {
+        max-width: 100%;
+        border-bottom-left-radius: 0;
+        border-bottom-right-radius: 0;
+        border-top-left-radius: 24px;
+        border-top-right-radius: 24px;
+        max-height: 88vh;
+        transform: translateY(100%);
+    }
+
+    .support-modal-backdrop.active .support-modal {
+        transform: translateY(0);
+    }
+
+    .qr-frame img {
+        width: 190px;
+        height: 190px;
+    }
+}
