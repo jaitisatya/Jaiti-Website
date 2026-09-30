@@ -1,6 +1,7 @@
 /* =========================================================
    SUPPORT NOW MODAL & COMPONENT STYLING (support.css)
    Clean, modern, responsive Thaagam-style popup & CTA
+   Synchronized with Official Logo Colors (#0B508D & #F0B70C)
    ========================================================= */
 
 /* --- Navbar & Mobile Action Buttons --- */
@@ -9,14 +10,14 @@
     align-items: center;
     justify-content: center;
     gap: 6px;
-    background: linear-gradient(135deg, #e67e22, #d35400) !important;
-    color: #ffffff !important;
+    background: linear-gradient(135deg, #F0B70C, #d99b00) !important;
+    color: #07223b !important;
     padding: 0.55rem 1.15rem !important;
     border-radius: 50px !important;
     font-weight: 700 !important;
     font-size: 0.95rem !important;
     letter-spacing: 0.2px;
-    box-shadow: 0 4px 14px rgba(211, 84, 0, 0.35) !important;
+    box-shadow: 0 4px 14px rgba(240, 183, 12, 0.38) !important;
     transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1) !important;
     cursor: pointer;
     border: none;
@@ -29,10 +30,10 @@
 }
 
 .nav-support-btn:hover {
-    background: linear-gradient(135deg, #f39c12, #e67e22) !important;
+    background: linear-gradient(135deg, #f7ca38, #F0B70C) !important;
     transform: translateY(-2px);
-    box-shadow: 0 6px 20px rgba(211, 84, 0, 0.5) !important;
-    color: #ffffff !important;
+    box-shadow: 0 6px 20px rgba(240, 183, 12, 0.55) !important;
+    color: #07223b !important;
 }
 
 .nav-support-btn svg {
@@ -95,16 +96,16 @@
         justify-content: center;
         gap: 8px;
         width: 100%;
-        background: rgba(230, 126, 34, 0.92);
+        background: rgba(240, 183, 12, 0.95);
         backdrop-filter: blur(8px);
         -webkit-backdrop-filter: blur(8px);
-        color: #ffffff;
+        color: #07223b;
         font-weight: 700;
         font-size: 1.02rem;
         padding: 0.82rem 1.4rem;
         border-radius: 50px;
-        border: 1px solid rgba(255, 255, 255, 0.35);
-        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35), 0 2px 8px rgba(230, 126, 34, 0.4);
+        border: 1px solid rgba(255, 255, 255, 0.45);
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35), 0 2px 8px rgba(240, 183, 12, 0.45);
         cursor: pointer;
         text-decoration: none;
         transition: transform 0.2s ease, background 0.2s ease;
@@ -123,10 +124,10 @@
 
     @keyframes pulseSubtle {
         0%, 100% {
-            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35), 0 0 0 0 rgba(230, 126, 34, 0.5);
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35), 0 0 0 0 rgba(240, 183, 12, 0.5);
         }
         50% {
-            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35), 0 0 0 8px rgba(230, 126, 34, 0);
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35), 0 0 0 8px rgba(240, 183, 12, 0);
         }
     }
 }
@@ -192,14 +193,14 @@
 }
 
 .support-modal-title svg {
-    color: #e67e22;
+    color: #F0B70C;
     width: 22px;
     height: 22px;
 }
 
 .support-badge {
-    background: #fef3c7;
-    color: #b45309;
+    background: #fef9c3;
+    color: #854d0e;
     font-size: 0.75rem;
     font-weight: 700;
     padding: 0.25rem 0.6rem;
@@ -237,15 +238,15 @@
 
 /* Step 1: Donor & Amount Selection */
 .support-banner-card {
-    background: linear-gradient(135deg, #16382c 0%, #1f4e3d 100%) !important;
+    background: linear-gradient(135deg, #073863 0%, #0B508D 100%) !important;
     color: #ffffff !important;
     border-radius: 14px;
     padding: 1.15rem 1.35rem;
     margin-bottom: 1.25rem;
     position: relative;
     overflow: hidden;
-    box-shadow: 0 4px 16px rgba(22, 56, 44, 0.25);
-    border: 1px solid rgba(255, 255, 255, 0.1);
+    box-shadow: 0 4px 16px rgba(7, 56, 99, 0.3);
+    border: 1px solid rgba(255, 255, 255, 0.15);
 }
 
 .support-banner-card::after {
@@ -263,7 +264,7 @@
     font-size: 0.72rem;
     text-transform: uppercase;
     letter-spacing: 0.1em;
-    color: #fbbf24 !important;
+    color: #F0B70C !important;
     font-weight: 800;
     display: block;
     margin-bottom: 0.35rem;
@@ -320,16 +321,16 @@
 }
 
 .amount-pill-btn:hover {
-    border-color: #e67e22;
-    color: #e67e22;
-    background: #fffaf0;
+    border-color: #0B508D;
+    color: #0B508D;
+    background: #f0f7ff;
 }
 
 .amount-pill-btn.active {
-    background: #e67e22;
-    border-color: #d35400;
+    background: #0B508D;
+    border-color: #073863;
     color: #ffffff;
-    box-shadow: 0 4px 10px rgba(230, 126, 34, 0.3);
+    box-shadow: 0 4px 10px rgba(11, 80, 141, 0.3);
 }
 
 /* Custom Amount Box */
@@ -362,8 +363,8 @@
 }
 
 .custom-amount-input:focus {
-    border-color: #e67e22;
-    box-shadow: 0 0 0 3px rgba(230, 126, 34, 0.18);
+    border-color: #0B508D;
+    box-shadow: 0 0 0 3px rgba(11, 80, 141, 0.18);
 }
 
 /* Form Fields */
@@ -397,8 +398,8 @@
 }
 
 .support-form-input:focus {
-    border-color: #e67e22;
-    box-shadow: 0 0 0 3px rgba(230, 126, 34, 0.18);
+    border-color: #0B508D;
+    box-shadow: 0 0 0 3px rgba(11, 80, 141, 0.18);
 }
 
 .support-form-input::placeholder {
@@ -408,7 +409,7 @@
 /* Proceed Button */
 .btn-proceed-support {
     width: 100%;
-    background: linear-gradient(135deg, #e67e22, #d35400);
+    background: linear-gradient(135deg, #0B508D, #073863);
     color: #ffffff;
     font-size: 1.05rem;
     font-weight: 700;
@@ -416,7 +417,7 @@
     border: none;
     border-radius: 12px;
     cursor: pointer;
-    box-shadow: 0 4px 15px rgba(211, 84, 0, 0.4);
+    box-shadow: 0 4px 15px rgba(11, 80, 141, 0.35);
     transition: all 0.2s;
     margin-top: 0.5rem;
     display: flex;
@@ -426,9 +427,9 @@
 }
 
 .btn-proceed-support:hover {
-    background: linear-gradient(135deg, #f39c12, #e67e22);
+    background: linear-gradient(135deg, #1669b3, #0B508D);
     transform: translateY(-2px);
-    box-shadow: 0 6px 20px rgba(211, 84, 0, 0.5);
+    box-shadow: 0 6px 20px rgba(11, 80, 141, 0.45);
 }
 
 .btn-proceed-support:active {
@@ -448,8 +449,8 @@
 }
 
 .qr-amount-summary {
-    background: #fffaf0;
-    border: 1px dashed #fbd38d;
+    background: #f0f7ff;
+    border: 1px dashed #93c5fd;
     border-radius: 12px;
     padding: 0.75rem;
     margin-bottom: 1.25rem;
@@ -457,14 +458,14 @@
 
 .qr-amount-summary .donor-greet {
     font-size: 0.85rem;
-    color: #78350f;
+    color: #1e3a5f;
     margin: 0 0 0.2rem;
 }
 
 .qr-amount-summary .summary-val {
     font-size: 1.45rem;
     font-weight: 800;
-    color: #c2410c;
+    color: #0B508D;
     margin: 0;
 }
 
@@ -516,7 +517,7 @@
 }
 
 .btn-copy-upi {
-    background: #1b3d32;
+    background: #0B508D;
     color: #ffffff;
     border: none;
     padding: 0.45rem 0.85rem;
@@ -531,7 +532,7 @@
 }
 
 .btn-copy-upi:hover {
-    background: #2f6b57;
+    background: #1669b3;
 }
 
 .btn-copy-upi.copied {

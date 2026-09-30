@@ -43,6 +43,12 @@
     <changefreq>weekly</changefreq>
   </url>
   <url>
+    <loc>https://jaiti.in/support.html</loc>
+    <lastmod>2026-06-17</lastmod>
+    <priority>0.9</priority>
+    <changefreq>weekly</changefreq>
+  </url>
+  <url>
     <loc>https://jaiti.in/privacy-policy.html</loc>
     <lastmod>2026-06-17</lastmod>
     <priority>0.5</priority>

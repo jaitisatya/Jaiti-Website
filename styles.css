@@ -1,45 +1,45 @@
 /* ==========================================
    JAITI FOUNDATION - PROFESSIONAL STYLES
-   COLOR: Earthy Teal #3a7260 + Coral #dd6c4a
+   COLOR: Official Logo Royal Blue #0B508D + Golden Yellow #F0B70C
    ========================================== */
 
 :root {
 /* ============================================
-   COLOR SCHEME: Earthy Teal + Warm Coral
-   --primary:      #3a7260  (Deep Forest Teal)
-   --primary-dark: #2f5f4f  (Deep Forest)
-   --accent:       #dd6c4a  (Warm Coral)
-   --dark:         #1a3d32  (Footer/Dark bg)
-   --lighter-gray: #f0ebe3  (Warm off-white)
-   --text-primary: #2c1a0e  (Warm dark brown)
+   COLOR SCHEME: Official Logo Royal Blue + Warm Amber Gold
+   --primary:      #0B508D  (Logo Royal Blue)
+   --primary-dark: #073863  (Deep Navy)
+   --accent:       #F0B70C  (Logo Golden Amber)
+   --dark:         #07223b  (Footer/Dark bg)
+   --lighter-gray: #f4f8fc  (Soft Cool Light Blue-Gray)
+   --text-primary: #0e1e2e  (Deep Navy Charcoal)
 ============================================ */
     /* Primary Colors */
-    --primary:          #3a7260;
-    --primary-light:    #5e8a7a;
-    --primary-dark:     #2f5f4f;
-    --primary-gradient: linear-gradient(135deg, #2f5f4f 0%, #3a7260 100%);
+    --primary:          #0B508D;
+    --primary-light:    #1669b3;
+    --primary-dark:     #073863;
+    --primary-gradient: linear-gradient(135deg, #073863 0%, #0B508D 100%);
     
     /* Accent Colors */
-    --accent:       #dd6c4a;
-    --accent-light: #e8866a;
-    --accent-dark:  #c45535;
+    --accent:       #F0B70C;
+    --accent-light: #f7ca38;
+    --accent-dark:  #c99605;
     
     /* Neutral Colors */
-    --dark:         #1a3d32;
-    --dark-gray:    #2c3a35;
-    --gray:         #7a6b5d;
-    --light-gray:   #d4c9bc;
-    --lighter-gray: #f0ebe3;
+    --dark:         #07223b;
+    --dark-gray:    #142b40;
+    --gray:         #5a6e82;
+    --light-gray:   #c8d6e5;
+    --lighter-gray: #f4f8fc;
     --white: #ffffff;
     
     /* Text Colors */
-    --text-primary:   #2c1a0e;
-    --text-secondary: #5c4a38;
-    --text-light:     #a08878;
+    --text-primary:   #0e1e2e;
+    --text-secondary: #33485d;
+    --text-light:     #6b8299;
     
     /* Status Colors */
     --success: #10b981;
-    --warning: #f59e0b;
+    --warning: #F0B70C;
     --error: #ef4444;
     
     /* Shadows */
@@ -243,20 +243,50 @@ p {
     display: flex;
     align-items: center;
     gap: 12px;
-    font-family: 'Playfair Display', serif;
-    font-size: 1.5rem;
-    font-weight: 700;
     color: var(--primary);
     transition: var(--transition);
+    text-decoration: none;
 }
 
 .logo img {
-    width: 38px; height: 38px;
+    width: 40px; height: 40px;
     object-fit: cover;
     border-radius: var(--radius);
+    flex-shrink: 0;
 }
 
-.logo:hover { color: var(--primary-light); }
+.logo-text {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 3px;
+}
+
+.logo-en {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.35rem;
+    font-weight: 700;
+    line-height: 1.15;
+    color: var(--primary);
+    white-space: nowrap;
+    letter-spacing: -0.2px;
+    text-align: center;
+}
+
+.logo-hi {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    font-size: 0.82rem;
+    font-weight: 700;
+    line-height: 1.2;
+    color: var(--accent);
+    letter-spacing: 0.3px;
+    white-space: nowrap;
+    text-align: center;
+    width: 100%;
+}
+
+.logo:hover .logo-en { color: var(--primary-light); }
 
 .nav-links {
     display: flex;
@@ -522,20 +552,20 @@ p {
 }
 
 .hero-stats-cta .btn-primary {
-    background: #d46b43;
-    border: 2px solid #d46b43;
+    background: var(--primary);
+    border: 2px solid var(--primary);
     color: var(--white);
     font-weight: 700;
     padding: 0.8rem 1.6rem;
     font-size: 0.95rem;
-    box-shadow: 0 4px 15px rgba(212, 107, 67, 0.35);
+    box-shadow: 0 4px 15px rgba(11, 80, 141, 0.35);
 }
 
 .hero-stats-cta .btn-primary:hover {
-    background: #c35c36;
-    border-color: #c35c36;
+    background: var(--primary-light);
+    border-color: var(--primary-light);
     transform: translateY(-2px);
-    box-shadow: 0 6px 20px rgba(212, 107, 67, 0.45);
+    box-shadow: 0 6px 20px rgba(11, 80, 141, 0.45);
 }
 
 .hero-stats-cta .btn-secondary {
@@ -552,7 +582,7 @@ p {
     background: var(--primary);
     color: var(--white);
     transform: translateY(-2px);
-    box-shadow: 0 4px 15px rgba(58, 114, 96, 0.25);
+    box-shadow: 0 4px 15px rgba(11, 80, 141, 0.25);
 }
 
 .hero-scroll-indicator {
@@ -567,8 +597,8 @@ p {
     width: 22px;
     height: 22px;
     margin: 0.5rem auto 0;
-    border-right: 2.5px solid #dd6c4a;
-    border-bottom: 2.5px solid #dd6c4a;
+    border-right: 2.5px solid var(--accent);
+    border-bottom: 2.5px solid var(--accent);
     transform: rotate(45deg);
     border-radius: 2px;
     animation: scrollBounce 1.5s ease-in-out infinite;
@@ -1312,7 +1342,26 @@ p {
         flex-shrink: 0;
     }
     .logo img { width: 36px; height: 36px; flex-shrink: 0; }
-    .logo span { font-size: 1.15rem; white-space: nowrap; line-height: 1.2; }
+    .logo-text {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 2.5px;
+    }
+    .logo-en { 
+        font-size: 1.05rem; 
+        line-height: 1.15;
+        white-space: nowrap; 
+        text-align: center;
+    }
+    .logo-hi { 
+        font-size: 0.72rem; 
+        line-height: 1.2;
+        white-space: nowrap; 
+        text-align: center;
+        width: 100%;
+        color: var(--accent);
+    }
     .nav-links { 
         display: none; 
         position: fixed; 
