@@ -79,13 +79,13 @@
     .hero-video-support-container {
         display: block;
         position: absolute;
-        bottom: 5.5rem;
-        bottom: max(5.2rem, calc(4.5rem + env(safe-area-inset-bottom, 0px)));
+        bottom: 2.85rem;
+        bottom: max(2.65rem, calc(2.2rem + env(safe-area-inset-bottom, 0px)));
         left: 50%;
         transform: translateX(-50%);
         z-index: 10;
         width: calc(100% - 2.5rem);
-        max-width: 320px;
+        max-width: 300px;
         text-align: center;
         pointer-events: auto;
     }

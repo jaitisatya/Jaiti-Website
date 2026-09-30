@@ -1426,7 +1426,14 @@ p {
         line-height: 1.08;
         margin-bottom: 1rem;
     }
-    .hero-scroll-indicator { bottom: 2rem !important; }
+    .hero-scroll-indicator { 
+        bottom: 0.85rem !important; 
+    }
+    .hero-scroll-indicator .scroll-arrow {
+        width: 18px;
+        height: 18px;
+        margin: 0.2rem auto 0;
+    }
     .hero-stats-bar {
         padding: 1.75rem 1rem;
     }
