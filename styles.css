@@ -922,9 +922,18 @@ p {
 
 .team-card h3 {
     font-size: 1.15rem;
-    padding: 1rem 0.75rem 1.1rem;
+    padding: 0.85rem 0.75rem 0.2rem;
     margin-bottom: 0;
     color: var(--text-primary);
+}
+
+.team-card .team-role {
+    font-size: 0.88rem;
+    font-weight: 600;
+    color: var(--primary);
+    padding: 0 0.75rem 1rem;
+    margin: 0;
+    letter-spacing: 0.3px;
 }
 
 .team-grid.carousel-track > .team-card {

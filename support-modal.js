@@ -63,7 +63,7 @@
                         </div>
                         <div class="support-input-group">
                             <label class="support-input-label" for="donorEmail">Email Address (Optional)</label>
-                            <input type="email" id="donorEmail" class="support-form-input" placeholder="Enter your email for receipt">
+                            <input type="email" id="donorEmail" class="support-form-input" placeholder="Enter your email for contribution acknowledgement">
                         </div>
 
                         <button type="submit" class="btn-proceed-support" id="btnProceedToSupport">
@@ -110,7 +110,7 @@
                         </svg>
                         <span>Confirm on WhatsApp / Send Screenshot</span>
                     </a>
-                    <p class="whatsapp-hint">Tap above to share your transaction screenshot directly for quick verification & receipt.</p>
+                    <p class="whatsapp-hint">Tap above to share your transaction screenshot directly for contribution confirmation.</p>
 
                     <button type="button" class="btn-back-step" id="btnBackToDetails">
                         ← Change Amount or Details
