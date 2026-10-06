@@ -454,25 +454,120 @@
 .qr-amount-summary {
     background: #f0f7ff;
     border: 1px dashed #93c5fd;
-    border-radius: 12px;
-    padding: 0.75rem;
-    margin-bottom: 1.25rem;
+    border-radius: 14px;
+    padding: 0.85rem 1rem;
+    margin-bottom: 1.15rem;
 }
 
 .qr-amount-summary .donor-greet {
-    font-size: 0.85rem;
+    font-size: 0.88rem;
     color: #1e3a5f;
-    margin: 0 0 0.2rem;
+    margin: 0 0 0.25rem;
+}
+
+.summary-val-wrap {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.75rem;
+    flex-wrap: wrap;
 }
 
 .qr-amount-summary .summary-val {
-    font-size: 1.45rem;
+    font-size: 1.6rem;
     font-weight: 800;
     color: #0B508D;
-    margin: 0;
+    line-height: 1;
 }
 
-/* QR Code Card */
+.amount-lock-badge {
+    background: #ecfdf5;
+    color: #065f46;
+    border: 1px solid #a7f3d0;
+    font-size: 0.72rem;
+    font-weight: 700;
+    padding: 0.2rem 0.55rem;
+    border-radius: 9999px;
+    display: inline-flex;
+    align-items: center;
+    gap: 3px;
+}
+
+/* Mobile-Optimized One-Tap UPI Launch CTA */
+.mobile-pay-cta-box {
+    margin-bottom: 1.25rem;
+    display: block;
+}
+
+.btn-upi-mobile-pay {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    width: 100%;
+    background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%);
+    color: #ffffff !important;
+    text-decoration: none !important;
+    padding: 0.95rem 1rem;
+    border-radius: 14px;
+    font-size: 1.05rem;
+    font-weight: 700;
+    box-shadow: 0 6px 20px rgba(2, 132, 199, 0.35);
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    box-sizing: border-box;
+}
+
+.btn-upi-mobile-pay:hover {
+    background: linear-gradient(135deg, #0369a1 0%, #075985 100%);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(2, 132, 199, 0.45);
+}
+
+.btn-upi-mobile-pay svg {
+    flex-shrink: 0;
+    color: #fef08a;
+}
+
+.mobile-upi-subhint {
+    font-size: 0.76rem;
+    color: #64748b;
+    margin: 0.4rem 0 0;
+    line-height: 1.35;
+    text-align: center;
+}
+
+.smart-divider-badge {
+    position: relative;
+    text-align: center;
+    margin: 1rem 0;
+}
+
+.smart-divider-badge::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 0;
+    right: 0;
+    height: 1px;
+    background: #e2e8f0;
+}
+
+.smart-divider-badge span {
+    position: relative;
+    background: #ffffff;
+    padding: 0 0.85rem;
+    font-size: 0.68rem;
+    font-weight: 700;
+    color: #94a3b8;
+    letter-spacing: 0.08em;
+}
+
+/* Dynamic QR Display Card */
+.qr-card-container {
+    text-align: center;
+    margin-bottom: 1.15rem;
+}
+
 .qr-frame {
     display: inline-block;
     padding: 10px;
@@ -480,7 +575,7 @@
     border: 2px solid #e2e8f0;
     border-radius: 16px;
     box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
-    margin-bottom: 1.15rem;
+    margin-bottom: 0.6rem;
 }
 
 .qr-frame img {
@@ -492,10 +587,27 @@
     background: #ffffff;
 }
 
+.qr-amount-pill {
+    display: inline-block;
+    background: #eff6ff;
+    color: #1e40af;
+    border: 1px solid #bfdbfe;
+    font-size: 0.78rem;
+    padding: 0.25rem 0.75rem;
+    border-radius: 9999px;
+    margin-bottom: 0.5rem;
+}
+
+.qr-amount-pill strong {
+    color: #0B508D;
+    font-weight: 800;
+}
+
 .qr-instruction {
-    font-size: 0.85rem;
+    font-size: 0.82rem;
     color: #475569;
-    margin: 0 0 1rem;
+    margin: 0 auto;
+    max-width: 380px;
     line-height: 1.4;
 }
 
@@ -542,7 +654,270 @@
     background: #16a34a;
 }
 
-/* WhatsApp Confirmation Button (Option B) */
+/* Step 2 Transition to Step 3 */
+.proceed-to-utr-box {
+    margin-bottom: 0.75rem;
+}
+
+.btn-proceed-to-utr {
+    width: 100%;
+    background: #16a34a;
+    color: #ffffff;
+    border: none;
+    border-radius: 12px;
+    padding: 0.85rem 1rem;
+    font-size: 0.96rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s;
+    box-shadow: 0 4px 14px rgba(22, 163, 74, 0.3);
+}
+
+.btn-proceed-to-utr:hover {
+    background: #15803d;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 18px rgba(22, 163, 74, 0.4);
+}
+
+/* ================= STEP 3: UTR Verification & Receipt Styles ================= */
+.support-step-verification {
+    animation: fadeIn 0.28s ease;
+}
+
+.utr-intro-banner {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    padding: 0.85rem 1rem;
+    margin-bottom: 1.25rem;
+}
+
+.utr-intro-icon {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: #eff6ff;
+    color: #2563eb;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.utr-intro-title {
+    font-size: 0.98rem;
+    font-weight: 700;
+    color: #0f172a;
+    margin: 0 0 0.2rem;
+}
+
+.utr-intro-desc {
+    font-size: 0.8rem;
+    color: #64748b;
+    margin: 0;
+    line-height: 1.35;
+}
+
+.utr-input {
+    font-family: monospace;
+    font-size: 1.15rem !important;
+    font-weight: 700 !important;
+    letter-spacing: 2px;
+    text-align: center;
+    color: #0f172a;
+}
+
+.utr-input-helper {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-top: 0.35rem;
+}
+
+.utr-char-counter {
+    font-size: 0.74rem;
+    color: #64748b;
+    font-weight: 500;
+}
+
+.utr-format-hint {
+    font-size: 0.74rem;
+    color: #94a3b8;
+}
+
+.utr-help-card {
+    background: #fffbeb;
+    border: 1px solid #fef3c7;
+    border-radius: 10px;
+    padding: 0.75rem 0.9rem;
+    margin-bottom: 1.25rem;
+}
+
+.utr-help-badge {
+    display: block;
+    font-size: 0.74rem;
+    font-weight: 700;
+    color: #b45309;
+    margin-bottom: 0.25rem;
+}
+
+.utr-help-card p {
+    font-size: 0.78rem;
+    color: #78350f;
+    margin: 0;
+    line-height: 1.35;
+}
+
+.btn-submit-utr {
+    width: 100%;
+    background: linear-gradient(135deg, #0B508D, #073863);
+    color: #ffffff;
+    font-size: 1rem;
+    font-weight: 700;
+    padding: 0.85rem;
+    border: none;
+    border-radius: 12px;
+    cursor: pointer;
+    box-shadow: 0 4px 15px rgba(11, 80, 141, 0.35);
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+}
+
+.btn-submit-utr:hover {
+    background: linear-gradient(135deg, #1669b3, #0B508D);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(11, 80, 141, 0.45);
+}
+
+/* ================= RECEIPT VIEW ================= */
+.receipt-card {
+    background: #ffffff;
+    border: 1.5px solid #e2e8f0;
+    border-radius: 16px;
+    padding: 1.15rem;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.06);
+    margin-bottom: 1.25rem;
+    text-align: left;
+}
+
+.receipt-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-bottom: 1px dashed #cbd5e1;
+    padding-bottom: 0.85rem;
+    margin-bottom: 0.85rem;
+}
+
+.receipt-logo-wrap {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.receipt-brand {
+    font-weight: 800;
+    font-size: 0.98rem;
+    color: #073863;
+}
+
+.receipt-tagline {
+    font-size: 0.68rem;
+    color: #64748b;
+    font-weight: 600;
+}
+
+.receipt-badge {
+    background: #ecfdf5;
+    color: #047857;
+    font-size: 0.72rem;
+    font-weight: 700;
+    padding: 0.25rem 0.55rem;
+    border-radius: 6px;
+    border: 1px solid #a7f3d0;
+}
+
+.receipt-success-banner {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: #f0fdf4;
+    border: 1px solid #bbf7d0;
+    color: #15803d;
+    padding: 0.6rem 0.85rem;
+    border-radius: 10px;
+    font-size: 0.84rem;
+    font-weight: 700;
+    margin-bottom: 0.85rem;
+}
+
+.receipt-details-table {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    font-size: 0.85rem;
+}
+
+.receipt-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-bottom: 1px solid #f8fafc;
+    padding-bottom: 0.35rem;
+}
+
+.receipt-label {
+    color: #64748b;
+    font-weight: 500;
+    font-size: 0.82rem;
+}
+
+.receipt-value {
+    color: #0f172a;
+    font-weight: 600;
+    text-align: right;
+}
+
+.receipt-value.highlight {
+    font-weight: 700;
+    color: #073863;
+}
+
+.receipt-value.amount {
+    font-size: 1.15rem;
+    font-weight: 800;
+    color: #16a34a;
+}
+
+.receipt-value.utr {
+    font-family: monospace;
+    font-weight: 700;
+    color: #0284c7;
+    letter-spacing: 0.5px;
+}
+
+.receipt-value.status-pending {
+    font-size: 0.76rem;
+    color: #b45309;
+    font-weight: 700;
+}
+
+.receipt-note {
+    font-size: 0.72rem;
+    color: #94a3b8;
+    margin: 0.85rem 0 0;
+    line-height: 1.35;
+    border-top: 1px dashed #e2e8f0;
+    padding-top: 0.65rem;
+}
+
+/* WhatsApp Share Button */
 .btn-whatsapp-confirm {
     display: flex;
     align-items: center;
@@ -552,9 +927,9 @@
     background: #25D366;
     color: #ffffff !important;
     text-decoration: none !important;
-    padding: 0.8rem 1rem;
+    padding: 0.85rem 1rem;
     border-radius: 12px;
-    font-size: 0.95rem;
+    font-size: 0.98rem;
     font-weight: 700;
     box-shadow: 0 4px 14px rgba(37, 211, 102, 0.35);
     transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
@@ -578,9 +953,39 @@
     color: #64748b;
     margin: 0 0 1rem;
     line-height: 1.35;
+    text-align: center;
 }
 
-/* Back button in Step 2 */
+/* Receipt Actions Grid */
+.receipt-actions-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.65rem;
+}
+
+.btn-receipt-action {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    background: #f8fafc;
+    border: 1px solid #cbd5e1;
+    color: #334155;
+    padding: 0.65rem 0.85rem;
+    border-radius: 10px;
+    font-size: 0.84rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.btn-receipt-action:hover {
+    background: #f1f5f9;
+    color: #0f172a;
+    border-color: #94a3b8;
+}
+
+/* Back button */
 .btn-back-step {
     background: transparent;
     border: 1px solid #cbd5e1;
@@ -599,7 +1004,14 @@
     color: #0f172a;
 }
 
-/* Mobile Modal Full-width Bottom Sheet Polish */
+/* ================= RESPONSIVE ADJUSTMENTS ================= */
+@media (min-width: 601px) {
+    /* On Desktop: UPI mobile app button is hidden since desktop browsers do not have UPI apps */
+    .mobile-pay-cta-box {
+        display: none;
+    }
+}
+
 @media (max-width: 600px) {
     .support-modal-backdrop {
         padding: 0;
@@ -612,7 +1024,7 @@
         border-bottom-right-radius: 0;
         border-top-left-radius: 24px;
         border-top-right-radius: 24px;
-        max-height: 88vh;
+        max-height: 90vh;
         transform: translateY(100%);
     }
 
@@ -621,7 +1033,11 @@
     }
 
     .qr-frame img {
-        width: 190px;
-        height: 190px;
+        width: 180px;
+        height: 180px;
+    }
+
+    .receipt-actions-grid {
+        grid-template-columns: 1fr;
     }
 }

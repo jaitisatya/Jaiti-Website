@@ -18,6 +18,7 @@
  *    Column D: Email Address
  *    Column E: Amount (₹)
  *    Column F: Status
+ *    Column G: UPI UTR / Ref No.
  * 
  * 3. In the top menu, click on: "Extensions" > "Apps Script"
  * 
@@ -60,29 +61,33 @@ function doPost(e) {
     var email = data.email || "-";
     var amount = data.amount || "0";
     var status = data.status || "Initiated";
+    var utr = data.utr || "-";
     
-    // Append to Sheet
+    // Append to Sheet (Columns A to G)
     sheet.appendRow([
       timestamp,
       name,
       phone,
       email,
       "₹" + amount,
-      status
+      status,
+      utr
     ]);
     
     // Send instant Email Notification to Jaiti Foundation Admin
     try {
       var recipient = "jaitifoundation@gmail.com";
-      var subject = "🧡 New Supporter Initiated: ₹" + amount + " by " + name;
+      var subject = "🧡 New Supporter Logged: ₹" + amount + " by " + name + (utr !== "-" ? " (UTR: " + utr + ")" : "");
       var body = "Namaste Jaiti Foundation Team,\n\n" +
-                 "A new supporter has initiated a contribution on the website:\n\n" +
+                 "A contribution has been logged on the website:\n\n" +
                  "• Supporter Name: " + name + "\n" +
                  "• Mobile (WhatsApp): " + phone + "\n" +
                  "• Email: " + email + "\n" +
                  "• Amount: ₹" + amount + "\n" +
+                 "• UPI Ref / UTR No: " + utr + "\n" +
+                 "• Status: " + status + "\n" +
                  "• Time: " + timestamp + "\n\n" +
-                 "Please check WhatsApp or Bank/UPI credits for transaction confirmation.\n\n" +
+                 "Please check your SBI Bank SMS / YONO app to verify the transaction credit.\n\n" +
                  "— Jaiti Foundation Website System";
                  
       MailApp.sendEmail(recipient, subject, body);
