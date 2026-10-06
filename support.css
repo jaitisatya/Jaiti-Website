@@ -565,22 +565,30 @@
 
 /* Dynamic QR Display Card */
 .qr-card-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    margin: 0 auto 1.15rem auto;
     text-align: center;
-    margin-bottom: 1.15rem;
 }
 
 .qr-frame {
-    display: inline-block;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
     padding: 10px;
     background: #ffffff;
     border: 2px solid #e2e8f0;
     border-radius: 16px;
     box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
-    margin-bottom: 0.6rem;
+    margin: 0 auto 0.6rem auto;
 }
 
 .qr-frame img {
     display: block;
+    margin: 0 auto;
     width: 210px;
     height: 210px;
     object-fit: contain;
@@ -589,14 +597,16 @@
 }
 
 .qr-amount-pill {
-    display: inline-block;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
     background: #eff6ff;
     color: #1e40af;
     border: 1px solid #bfdbfe;
     font-size: 0.78rem;
     padding: 0.25rem 0.75rem;
     border-radius: 9999px;
-    margin-bottom: 0.5rem;
+    margin: 0 auto 0.5rem auto;
 }
 
 .qr-amount-pill strong {
@@ -740,6 +750,33 @@
     /* On Desktop: UPI mobile app button is hidden since desktop browsers do not have UPI apps */
     .mobile-pay-cta-box {
         display: none;
+    }
+
+    .support-step-qr {
+        display: none;
+        width: 100%;
+        text-align: center;
+    }
+
+    .qr-card-container {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        width: 100%;
+        margin-left: auto;
+        margin-right: auto;
+        text-align: center;
+    }
+
+    .qr-frame {
+        margin-left: auto;
+        margin-right: auto;
+    }
+
+    .qr-frame img {
+        margin-left: auto;
+        margin-right: auto;
     }
 }
 
