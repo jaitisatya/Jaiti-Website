@@ -84,7 +84,7 @@
 
                 <!-- ================= STEP 2: Ultra-Clean Payment Screen ================= -->
                 <div id="supportStepQR" class="support-step-qr" style="display:none;">
-                    <div class="qr-amount-summary">
+                    <div class="qr-amount-summary" id="step2TopSummary">
                         <p class="donor-greet">Thank you, <strong id="summaryDonorName">Supporter</strong>!</p>
                         <div class="summary-val-wrap">
                             <span class="summary-val" id="summaryAmountText">₹1,000</span>
@@ -313,8 +313,13 @@ ${name || 'Supporter'}`);
             emailReceiptLink.setAttribute('href', `mailto:${OFFICIAL_EMAIL}?subject=${subject}&body=${body}`);
         }
 
-        // Helper: Robust Scroll-to-Top across Desktop & Mobile browsers
-        function resetModalScrollTop() {
+        // Helper: Robust Scroll-to-Top across Mobile & Desktop browsers
+        function enforceTopScroll() {
+            // Force blur input to dismiss mobile keyboard immediately
+            if (document.activeElement && (document.activeElement.tagName === 'INPUT' || document.activeElement.tagName === 'BUTTON')) {
+                document.activeElement.blur();
+            }
+
             const modalBody = document.querySelector('.support-modal-body');
             if (modalBody) {
                 modalBody.scrollTop = 0;
@@ -323,14 +328,22 @@ ${name || 'Supporter'}`);
             if (modalWrap) {
                 modalWrap.scrollTop = 0;
             }
+            const step2Top = document.getElementById('step2TopSummary');
+            if (step2Top && typeof step2Top.scrollIntoView === 'function') {
+                step2Top.scrollIntoView({ block: 'start', behavior: 'instant' });
+            }
         }
 
         function triggerSafeScrollTop() {
-            resetModalScrollTop();
+            enforceTopScroll();
             if (typeof requestAnimationFrame === 'function') {
-                requestAnimationFrame(resetModalScrollTop);
+                requestAnimationFrame(enforceTopScroll);
             }
-            setTimeout(resetModalScrollTop, 30);
+            // Multi-stage timers covering the Android Chrome keyboard animation window (50ms - 450ms)
+            setTimeout(enforceTopScroll, 60);
+            setTimeout(enforceTopScroll, 160);
+            setTimeout(enforceTopScroll, 280);
+            setTimeout(enforceTopScroll, 450);
         }
 
         // Open Modal
@@ -404,6 +417,12 @@ ${name || 'Supporter'}`);
         if (donorForm) {
             donorForm.addEventListener('submit', function (e) {
                 e.preventDefault();
+
+                // Force blur active input to immediately collapse mobile virtual keyboard
+                if (document.activeElement && typeof document.activeElement.blur === 'function') {
+                    document.activeElement.blur();
+                }
+
                 const name = donorNameInput.value.trim();
                 const phone = donorPhoneInput.value.trim();
                 const email = donorEmailInput ? donorEmailInput.value.trim() : '';
