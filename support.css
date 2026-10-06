@@ -755,7 +755,22 @@
         border-top-left-radius: 24px;
         border-top-right-radius: 24px;
         max-height: 90vh;
+        max-height: 90dvh;
         transform: translateY(100%);
+    }
+
+    .support-modal-body {
+        padding: 1rem 1.15rem 2rem;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    .qr-amount-summary {
+        margin-bottom: 0.85rem;
+        padding: 0.65rem 0.85rem;
+    }
+
+    .mobile-pay-cta-box {
+        margin-bottom: 1rem;
     }
 
     .support-modal-backdrop.active .support-modal {
@@ -765,9 +780,5 @@
     .qr-frame img {
         width: 180px;
         height: 180px;
-    }
-
-    .receipt-actions-grid {
-        grid-template-columns: 1fr;
     }
 }

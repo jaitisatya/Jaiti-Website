@@ -320,6 +320,10 @@ ${name || 'Supporter'}`);
             document.body.style.overflow = 'hidden';
             step1.style.display = 'block';
             step2.style.display = 'none';
+            const modalBody = document.querySelector('.support-modal-body');
+            if (modalBody) {
+                modalBody.scrollTop = 0;
+            }
         };
 
         // Close Modal
@@ -428,6 +432,16 @@ ${name || 'Supporter'}`);
 
                 step1.style.display = 'none';
                 step2.style.display = 'block';
+
+                // Instantly reset scroll to top so Step 2 opens cleanly from the very top
+                const modalBody = document.querySelector('.support-modal-body');
+                if (modalBody) {
+                    modalBody.scrollTop = 0;
+                }
+                const modalWrap = document.querySelector('.support-modal');
+                if (modalWrap) {
+                    modalWrap.scrollTop = 0;
+                }
             });
         }
 
@@ -436,6 +450,10 @@ ${name || 'Supporter'}`);
             btnBackToDetails.addEventListener('click', function () {
                 step2.style.display = 'none';
                 step1.style.display = 'block';
+                const modalBody = document.querySelector('.support-modal-body');
+                if (modalBody) {
+                    modalBody.scrollTop = 0;
+                }
             });
         }
 
