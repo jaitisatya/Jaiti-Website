@@ -135,6 +135,17 @@
     }
 }
 
+@media (max-width: 480px) {
+    .hero-video-support-container {
+        bottom: max(2.5rem, calc(2.2rem + env(safe-area-inset-bottom, 0px)));
+    }
+    .hero-video-support-btn {
+        min-width: 155px;
+        font-size: 0.92rem;
+        padding: 0.72rem 1.15rem;
+    }
+}
+
 /* --- Support Modal Styles --- */
 .support-modal-backdrop {
     position: fixed;
