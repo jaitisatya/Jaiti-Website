@@ -1324,12 +1324,81 @@ p {
 
 /* ========== CONTACT PAGE ========== */
 
-.contact-section { background: var(--white); }
-.contact-grid { display: grid; grid-template-columns: 1fr 1.2fr; gap: 4rem; margin-top: 3rem; }
-.contact-info-header h2 { margin-bottom: 1rem; }
-.contact-info-header p { line-height: 1.8; margin-bottom: 2rem; }
-.contact-details { display: flex; flex-direction: column; gap: 2rem; margin-bottom: 2.5rem; }
+/* Compact header modifier scoped exclusively to contact page */
+.page-header--compact {
+    padding: 72px 0 24px;
+}
+.page-header--compact .page-header-content h1 {
+    margin-bottom: 0.5rem;
+}
+.page-header--compact .page-header-content p {
+    font-size: 1.125rem;
+    margin-bottom: 0;
+}
+
+.contact-section {
+    padding: 2.25rem 0 4rem;
+    background: var(--white);
+    scroll-margin-top: 80px;
+}
+.contact-grid {
+    display: grid;
+    grid-template-columns: 1fr 1.2fr;
+    gap: 4rem;
+}
+.contact-section .contact-grid {
+    margin-top: 1.5rem;
+}
+.contact-section .contact-info-header h2 {
+    margin-bottom: 0.75rem;
+}
+.contact-section .contact-info-header p {
+    line-height: 1.7;
+    margin-bottom: 1.75rem;
+}
+.contact-section .contact-details {
+    display: flex;
+    flex-direction: column;
+    gap: 1.75rem;
+    margin-bottom: 2rem;
+}
 .contact-detail-item { display: flex; gap: 1.5rem; align-items: flex-start; }
+
+/* Interactive location card */
+.contact-detail-link {
+    text-decoration: none;
+    color: inherit;
+    transition: var(--transition);
+    border-radius: var(--radius);
+}
+.contact-detail-link:hover .detail-content h4,
+.contact-detail-link:hover .detail-content p {
+    color: var(--primary);
+}
+.contact-detail-link:focus-visible {
+    outline: 2px solid var(--primary);
+    outline-offset: 4px;
+}
+
+/* In-page anchor offset for fixed navigation */
+#contact-form-section {
+    scroll-margin-top: 100px;
+}
+
+@media (max-width: 768px) {
+    .page-header--compact {
+        padding: 56px 0 16px;
+    }
+    .page-header--compact .page-header-content p {
+        font-size: 0.95rem;
+    }
+    .contact-section {
+        padding: 1.5rem 0 2.5rem;
+    }
+    .contact-section .contact-grid {
+        margin-top: 1rem;
+    }
+}
 .detail-icon { width: 50px; height: 50px; background: var(--primary-gradient); border-radius: var(--radius); display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
 .detail-icon svg { width: 24px; height: 24px; stroke: var(--white); }
 .detail-content h4 { margin-bottom: 0.5rem; }

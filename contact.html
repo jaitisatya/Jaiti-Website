@@ -216,7 +216,7 @@
 <main id="main-content">
 
 <!-- ================= PAGE HEADER ================= -->
-<section class="page-header">
+<section class="page-header page-header--compact">
     <div class="container">
         <div class="page-header-content">
             <span class="page-label">Let's Connect</span>
@@ -267,7 +267,7 @@
                         </div>
                     </div>
 
-                    <div class="contact-detail-item">
+                    <a href="https://maps.app.goo.gl/anqGGa5o8NikjLhYA" target="_blank" rel="noopener" class="contact-detail-item contact-detail-link">
                         <div class="detail-icon">
                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                 <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/>
@@ -279,21 +279,7 @@
                             <p>Near Radha Rani Circle, Mahal Road, Jagatpura, Jaipur – 302017</p>
                             <span class="detail-note">Serving Jagatpura, Pratap Nagar &amp; nearby Jaipur communities</span>
                         </div>
-                    </div>
-
-                    <div class="contact-detail-item">
-                        <div class="detail-icon">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <circle cx="12" cy="12" r="10"/>
-                                <polyline points="12 6 12 12 16 14"/>
-                            </svg>
-                        </div>
-                        <div class="detail-content">
-                            <h4>Availability</h4>
-                            <p>Everyday, 4:00 PM - 7:00 PM</p>
-                            <span class="detail-note">We're committed to responding promptly</span>
-                        </div>
-                    </div>
+                    </a>
                 </div>
 
                 <div class="contact-info-box">
@@ -309,7 +295,7 @@
             </div>
 
             <!-- Contact Form -->
-            <div class="contact-form-wrapper">
+            <div class="contact-form-wrapper" id="contact-form-section">
                 <h3>Send Us a Message</h3>
                 <p class="form-description">Fill out the form below and we'll get back to you as soon as possible.</p>
 
@@ -388,31 +374,6 @@
     </div>
 </section>
 
-<!-- ================= GOOGLE MAP ================= -->
-<section class="section map-section" style="padding-top:0;">
-    <div class="container">
-        <div class="section-header text-center" style="margin-bottom:2rem;">
-            <span class="section-label">Find Us</span>
-            <h2>Our Location</h2>
-            <p class="section-description">Visit us or find us on the map — click below to get directions.</p>
-        </div>
-        <div style="text-align:center;padding:3rem 2rem;background:#f8fafc;border-radius:16px;border:2px dashed #e2e8f0;">
-            <svg viewBox="0 0 24 24" fill="none" stroke="#3b5bdb" stroke-width="2" style="width:64px;height:64px;margin-bottom:1rem;">
-                <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/>
-                <circle cx="12" cy="10" r="3"/>
-            </svg>
-            <h3 style="margin-bottom:0.5rem;font-size:1.4rem;">Jaiti Foundation, Jaipur</h3>
-            <p style="color:#64748b;margin-bottom:1.8rem;font-size:1rem;">Click the button below to open our exact location in Google Maps and get directions.</p>
-            <a href="https://maps.app.goo.gl/anqGGa5o8NikjLhYA" target="_blank" rel="noopener" class="btn btn-primary">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:18px;height:18px;margin-right:8px;vertical-align:middle;">
-                    <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/>
-                    <circle cx="12" cy="10" r="3"/>
-                </svg>
-                Open in Google Maps
-            </a>
-        </div>
-    </div>
-</section>
 
 <!-- ================= ADDITIONAL INFO ================= -->
 <section class="section additional-info">
@@ -441,7 +402,7 @@
                 </div>
                 <h3>For Partners</h3>
                 <p>Organizations and businesses interested in collaborating to expand our impact and reach more children.</p>
-                <a href="contact.html" class="info-link">Discuss Partnership →</a>
+                <a href="#contact-form-section" class="info-link">Discuss Partnership →</a>
             </div>
             <div class="info-card">
                 <div class="info-icon">
