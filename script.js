@@ -416,14 +416,21 @@ document.addEventListener('DOMContentLoaded', function () {
             const err = document.createElement('span');
             err.className = 'field-error-msg';
             err.textContent = msg;
-            input.parentNode.appendChild(err);
+            const container = input.closest('.form-group') || input.parentNode;
+            container.appendChild(err);
         }
 
         // --- Helper: clear error from a field ---
         function clearError(input) {
             input.classList.remove('field-error');
-            const existing = input.parentNode.querySelector('.field-error-msg');
+            const container = input.closest('.form-group') || input.parentNode;
+            const existing = container.querySelector('.field-error-msg');
             if (existing) existing.remove();
+            const phoneErr = document.getElementById('phoneError');
+            if (phoneErr && input.id === 'phone') {
+                phoneErr.textContent = '';
+                phoneErr.classList.remove('show');
+            }
         }
 
         // --- Helper: show success popup ---
@@ -492,26 +499,103 @@ document.addEventListener('DOMContentLoaded', function () {
                 showError(name, 'Please enter your full name'); valid = false;
             } else { clearError(name); }
 
-            // Email — proper format check
-            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-            if (!email.value.trim()) {
-                showError(email, 'Please enter your email address'); valid = false;
-            } else if (!emailRegex.test(email.value.trim())) {
-                showError(email, 'Please enter a valid email (e.g. name@example.com)'); valid = false;
-            } else { clearError(email); }
+            // Email — strict validation
+            const rawEmail = email.value.trim();
+            const lowerEmail = rawEmail.toLowerCase();
+            email.value = lowerEmail;
 
-            // Phone — validate with intl-tel-input if active, otherwise check format
-            const digitsOnly = phone.value.replace(/\D/g, '');
-            if (phone.value.trim() !== '') {
-                const itiInstance = window.intlTelInputGlobals ? window.intlTelInputGlobals.getInstance(phone) : null;
-                if (itiInstance) {
-                    if (phone.classList.contains('ph-invalid') || (typeof intlTelInputUtils !== 'undefined' && !itiInstance.isValidNumber())) {
-                        showError(phone, 'Please enter a valid phone number'); valid = false;
-                    } else { clearError(phone); }
-                } else if (digitsOnly.length < 7 || digitsOnly.length > 15) {
-                    showError(phone, 'Please enter a valid phone number'); valid = false;
-                } else { clearError(phone); }
-            } else { clearError(phone); }
+            let emailValid = true;
+            if (!lowerEmail) {
+                showError(email, 'Please enter your email address');
+                valid = false;
+                emailValid = false;
+            } else if (
+                lowerEmail.length > 254 ||
+                /\s/.test(lowerEmail) ||
+                lowerEmail.indexOf('@') === -1 ||
+                lowerEmail.indexOf('@') !== lowerEmail.lastIndexOf('@') ||
+                lowerEmail.startsWith('.') ||
+                lowerEmail.endsWith('.') ||
+                lowerEmail.includes('..')
+            ) {
+                emailValid = false;
+            } else {
+                const parts = lowerEmail.split('@');
+                const local = parts[0];
+                const domain = parts[1];
+                if (!local || !domain || local.startsWith('.') || local.endsWith('.')) {
+                    emailValid = false;
+                } else if (!domain.includes('.') || domain.startsWith('.') || domain.endsWith('.')) {
+                    emailValid = false;
+                } else {
+                    const domainParts = domain.split('.');
+                    const tld = domainParts[domainParts.length - 1];
+                    if (!/^[a-z]{2,}$/i.test(tld)) {
+                        emailValid = false;
+                    }
+                }
+            }
+            if (!emailValid && lowerEmail) {
+                showError(email, 'Enter a valid email like name@example.com');
+                valid = false;
+            } else if (emailValid) {
+                clearError(email);
+            }
+
+            // Phone (optional) — country-wise validation
+            const phoneVal = phone.value.trim();
+            if (phoneVal !== '') {
+                const digits = phoneVal.replace(/\D/g, '');
+                const itiInstance = window.iti || (window.intlTelInputGlobals ? window.intlTelInputGlobals.getInstance(phone) : null);
+                const countryData = itiInstance ? itiInstance.getSelectedCountryData() : { iso2: 'in', dialCode: '91' };
+                const iso2 = (countryData.iso2 || 'in').toLowerCase();
+
+                // Reject numbers where all digits are the same
+                if (/^(\d)\1+$/.test(digits)) {
+                    showError(phone, 'Enter a valid phone number for the selected country');
+                    valid = false;
+                } else if (iso2 === 'in') {
+                    // India (+91): exactly 10 digits starting with 6, 7, 8 or 9
+                    if (!/^[6-9]\d{9}$/.test(digits)) {
+                        showError(phone, 'Enter a valid 10-digit mobile number starting with 6, 7, 8 or 9');
+                        valid = false;
+                    } else {
+                        clearError(phone);
+                    }
+                } else {
+                    // Other countries: check with intl-tel-input utils if loaded
+                    const hasUtils = typeof window.intlTelInputUtils !== 'undefined' && window.intlTelInputUtils;
+                    if (hasUtils && itiInstance && typeof itiInstance.isValidNumber === 'function') {
+                        if (itiInstance.isValidNumber()) {
+                            clearError(phone);
+                        } else {
+                            const errCode = itiInstance.getValidationError();
+                            let msg = 'Enter a valid phone number for the selected country';
+                            if (errCode === 2) {
+                                msg = 'Phone number is too short for the selected country';
+                            } else if (errCode === 3) {
+                                msg = 'Phone number is too long for the selected country';
+                            }
+                            showError(phone, msg);
+                            valid = false;
+                        }
+                    } else {
+                        // Fallback when utils is not available (CDN offline / slow network):
+                        // lenient check (7 to 15 digits) so user is never blocked
+                        if (digits.length < 7) {
+                            showError(phone, 'Phone number is too short for the selected country');
+                            valid = false;
+                        } else if (digits.length > 15) {
+                            showError(phone, 'Phone number is too long for the selected country');
+                            valid = false;
+                        } else {
+                            clearError(phone);
+                        }
+                    }
+                }
+            } else {
+                clearError(phone);
+            }
 
             // Subject
             if (!subject.value) {
@@ -538,6 +622,97 @@ document.addEventListener('DOMContentLoaded', function () {
             }
         });
 
+        // Email blur validation
+        const emailEl = document.getElementById('email');
+        if (emailEl) {
+            emailEl.addEventListener('blur', function () {
+                const val = emailEl.value.trim().toLowerCase();
+                emailEl.value = val;
+                if (!val) return;
+                let isValid = true;
+                if (
+                    val.length > 254 ||
+                    /\s/.test(val) ||
+                    val.indexOf('@') === -1 ||
+                    val.indexOf('@') !== val.lastIndexOf('@') ||
+                    val.startsWith('.') ||
+                    val.endsWith('.') ||
+                    val.includes('..')
+                ) {
+                    isValid = false;
+                } else {
+                    const parts = val.split('@');
+                    const local = parts[0];
+                    const domain = parts[1];
+                    if (!local || !domain || local.startsWith('.') || local.endsWith('.')) {
+                        isValid = false;
+                    } else if (!domain.includes('.') || domain.startsWith('.') || domain.endsWith('.')) {
+                        isValid = false;
+                    } else {
+                        const domainParts = domain.split('.');
+                        const tld = domainParts[domainParts.length - 1];
+                        if (!/^[a-z]{2,}$/i.test(tld)) {
+                            isValid = false;
+                        }
+                    }
+                }
+                if (!isValid) {
+                    showError(emailEl, 'Enter a valid email like name@example.com');
+                } else {
+                    clearError(emailEl);
+                }
+            });
+        }
+
+        // Phone blur validation
+        const phoneEl = document.getElementById('phone');
+        if (phoneEl) {
+            phoneEl.addEventListener('blur', function () {
+                const val = phoneEl.value.trim();
+                if (!val) {
+                    clearError(phoneEl);
+                    return;
+                }
+                const digits = val.replace(/\D/g, '');
+                const itiInstance = window.iti || (window.intlTelInputGlobals ? window.intlTelInputGlobals.getInstance(phoneEl) : null);
+                const countryData = itiInstance ? itiInstance.getSelectedCountryData() : { iso2: 'in', dialCode: '91' };
+                const iso2 = (countryData.iso2 || 'in').toLowerCase();
+
+                if (/^(\d)\1+$/.test(digits)) {
+                    showError(phoneEl, 'Enter a valid phone number for the selected country');
+                    return;
+                }
+                if (iso2 === 'in') {
+                    if (!/^[6-9]\d{9}$/.test(digits)) {
+                        showError(phoneEl, 'Enter a valid 10-digit mobile number starting with 6, 7, 8 or 9');
+                    } else {
+                        clearError(phoneEl);
+                    }
+                } else {
+                    const hasUtils = typeof window.intlTelInputUtils !== 'undefined' && window.intlTelInputUtils;
+                    if (hasUtils && itiInstance && typeof itiInstance.isValidNumber === 'function') {
+                        if (itiInstance.isValidNumber()) {
+                            clearError(phoneEl);
+                        } else {
+                            const errCode = itiInstance.getValidationError();
+                            let msg = 'Enter a valid phone number for the selected country';
+                            if (errCode === 2) msg = 'Phone number is too short for the selected country';
+                            else if (errCode === 3) msg = 'Phone number is too long for the selected country';
+                            showError(phoneEl, msg);
+                        }
+                    } else {
+                        if (digits.length < 7) {
+                            showError(phoneEl, 'Phone number is too short for the selected country');
+                        } else if (digits.length > 15) {
+                            showError(phoneEl, 'Phone number is too long for the selected country');
+                        } else {
+                            clearError(phoneEl);
+                        }
+                    }
+                }
+            });
+        }
+
         // --- Form submit ---
         contactForm.addEventListener('submit', function (e) {
             e.preventDefault();
@@ -548,16 +723,30 @@ document.addEventListener('DOMContentLoaded', function () {
             const emailInput = document.getElementById('email');
             const replyToInput = contactForm.querySelector('input[name="_replyto"]');
             if (replyToInput && emailInput) {
-                replyToInput.value = emailInput.value.trim();
+                replyToInput.value = emailInput.value.trim().toLowerCase();
             }
 
-            // Sync hidden E.164 phone if intl-tel-input is available
+            // Sync hidden E.164 phone into #phoneHidden
             const phoneInput = document.getElementById('phone');
-            const hiddenPhone = document.getElementById('phone_full');
-            if (phoneInput && hiddenPhone && window.intlTelInputGlobals) {
-                const itiInstance = window.intlTelInputGlobals.getInstance(phoneInput);
-                if (itiInstance && typeof intlTelInputUtils !== 'undefined') {
-                    hiddenPhone.value = itiInstance.getNumber(intlTelInputUtils.numberFormat.E164);
+            const hiddenPhone = document.getElementById('phoneHidden');
+            if (hiddenPhone) {
+                const pVal = phoneInput ? phoneInput.value.trim() : '';
+                if (!pVal) {
+                    hiddenPhone.value = '';
+                } else {
+                    const itiInstance = window.iti || (window.intlTelInputGlobals ? window.intlTelInputGlobals.getInstance(phoneInput) : null);
+                    let synced = false;
+                    const hasUtils = typeof window.intlTelInputUtils !== 'undefined' && window.intlTelInputUtils;
+                    if (itiInstance && hasUtils) {
+                        try {
+                            hiddenPhone.value = itiInstance.getNumber();
+                            synced = true;
+                        } catch (err) {}
+                    }
+                    if (!synced && itiInstance) {
+                        const dial = itiInstance.getSelectedCountryData().dialCode || '';
+                        hiddenPhone.value = '+' + dial + pVal.replace(/\D/g, '');
+                    }
                 }
             }
 
