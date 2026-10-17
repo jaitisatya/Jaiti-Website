@@ -381,6 +381,25 @@
     box-shadow: 0 0 0 3px rgba(11, 80, 141, 0.18);
 }
 
+.custom-amount-input.has-error {
+    border-color: #ef4444 !important;
+    background-color: #fef2f2;
+}
+
+.custom-amount-input.has-error:focus {
+    box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.2) !important;
+}
+
+.support-field-error {
+    font-size: 0.8rem;
+    color: #dc2626;
+    font-weight: 600;
+    margin-top: -0.65rem;
+    margin-bottom: 0.85rem;
+    padding-left: 0.25rem;
+    line-height: 1.35;
+}
+
 /* Form Fields */
 .support-input-group {
     margin-bottom: 0.85rem;
@@ -448,6 +467,28 @@
 
 .btn-proceed-support:active {
     transform: translateY(0);
+}
+
+/* Privacy Notice Below Payment Button */
+.support-privacy-notice {
+    font-size: 0.76rem;
+    line-height: 1.45;
+    color: #64748b;
+    text-align: center;
+    margin-top: 0.75rem;
+    margin-bottom: 0.25rem;
+    padding: 0 0.5rem;
+}
+
+.support-privacy-notice a {
+    color: #0B508D;
+    text-decoration: underline;
+    font-weight: 600;
+    transition: color 0.15s ease;
+}
+
+.support-privacy-notice a:hover {
+    color: #07223b;
 }
 
 /* Step 2: QR & UPI Display */
