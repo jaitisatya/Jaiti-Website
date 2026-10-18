@@ -546,49 +546,6 @@
     gap: 3px;
 }
 
-/* Mobile-Optimized One-Tap UPI Launch CTA */
-.mobile-pay-cta-box {
-    margin-bottom: 1.25rem;
-    display: block;
-}
-
-.btn-upi-mobile-pay {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
-    width: 100%;
-    background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%);
-    color: #ffffff !important;
-    text-decoration: none !important;
-    padding: 0.95rem 1rem;
-    border-radius: 14px;
-    font-size: 1.05rem;
-    font-weight: 700;
-    box-shadow: 0 6px 20px rgba(2, 132, 199, 0.35);
-    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-    box-sizing: border-box;
-}
-
-.btn-upi-mobile-pay:hover {
-    background: linear-gradient(135deg, #0369a1 0%, #075985 100%);
-    transform: translateY(-2px);
-    box-shadow: 0 8px 24px rgba(2, 132, 199, 0.45);
-}
-
-.btn-upi-mobile-pay svg {
-    flex-shrink: 0;
-    color: #fef08a;
-}
-
-.mobile-upi-subhint {
-    font-size: 0.76rem;
-    color: #64748b;
-    margin: 0.4rem 0 0;
-    line-height: 1.35;
-    text-align: center;
-}
-
 .smart-divider-badge {
     position: relative;
     text-align: center;
@@ -674,6 +631,92 @@
     line-height: 1.4;
 }
 
+/* Collapsible Official Bank QR Line */
+.static-qr-toggle-wrap {
+    width: 100%;
+    margin-top: 0.85rem;
+    text-align: center;
+}
+
+.btn-toggle-static-qr {
+    background: none;
+    border: none;
+    padding: 0.35rem 0.6rem;
+    font-size: 0.78rem;
+    font-weight: 600;
+    color: #0B508D;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
+    text-decoration: underline;
+    text-underline-offset: 3px;
+    font-family: inherit;
+    line-height: 1.35;
+}
+
+.btn-toggle-static-qr:hover,
+.btn-toggle-static-qr:focus {
+    color: #073863;
+    outline: none;
+}
+
+.collapse-chevron {
+    transition: transform 0.2s ease;
+    flex-shrink: 0;
+}
+
+.btn-toggle-static-qr.is-open .collapse-chevron {
+    transform: rotate(180deg);
+}
+
+.static-qr-collapse {
+    margin-top: 0.65rem;
+    padding: 0.75rem;
+    background: #f8fafc;
+    border: 1px dashed #cbd5e1;
+    border-radius: 12px;
+}
+
+.static-qr-frame {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: #ffffff;
+    border-radius: 8px;
+    margin: 0 auto;
+}
+
+.static-qr-frame img {
+    display: block;
+    margin: 0 auto;
+    width: 180px;
+    height: 180px;
+    object-fit: contain;
+    border-radius: 8px;
+    background: #ffffff;
+    padding: 6px;
+    border: 1px solid #e2e8f0;
+}
+
+.static-qr-error-msg {
+    font-size: 0.8rem;
+    color: #dc2626;
+    font-weight: 600;
+    padding: 0.75rem 0.5rem;
+    line-height: 1.4;
+    margin: 0;
+}
+
+.static-qr-caption {
+    font-size: 0.78rem;
+    color: #334155;
+    font-weight: 600;
+    margin: 0.5rem 0 0;
+    line-height: 1.35;
+}
+
 /* UPI ID Box with 1-Tap Copy */
 .upi-copy-box {
     display: flex;
@@ -683,7 +726,24 @@
     border: 1.5px solid #cbd5e1;
     border-radius: 12px;
     padding: 0.6rem 0.85rem;
-    margin-bottom: 1.15rem;
+    margin-bottom: 0.5rem;
+}
+
+.upi-copy-instructions {
+    font-size: 0.78rem;
+    color: #475569;
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 10px;
+    padding: 0.65rem 0.85rem;
+    margin: 0 0 1.15rem;
+    line-height: 1.45;
+    text-align: left;
+}
+
+.upi-copy-instructions strong {
+    color: #0b508d;
+    font-weight: 700;
 }
 
 .upi-id-text {
@@ -799,11 +859,6 @@
 
 /* ================= RESPONSIVE ADJUSTMENTS ================= */
 @media (min-width: 601px) {
-    /* On Desktop: UPI mobile app button is hidden since desktop browsers do not have UPI apps */
-    .mobile-pay-cta-box {
-        display: none;
-    }
-
     .support-step-qr {
         display: none;
         width: 100%;
@@ -860,10 +915,6 @@
         margin-bottom: 0.75rem;
         padding: 0.65rem 0.85rem;
         scroll-margin-top: 0;
-    }
-
-    .mobile-pay-cta-box {
-        margin-bottom: 0.85rem;
     }
 
     .support-modal-backdrop.active .support-modal {

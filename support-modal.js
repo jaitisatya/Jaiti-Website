@@ -107,21 +107,6 @@ var qrcode=(function(){var P=function(x,w){var g=236,l=17,n=x,s=O[w],t=null,r=0,
                         </div>
                     </div>
 
-                    <!-- Mobile-Only One-Tap UPI Launch Button -->
-                    <div class="mobile-pay-cta-box" id="mobileUpiSection">
-                        <a href="#" class="btn-upi-mobile-pay" id="btnUpiMobilePay">
-                            <svg viewBox="0 0 24 24" fill="currentColor" width="20" height="20">
-                                <path d="M7 2v11h3v9l7-12h-4l4-8z"/>
-                            </svg>
-                            <span id="mobileUpiBtnLabel">Pay via UPI App</span>
-                        </a>
-                        <p class="mobile-upi-subhint">Tap above to launch GPay, PhonePe, Paytm or BHIM with exact amount pre-filled.</p>
-
-                        <div class="smart-divider-badge">
-                            <span>OR SCAN QR BELOW</span>
-                        </div>
-                    </div>
-
                     <!-- Dynamic Amount-Locked QR Display -->
                     <div class="qr-card-container">
                         <div class="qr-frame">
@@ -133,6 +118,23 @@ var qrcode=(function(){var P=function(x,w){var g=236,l=17,n=x,s=O[w],t=null,r=0,
                         <p class="qr-instruction" id="qrInstructionText">
                             Scan with any UPI app on your phone (GPay, PhonePe, Paytm, BHIM). Amount is pre-filled.
                         </p>
+
+                        <!-- Collapsible Official QR line -->
+                        <div class="static-qr-toggle-wrap">
+                            <button type="button" class="btn-toggle-static-qr" id="btnToggleStaticQr" aria-expanded="false" aria-controls="staticQrCollapse">
+                                <span>QR not working? Use our official QR (enter the amount in your app)</span>
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14" class="collapse-chevron" aria-hidden="true">
+                                    <polyline points="6 9 12 15 18 9"></polyline>
+                                </svg>
+                            </button>
+                            <div id="staticQrCollapse" class="static-qr-collapse" style="display:none;" aria-hidden="true">
+                                <div class="static-qr-frame">
+                                    <img id="staticBankQrImg" src="images/donation/jaiti-upi-qr.png" alt="Official Jaiti Foundation UPI QR Code" width="190" height="190">
+                                    <p id="staticQrLoadError" class="static-qr-error-msg" style="display:none;">QR image could not load. Please copy our UPI ID above.</p>
+                                </div>
+                                <p class="static-qr-caption" id="staticQrCaption">Official Jaiti Foundation QR. Enter <span id="staticQrAmountVal">₹0</span> in your app</p>
+                            </div>
+                        </div>
                     </div>
 
                     <!-- Official UPI ID Box with 1-Tap Copy -->
@@ -141,14 +143,19 @@ var qrcode=(function(){var P=function(x,w){var g=236,l=17,n=x,s=O[w],t=null,r=0,
                             <div style="font-size:0.75rem; color:#64748b; text-align:left; font-weight:600;">OFFICIAL UPI ID</div>
                             <span class="upi-id-text" id="upiIdValue">6367916384@sbi</span>
                         </div>
-                        <button type="button" class="btn-copy-upi" id="btnCopyUpiId">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14">
+                        <button type="button" class="btn-copy-upi" id="btnCopyUpiId" aria-label="Copy Official UPI ID">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14" aria-hidden="true">
                                 <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
                                 <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
                             </svg>
                             <span id="copyBtnLabel">Copy</span>
                         </button>
                     </div>
+
+                    <!-- Step-by-step guidance for phone users -->
+                    <p class="upi-copy-instructions" id="upiCopyInstructions">
+                        On your phone: 1. Tap Copy above. 2. Open any UPI app (GPay, PhonePe, Paytm, BHIM). 3. Choose the option to pay to a UPI ID or number, paste it, and enter <strong id="upiInstructionsAmount">₹0</strong>.
+                    </p>
 
                     <!-- Clean Clickable Email Receipt Line (Mobile & Desktop) -->
                     <div class="email-receipt-notice-card">
@@ -200,8 +207,12 @@ var qrcode=(function(){var P=function(x,w){var g=236,l=17,n=x,s=O[w],t=null,r=0,
         const summaryAmt = document.getElementById("summaryAmountText");
         const qrPillAmount = document.getElementById("qrPillAmount");
         const dynamicQrImg = document.getElementById("dynamicUpiQrImg");
-        const btnUpiMobilePay = document.getElementById("btnUpiMobilePay");
-        const mobileUpiBtnLabel = document.getElementById("mobileUpiBtnLabel");
+        const btnToggleStaticQr = document.getElementById("btnToggleStaticQr");
+        const staticQrCollapse = document.getElementById("staticQrCollapse");
+        const staticBankQrImg = document.getElementById("staticBankQrImg");
+        const staticQrLoadError = document.getElementById("staticQrLoadError");
+        const staticQrAmountVal = document.getElementById("staticQrAmountVal");
+        const upiInstructionsAmount = document.getElementById("upiInstructionsAmount");
         const btnCopyUpiId = document.getElementById("btnCopyUpiId");
         const copyLabel = document.getElementById("copyBtnLabel");
         const btnBackToDetails = document.getElementById("btnBackToDetails");
@@ -337,10 +348,6 @@ var qrcode=(function(){var P=function(x,w){var g=236,l=17,n=x,s=O[w],t=null,r=0,
                     dynamicQrImg.src = "images/donation/jaiti-upi-qr.png";
                 }
             }
-
-            if (btnUpiMobilePay) {
-                btnUpiMobilePay.setAttribute("href", upiUri);
-            }
         }
 
         // Dynamic mailto link for receipt submission
@@ -383,6 +390,38 @@ var qrcode=(function(){var P=function(x,w){var g=236,l=17,n=x,s=O[w],t=null,r=0,
             setTimeout(enforceTopScroll, 450);
         }
 
+        // Helper: Collapsible Official Bank QR Controls
+        function resetStaticQrCollapse() {
+            if (btnToggleStaticQr && staticQrCollapse) {
+                btnToggleStaticQr.setAttribute("aria-expanded", "false");
+                btnToggleStaticQr.classList.remove("is-open");
+                staticQrCollapse.setAttribute("aria-hidden", "true");
+                staticQrCollapse.style.display = "none";
+            }
+        }
+
+        if (btnToggleStaticQr && staticQrCollapse) {
+            btnToggleStaticQr.addEventListener("click", function () {
+                const isExpanded = this.getAttribute("aria-expanded") === "true";
+                const nextState = !isExpanded;
+                this.setAttribute("aria-expanded", String(nextState));
+                staticQrCollapse.setAttribute("aria-hidden", String(!nextState));
+                staticQrCollapse.style.display = nextState ? "block" : "none";
+                this.classList.toggle("is-open", nextState);
+            });
+        }
+
+        if (staticBankQrImg) {
+            staticBankQrImg.addEventListener("error", function () {
+                this.style.display = "none";
+                if (staticQrLoadError) staticQrLoadError.style.display = "block";
+            });
+            staticBankQrImg.addEventListener("load", function () {
+                this.style.display = "block";
+                if (staticQrLoadError) staticQrLoadError.style.display = "none";
+            });
+        }
+
         // Open Modal
         window.openSupportModal = function () {
             backdrop.classList.add("active");
@@ -390,6 +429,8 @@ var qrcode=(function(){var P=function(x,w){var g=236,l=17,n=x,s=O[w],t=null,r=0,
             document.body.style.overflow = "hidden";
             step1.style.display = "block";
             step2.style.display = "none";
+
+            resetStaticQrCollapse();
 
             // Reset amount input and validation state
             if (customAmtInput) {
@@ -543,7 +584,8 @@ var qrcode=(function(){var P=function(x,w){var g=236,l=17,n=x,s=O[w],t=null,r=0,
                 if (summaryName) summaryName.textContent = name;
                 if (summaryAmt) summaryAmt.textContent = formattedAmt;
                 if (qrPillAmount) qrPillAmount.textContent = formattedAmt;
-                if (mobileUpiBtnLabel) mobileUpiBtnLabel.textContent = `Pay ${formattedAmt} via UPI App`;
+                if (staticQrAmountVal) staticQrAmountVal.textContent = formattedAmt;
+                if (upiInstructionsAmount) upiInstructionsAmount.textContent = formattedAmt;
 
                 // Generate dynamic in-browser QR code with exact amount
                 generateDynamicQrCode(amountCheck.amountStr, name);
@@ -564,37 +606,84 @@ var qrcode=(function(){var P=function(x,w){var g=236,l=17,n=x,s=O[w],t=null,r=0,
         // Step 2: Back to Step 1
         if (btnBackToDetails) {
             btnBackToDetails.addEventListener("click", function () {
+                resetStaticQrCollapse();
                 step2.style.display = "none";
                 step1.style.display = "block";
                 triggerSafeScrollTop();
             });
         }
 
-        // Copy UPI ID
+        // Copy UPI ID with clipboard and manual selection fallback
         if (btnCopyUpiId) {
             btnCopyUpiId.addEventListener("click", function () {
-                if (navigator.clipboard && navigator.clipboard.writeText) {
-                    navigator.clipboard.writeText(OFFICIAL_UPI_ID).then(() => {
-                        btnCopyUpiId.classList.add("copied");
-                        copyLabel.textContent = "Copied!";
-                        setTimeout(() => {
-                            btnCopyUpiId.classList.remove("copied");
-                            copyLabel.textContent = "Copy";
-                        }, 2000);
-                    });
-                } else {
-                    const temp = document.createElement("textarea");
-                    temp.value = OFFICIAL_UPI_ID;
-                    document.body.appendChild(temp);
-                    temp.select();
-                    document.execCommand("copy");
-                    document.body.removeChild(temp);
+                const upiVal = OFFICIAL_UPI_ID;
+                const upiTextElem = document.getElementById("upiIdValue");
+
+                function setCopiedStatus() {
                     btnCopyUpiId.classList.add("copied");
-                    copyLabel.textContent = "Copied!";
+                    if (copyLabel) copyLabel.textContent = "Copied!";
                     setTimeout(() => {
                         btnCopyUpiId.classList.remove("copied");
-                        copyLabel.textContent = "Copy";
+                        if (copyLabel) copyLabel.textContent = "Copy";
                     }, 2000);
+                }
+
+                function selectTextFallback() {
+                    if (upiTextElem) {
+                        try {
+                            const range = document.createRange();
+                            range.selectNodeContents(upiTextElem);
+                            const sel = window.getSelection();
+                            if (sel) {
+                                sel.removeAllRanges();
+                                sel.addRange(range);
+                            }
+                        } catch (e) {}
+                    }
+                }
+
+                if (navigator.clipboard && navigator.clipboard.writeText) {
+                    navigator.clipboard.writeText(upiVal).then(() => {
+                        setCopiedStatus();
+                    }).catch(() => {
+                        let success = false;
+                        try {
+                            const temp = document.createElement("textarea");
+                            temp.value = upiVal;
+                            temp.style.position = "fixed";
+                            temp.style.opacity = "0";
+                            document.body.appendChild(temp);
+                            temp.select();
+                            success = document.execCommand("copy");
+                            document.body.removeChild(temp);
+                        } catch (e) {
+                            success = false;
+                        }
+                        if (success) {
+                            setCopiedStatus();
+                        } else {
+                            selectTextFallback();
+                        }
+                    });
+                } else {
+                    let success = false;
+                    try {
+                        const temp = document.createElement("textarea");
+                        temp.value = upiVal;
+                        temp.style.position = "fixed";
+                        temp.style.opacity = "0";
+                        document.body.appendChild(temp);
+                        temp.select();
+                        success = document.execCommand("copy");
+                        document.body.removeChild(temp);
+                    } catch (e) {
+                        success = false;
+                    }
+                    if (success) {
+                        setCopiedStatus();
+                    } else {
+                        selectTextFallback();
+                    }
                 }
             });
         }
