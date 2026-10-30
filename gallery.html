@@ -166,7 +166,17 @@
 <!-- ================= GALLERY SECTION ================= -->
 <section class="section gallery-section">
     <div class="container">
-        <div class="gallery-grid">
+        <!-- Category Filter Tabs -->
+        <div class="gallery-filter-bar" id="galleryFilterBar">
+            <button type="button" class="gallery-filter-btn active" data-filter="all">All Moments</button>
+            <button type="button" class="gallery-filter-btn" data-filter="Education">Education & Classes</button>
+            <button type="button" class="gallery-filter-btn" data-filter="Activities">Activities & Sports</button>
+            <button type="button" class="gallery-filter-btn" data-filter="Nutrition">Nutritious Meals</button>
+            <button type="button" class="gallery-filter-btn" data-filter="Celebrations">Celebrations</button>
+            <button type="button" class="gallery-filter-btn" data-filter="Community">Community Outreach</button>
+        </div>
+
+        <div class="gallery-grid" id="galleryGrid">
             <div class="gallery-item">
                 <img src="images/photo1.webp" alt="Jaiti Foundation - Underprivileged children education program Jaipur" width="750" height="500" loading="lazy" decoding="async">
             </div>
@@ -404,15 +414,175 @@
 <script src="script.js" defer></script>
 <script src="support-modal.js" defer></script>
 
+<!-- Dynamic Live Gallery Loader from Firestore -->
+<script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+    import { getFirestore, collection, getDocs, query, orderBy, where } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+    const firebaseConfig = {
+        apiKey: "AIzaSyDCBb_tYSVUHHP46zYmspItDcJJPlUfuYk",
+        authDomain: "jaiti-foundation-3b174.firebaseapp.com",
+        projectId: "jaiti-foundation-3b174",
+        storageBucket: "jaiti-foundation-3b174.firebasestorage.app",
+        messagingSenderId: "407186839433",
+        appId: "1:407186839433:web:e39c8a4e6b2dccf35a3358"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+
+    async function loadDynamicGallery() {
+        const grid = document.getElementById('galleryGrid');
+        if (!grid) return;
+
+        try {
+            const dynamicPhotos = [];
+            const seenIds = new Set();
+            const seenUrls = new Set();
+
+            // 1. Fetch from daily-updates collection (where recordType == 'gallery_photo')
+            try {
+                const qDaily = query(collection(db, 'daily-updates'), where('recordType', '==', 'gallery_photo'));
+                const snapDaily = await getDocs(qDaily);
+                snapDaily.forEach(docSnap => {
+                    const data = docSnap.data();
+                    const key = data.rawUrl || docSnap.id;
+                    if (!seenIds.has(docSnap.id) && !seenUrls.has(key)) {
+                        seenIds.add(docSnap.id);
+                        seenUrls.add(key);
+                        dynamicPhotos.push({ id: docSnap.id, ...data });
+                    }
+                });
+            } catch (err) {
+                console.warn('daily-updates gallery fetch notice:', err.message);
+            }
+
+            // 2. Fetch from gallery_photos collection (if rules permit)
+            try {
+                const q = query(collection(db, 'gallery_photos'));
+                const snap = await getDocs(q);
+                snap.forEach(docSnap => {
+                    const data = docSnap.data();
+                    const key = data.rawUrl || docSnap.id;
+                    if (!seenIds.has(docSnap.id) && !seenUrls.has(key)) {
+                        seenIds.add(docSnap.id);
+                        seenUrls.add(key);
+                        dynamicPhotos.push({ id: docSnap.id, ...data });
+                    }
+                });
+            } catch (err) {
+                // Non-blocking
+            }
+
+            // 3. Fallback / Merge from localStorage cache
+            try {
+                const localPhotos = JSON.parse(localStorage.getItem('jaiti_gallery_photos') || '[]');
+                localPhotos.forEach(photo => {
+                    const key = photo.rawUrl || photo.id;
+                    if (!seenIds.has(photo.id) && !seenUrls.has(key)) {
+                        seenIds.add(photo.id);
+                        seenUrls.add(key);
+                        dynamicPhotos.push(photo);
+                    }
+                });
+            } catch (e) {}
+
+            if (dynamicPhotos.length === 0) return;
+
+            // Sort by order asc, then date/createdAt desc
+            dynamicPhotos.sort((a, b) => {
+                const orderDiff = (Number(a.order ?? 9999)) - (Number(b.order ?? 9999));
+                if (orderDiff !== 0) return orderDiff;
+                return (b.date || '').localeCompare(a.date || '');
+            });
+
+            // Create fragment for dynamic photos
+            const frag = document.createDocumentFragment();
+            dynamicPhotos.forEach(p => {
+                const item = document.createElement('div');
+                item.className = 'gallery-item dynamic-gallery-item';
+                item.dataset.category = p.category || 'Education';
+                item.dataset.title = p.title || '';
+                item.dataset.desc = p.description || '';
+                item.dataset.highres = p.optimizedUrl || p.rawUrl;
+
+                const imgSrc = p.thumbnailUrl || p.optimizedUrl || p.rawUrl;
+                item.innerHTML = `
+                    <img src="${imgSrc}" alt="${(p.title || 'Jaiti Foundation activity').replace(/"/g, '&quot;')} - Jaiti Foundation Jaipur" width="750" height="500" loading="lazy" decoding="async">
+                    <div class="gallery-overlay">
+                        <div class="gallery-caption">
+                            <h3>${escapeHtml(p.title || '')}</h3>
+                            <p>${escapeHtml(p.description || '')}</p>
+                        </div>
+                    </div>
+                `;
+                frag.appendChild(item);
+            });
+
+            // When database photos are present, replace static fallback with full database gallery
+            grid.innerHTML = '';
+            grid.appendChild(frag);
+
+        } catch (err) {
+            console.warn('Could not load dynamic gallery photos, fallback to static photos:', err);
+        }
+    }
+
+    function escapeHtml(str) {
+        return str
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;')
+            .replace(/'/g, '&#039;');
+    }
+
+    // Initialize category filter buttons
+    function initGalleryFilters() {
+        const filterBar = document.getElementById('galleryFilterBar');
+        if (!filterBar) return;
+
+        filterBar.addEventListener('click', (e) => {
+            const btn = e.target.closest('.gallery-filter-btn');
+            if (!btn) return;
+
+            filterBar.querySelectorAll('.gallery-filter-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+
+            const filter = btn.dataset.filter;
+            const items = document.querySelectorAll('#galleryGrid .gallery-item');
+
+            items.forEach(item => {
+                const cat = item.dataset.category || 'Education';
+                if (filter === 'all' || cat.toLowerCase() === filter.toLowerCase()) {
+                    item.style.display = 'block';
+                } else {
+                    item.style.display = 'none';
+                }
+            });
+        });
+    }
+
+    // Run on page load
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', () => {
+            initGalleryFilters();
+            loadDynamicGallery();
+        });
+    } else {
+        initGalleryFilters();
+        loadDynamicGallery();
+    }
+</script>
 <!-- ================= FLOATING BUTTONS ================= -->
-<!-- RIGHT: WhatsApp (top) + Instagram (bottom, appears on scroll) -->
 <a href="https://wa.me/916367916384" class="whatsapp-float" target="_blank" rel="noopener" aria-label="Chat on WhatsApp">
-    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 0 1-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 0 1-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 0 1 2.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0 0 12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 0 0 5.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 0 0-3.48-8.413z"/></svg>
+    <svg viewBox="0 0 24 24" fill="currentColor">
+        <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 0 1-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 0 1-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 0 1 2.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0 0 12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 0 0 5.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 0 0-3.48-8.413z"/>
+    </svg>
     <div class="whatsapp-float-text">
         <span class="wa-main">Chat with us!</span>
         <span class="wa-sub">Usually replies instantly</span>
     </div>
 </a>
-<!-- LEFT: YouTube (top) + Back-to-Top (bottom, both appear on scroll) -->
 </body>
 </html>

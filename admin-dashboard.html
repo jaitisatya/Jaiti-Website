@@ -6,6 +6,7 @@
     <title>Admin Dashboard | Jaiti Foundation</title>
     <link rel="icon" href="images/logo.webp">
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
 
@@ -974,6 +975,7 @@
     <div class="tab" onclick="window.switchTab('children')">👶 Children Data</div>
     <div class="tab" onclick="window.switchTab('sessions')">🔑 Active Sessions</div>
     <div class="tab" onclick="window.switchTab('supporters')">🤝 Supporters List</div>
+    <div class="tab" onclick="window.switchTab('gallery')">🖼️ Gallery</div>
 </div>
 
 <!-- MAIN CONTENT -->
@@ -1527,6 +1529,182 @@
         </div>
     </div>
 
+    <!-- ── TAB 8: GALLERY MANAGEMENT ── -->
+    <div class="panel" id="panel-gallery">
+        <div class="card" style="max-width:1200px;margin:0 auto">
+            <!-- Header Section -->
+            <div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:1rem;margin-bottom:1.5rem">
+                <div>
+                    <h2 style="color:#2f5f4f;margin:0">🖼️ Website Gallery Management</h2>
+                    <p style="color:#7a6b5d;font-size:0.9rem;margin:0.25rem 0 0 0">
+                        Upload high-clarity photos with automatic smart compression, title & description directly to the website gallery.
+                    </p>
+                </div>
+                <div style="display:flex;gap:0.75rem;flex-wrap:wrap">
+                    <button id="btnSyncExistingPhotos" onclick="window.syncExistingWebsitePhotos()" style="padding:0.55rem 1.1rem;background:#4a7c59;color:white;border:none;border-radius:8px;font-family:Inter,sans-serif;font-size:0.875rem;font-weight:600;cursor:pointer;display:inline-flex;align-items:center;gap:6px">
+                        📥 Sync 17 Existing Photos
+                    </button>
+                    <button onclick="window.loadGalleryList()" style="padding:0.55rem 1rem;background:#3a7260;color:white;border:none;border-radius:8px;font-family:Inter,sans-serif;font-size:0.875rem;cursor:pointer;display:inline-flex;align-items:center;gap:6px">
+                        🔄 Refresh Gallery
+                    </button>
+                    <a href="gallery.html" target="_blank" rel="noopener" style="padding:0.55rem 1.1rem;background:#f2ede4;color:#2f5f4f;border:1px solid #dcd3c4;border-radius:8px;font-family:Inter,sans-serif;font-size:0.875rem;font-weight:600;text-decoration:none;display:inline-flex;align-items:center;gap:6px">
+                        👁️ View Live Gallery ↗
+                    </a>
+                </div>
+            </div>
+
+            <div class="alert" id="galleryAlert"></div>
+
+            <!-- Upload New Photo Card -->
+            <div style="background:#fcfaf7;border:1.5px dashed #c5b59e;border-radius:12px;padding:1.5rem;margin-bottom:2rem">
+                <h3 style="margin-top:0;color:#2f5f4f;display:flex;align-items:center;gap:8px">
+                    <span>📸 Upload New Photo to Gallery</span>
+                    <span style="font-size:0.75rem;background:#e8f2ee;color:#2f5f4f;padding:2px 8px;border-radius:12px;font-weight:600">Auto Perceptual Compression (Zero Blur)</span>
+                </h3>
+
+                <div class="form-row" style="display:flex;gap:1.5rem;flex-wrap:wrap;align-items:flex-start">
+                    <!-- Photo Input / Dropzone -->
+                    <div style="flex:1;min-width:280px">
+                        <label style="display:block;font-weight:600;font-size:0.875rem;color:#2f5f4f;margin-bottom:6px">Select Photo *</label>
+                        <div class="photo-drop" id="galleryPhotoDrop" style="border:2px dashed #3a7260;background:#fff;border-radius:10px;padding:1.5rem;text-align:center;cursor:pointer;position:relative;transition:all 0.2s">
+                            <input type="file" id="galleryPhotoInput" accept="image/*" onchange="window.handleGalleryPhotoSelect(event)" style="position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%">
+                            <div style="font-size:2rem;margin-bottom:0.5rem">📷</div>
+                            <p style="margin:0;font-weight:600;color:#2f5f4f">Tap to pick from Camera or Gallery</p>
+                            <span style="font-size:0.75rem;color:#7a6b5d">Supports JPG, PNG, WEBP (Up to 25MB)</span>
+                        </div>
+
+                        <!-- Compression & Clarity Inspector Box -->
+                        <div id="galleryCompressStats" style="display:none;margin-top:1rem;background:#eef6f3;border:1px solid #c2ded3;border-radius:8px;padding:0.85rem;font-size:0.82rem;color:#1e4d3e">
+                            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
+                                <span style="font-weight:700">⚡ Smart Optimization Result:</span>
+                                <span id="gallerySavingsBadge" style="background:#2e7d32;color:white;padding:2px 6px;border-radius:4px;font-size:0.75rem;font-weight:700"></span>
+                            </div>
+                            <div id="galleryStatsText" style="line-height:1.4"></div>
+                            <div style="margin-top:8px;display:flex;gap:8px">
+                                <button type="button" onclick="window.toggleGalleryZoomPreview()" style="background:#3a7260;color:white;border:none;border-radius:6px;padding:4px 10px;font-size:0.75rem;cursor:pointer;display:inline-flex;align-items:center;gap:4px">
+                                    🔍 Face & Clarity Check (100% Zoom)
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Preview Container -->
+                        <div id="galleryPhotoPreviewContainer" style="display:none;margin-top:1rem;text-align:center">
+                            <div id="galleryZoomWrap" style="max-height:260px;overflow:hidden;border-radius:8px;border:1px solid #d5c7b7;position:relative;background:#000">
+                                <img id="galleryPhotoPreviewImg" src="" alt="Preview" style="max-width:100%;max-height:260px;object-fit:contain;display:block;margin:0 auto;transition:transform 0.2s">
+                            </div>
+                            <div style="margin-top:4px;font-size:0.72rem;color:#7a6b5d">Click zoom button above to inspect facial sharpness</div>
+                        </div>
+                    </div>
+
+                    <!-- Metadata Form -->
+                    <div style="flex:1.4;min-width:300px">
+                        <div class="form-group" style="margin-bottom:1rem">
+                            <label style="display:block;font-weight:600;font-size:0.875rem;color:#2f5f4f;margin-bottom:6px">Photo Title *</label>
+                            <input type="text" id="galleryPhotoTitle" placeholder="e.g. Free Education Class at Jagatpura Center" required style="width:100%;padding:0.65rem 0.85rem;border:1px solid #d5c7b7;border-radius:8px;font-family:Inter,sans-serif;font-size:0.9rem">
+                        </div>
+
+                        <div class="form-group" style="margin-bottom:1rem">
+                            <label style="display:block;font-weight:600;font-size:0.875rem;color:#2f5f4f;margin-bottom:6px">Description / Caption *</label>
+                            <textarea id="galleryPhotoDesc" rows="3" placeholder="Describe the moment, activity, or impact (e.g. Children learning mathematics with creative flashcards and moral stories)..." required style="width:100%;padding:0.65rem 0.85rem;border:1px solid #d5c7b7;border-radius:8px;font-family:Inter,sans-serif;font-size:0.875rem"></textarea>
+                        </div>
+
+                        <div class="form-row" style="display:flex;gap:1rem;margin-bottom:1rem">
+                            <div class="form-group" style="flex:1">
+                                <label style="display:block;font-weight:600;font-size:0.875rem;color:#2f5f4f;margin-bottom:6px">Category</label>
+                                <select id="galleryPhotoCategory" style="width:100%;padding:0.65rem 0.85rem;border:1px solid #d5c7b7;border-radius:8px;font-family:Inter,sans-serif;font-size:0.875rem">
+                                    <option value="Education">Education & Classes</option>
+                                    <option value="Activities">Creative Activities & Sports</option>
+                                    <option value="Nutrition">Nutritious Meals</option>
+                                    <option value="Celebrations">Events & Celebrations</option>
+                                    <option value="Community">Community Outreach</option>
+                                </select>
+                            </div>
+                            <div class="form-group" style="flex:1">
+                                <label style="display:block;font-weight:600;font-size:0.875rem;color:#2f5f4f;margin-bottom:6px">Display Order</label>
+                                <input type="number" id="galleryPhotoOrder" value="1" min="1" max="999" style="width:100%;padding:0.65rem 0.85rem;border:1px solid #d5c7b7;border-radius:8px;font-family:Inter,sans-serif;font-size:0.875rem">
+                            </div>
+                        </div>
+
+                        <!-- Upload Progress -->
+                        <div id="galleryUploadProgress" style="display:none;margin-bottom:1rem">
+                            <div style="background:#e0dcd5;border-radius:6px;height:8px;overflow:hidden">
+                                <div id="galleryProgressFill" style="background:#2f5f4f;height:100%;width:0%;transition:width 0.3s"></div>
+                            </div>
+                            <div id="galleryProgressText" style="font-size:0.75rem;color:#7a6b5d;margin-top:4px">Uploading photo...</div>
+                        </div>
+
+                        <button type="button" id="btnUploadGalleryPhoto" onclick="window.saveGalleryPhoto()" style="padding:0.75rem 1.5rem;background:#2f5f4f;color:white;border:none;border-radius:8px;font-family:Inter,sans-serif;font-size:0.95rem;font-weight:600;cursor:pointer;display:inline-flex;align-items:center;gap:8px">
+                            🚀 Publish Photo to Gallery
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Existing Gallery Photos List -->
+            <div>
+                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem">
+                    <h3 style="margin:0;color:#2f5f4f">📷 Published Gallery Photos (<span id="galleryCountBadge">0</span>)</h3>
+                </div>
+                <div id="galleryPhotosContainer" style="display:grid;grid-template-columns:repeat(auto-fill, minmax(260px, 1fr));gap:1.25rem">
+                    <div class="empty-state"><div class="icon">⏳</div><p>Loading gallery photos...</p></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- EDIT GALLERY PHOTO MODAL -->
+    <div class="modal" id="editGalleryModal">
+        <div class="modal-content" style="max-width:550px">
+            <div class="modal-header">
+                ✏️ Edit Photo Details
+                <button class="modal-close" onclick="window.closeEditGalleryModal()">✕</button>
+            </div>
+            <form onsubmit="window.updateGalleryPhotoDetails(event)">
+                <input type="hidden" id="editGalleryId">
+                <input type="hidden" id="editGalleryDirectUrl">
+                <div style="text-align:center;margin-bottom:1rem">
+                    <img id="editGalleryThumbnail" src="" alt="Thumbnail" style="max-height:140px;border-radius:8px;object-fit:cover;border:1px solid #ddd;box-shadow:0 2px 8px rgba(0,0,0,0.1)">
+                    <div style="margin-top:0.5rem">
+                        <button type="button" onclick="window.copyImageLink(document.getElementById('editGalleryDirectUrl').value)" style="padding:4px 10px;background:#f2ede4;border:1px solid #dcd3c4;border-radius:6px;font-size:0.75rem;cursor:pointer;color:#2f5f4f;font-weight:600;display:inline-flex;align-items:center;gap:4px">
+                            📋 Copy Direct Image URL
+                        </button>
+                    </div>
+                </div>
+                <div class="form-group" style="margin-bottom:1rem">
+                    <label>Title *</label>
+                    <input type="text" id="editGalleryTitle" required style="width:100%;padding:0.6rem;border:1px solid #ccc;border-radius:8px">
+                </div>
+                <div class="form-group" style="margin-bottom:1rem">
+                    <label>Description *</label>
+                    <textarea id="editGalleryDesc" rows="3" required style="width:100%;padding:0.6rem;border:1px solid #ccc;border-radius:8px"></textarea>
+                </div>
+                <div class="form-row" style="display:flex;gap:1rem;margin-bottom:1rem">
+                    <div class="form-group" style="flex:1">
+                        <label>Category</label>
+                        <select id="editGalleryCategory" style="width:100%;padding:0.6rem;border:1px solid #ccc;border-radius:8px">
+                            <option value="Education">Education & Classes</option>
+                            <option value="Activities">Creative Activities & Sports</option>
+                            <option value="Nutrition">Nutritious Meals</option>
+                            <option value="Celebrations">Events & Celebrations</option>
+                            <option value="Community">Community Outreach</option>
+                        </select>
+                    </div>
+                    <div class="form-group" style="flex:1">
+                        <label>Display Order</label>
+                        <input type="number" id="editGalleryOrder" min="1" max="999" style="width:100%;padding:0.6rem;border:1px solid #ccc;border-radius:8px">
+                    </div>
+                </div>
+                <!-- Optional: Replace Image -->
+                <div class="form-group" style="margin-bottom:1.25rem;background:#fbf8f5;border:1px dashed #dcd3c4;padding:0.75rem;border-radius:8px">
+                    <label style="font-size:0.8rem;font-weight:600;color:#2f5f4f;display:block;margin-bottom:4px">Replace Photo (Optional)</label>
+                    <input type="file" id="editGalleryFileInput" accept="image/*" style="font-size:0.8rem;width:100%">
+                    <span style="font-size:0.72rem;color:#7a6b5d">Leave empty to keep the current image</span>
+                </div>
+                <button type="submit" id="btnUpdateGallery" class="btn-save" style="width:100%">💾 Save Changes</button>
+            </form>
+        </div>
+    </div>
+
     <!-- ADD OFFLINE SUPPORTER MODAL -->
     <div class="modal" id="addSupporterModal">
         <div class="modal-content">
@@ -1930,7 +2108,7 @@
 
     // ── TAB SWITCH ──
     window.switchTab = (tabId, updateHistory = true) => {
-        const tabIds = ['new-entry','all-entries','summary','educators','children','sessions','supporters'];
+        const tabIds = ['new-entry','all-entries','summary','educators','children','sessions','supporters','gallery'];
         if (!tabIds.includes(tabId)) tabId = 'new-entry';
 
         document.querySelectorAll('.tab').forEach((t, i) => {
@@ -1977,6 +2155,8 @@
             window.loadAdminSessions();
         } else if (tabId === 'supporters' && window.loadSupportersList) {
             window.loadSupportersList();
+        } else if (tabId === 'gallery' && window.loadGalleryList) {
+            window.loadGalleryList();
         }
     };
 
@@ -1985,7 +2165,7 @@
     window.getInitialDashboardTab = () => {
         const hash = window.location.hash.replace('#', '').trim();
         const savedTab = localStorage.getItem('jaiti_admin_active_tab');
-        const tabIds = ['new-entry','all-entries','summary','educators','children','sessions','supporters'];
+        const tabIds = ['new-entry','all-entries','summary','educators','children','sessions','supporters','gallery'];
         if (hash && tabIds.includes(hash)) return hash;
         if (savedTab && tabIds.includes(savedTab)) return savedTab;
         return 'new-entry';
@@ -1994,7 +2174,7 @@
     // Handle browser back/forward buttons
     window.addEventListener('popstate', () => {
         const hash = window.location.hash.replace('#', '').trim();
-        const tabIds = ['new-entry','all-entries','summary','educators','children','sessions','supporters'];
+        const tabIds = ['new-entry','all-entries','summary','educators','children','sessions','supporters','gallery'];
         if (hash && tabIds.includes(hash)) {
             window.switchTab(hash, false);
         } else {
@@ -2391,7 +2571,12 @@
             if (entriesLastVisible) constraints.splice(1, 0, startAfter(entriesLastVisible));
             const snap = await getDocs(query(collection(db, 'daily-updates'), ...constraints));
             const pageEntries = [];
-            snap.forEach(d => pageEntries.push({ id: d.id, ...d.data() }));
+            snap.forEach(d => {
+                const data = d.data();
+                if (data.recordType !== 'supporter' && data.recordType !== 'gallery_photo') {
+                    pageEntries.push({ id: d.id, ...data });
+                }
+            });
             entriesLastVisible = snap.docs.length ? snap.docs[snap.docs.length - 1] : entriesLastVisible;
             entriesHasMore = snap.docs.length === ENTRIES_PAGE_SIZE;
 
@@ -2444,7 +2629,12 @@
         try {
             const snap = await getDocs(query(collection(db, 'daily-updates'), orderBy('date', 'desc')));
             const entries = [];
-            snap.forEach(d => entries.push({ id: d.id, ...d.data() }));
+            snap.forEach(d => {
+                const data = d.data();
+                if (data.recordType !== 'supporter' && data.recordType !== 'gallery_photo') {
+                    entries.push({ id: d.id, ...data });
+                }
+            });
             allSummaryEntries = entries;
             summaryLoaded = true;
             const thisMonth = new Date().toISOString().substring(0, 7);
@@ -4902,7 +5092,675 @@ window.exportSupportersCSV = function() {
     document.body.removeChild(link);
 };
 
+// =====================================================
+// ── GALLERY MANAGEMENT & PERCEPTUAL COMPRESSION ──
+// =====================================================
+let selectedGalleryFile = null;
+let compressedGalleryBlob = null;
+let isGalleryZoomed = false;
+let allGalleryPhotosData = [];
+
+// Helper: Format bytes to KB / MB
+function formatFileSize(bytes) {
+    if (bytes < 1024) return bytes + ' B';
+    if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' KB';
+    return (bytes / (1024 * 1024)).toFixed(2) + ' MB';
+}
+
+// Helper: Smart Perceptual Compression (Resizes to max 2048px with high smoothing & WebP encoding)
+async function compressImagePerceptual(file, maxDimension = 2048, quality = 0.86) {
+    return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            const img = new Image();
+            img.onload = () => {
+                let { width, height } = img;
+                const originalWidth = width;
+                const originalHeight = height;
+
+                if (width > maxDimension || height > maxDimension) {
+                    if (width > height) {
+                        height = Math.round((height * maxDimension) / width);
+                        width = maxDimension;
+                    } else {
+                        width = Math.round((width * maxDimension) / height);
+                        height = maxDimension;
+                    }
+                }
+
+                const canvas = document.createElement('canvas');
+                canvas.width = width;
+                canvas.height = height;
+                const ctx = canvas.getContext('2d');
+                ctx.imageSmoothingEnabled = true;
+                ctx.imageSmoothingQuality = 'high';
+                ctx.drawImage(img, 0, 0, width, height);
+
+                canvas.toBlob((blob) => {
+                    if (blob) {
+                        resolve({
+                            blob,
+                            originalWidth,
+                            originalHeight,
+                            optimizedWidth: width,
+                            optimizedHeight: height
+                        });
+                    } else {
+                        // Fallback to high quality JPEG if WebP export is unsupported
+                        canvas.toBlob((jpgBlob) => {
+                            resolve({
+                                blob: jpgBlob,
+                                originalWidth,
+                                originalHeight,
+                                optimizedWidth: width,
+                                optimizedHeight: height
+                            });
+                        }, 'image/jpeg', quality);
+                    }
+                }, 'image/webp', quality);
+            };
+            img.onerror = () => reject(new Error('Failed to load image for compression'));
+            img.src = e.target.result;
+        };
+        reader.onerror = () => reject(new Error('Failed to read file'));
+        reader.readAsDataURL(file);
+    });
+}
+
+// ── PHOTO SELECTION HANDLER ──
+window.handleGalleryPhotoSelect = async (event) => {
+    const file = event.target.files && event.target.files[0];
+    if (!file) return;
+
+    selectedGalleryFile = file;
+    const statsContainer = document.getElementById('galleryCompressStats');
+    const previewContainer = document.getElementById('galleryPhotoPreviewContainer');
+    const previewImg = document.getElementById('galleryPhotoPreviewImg');
+    const statsText = document.getElementById('galleryStatsText');
+    const savingsBadge = document.getElementById('gallerySavingsBadge');
+
+    statsContainer.style.display = 'block';
+    statsText.innerHTML = '<em>⏳ Analyzing & compressing image with high smoothing...</em>';
+    savingsBadge.textContent = 'Processing';
+
+    try {
+        const res = await compressImagePerceptual(file, 2048, 0.86);
+        compressedGalleryBlob = res.blob;
+
+        const originalBytes = file.size;
+        const optimizedBytes = res.blob.size;
+        const savedPercent = Math.max(0, Math.round(((originalBytes - optimizedBytes) / originalBytes) * 100));
+
+        savingsBadge.textContent = `${savedPercent}% Saved`;
+        statsText.innerHTML = `
+            <strong>Original:</strong> ${formatFileSize(originalBytes)} (${res.originalWidth} × ${res.originalHeight}px)<br>
+            <strong>Optimized:</strong> ${formatFileSize(optimizedBytes)} (${res.optimizedWidth} × ${res.optimizedHeight}px, High-Clarity WebP)
+        `;
+
+        const previewUrl = URL.createObjectURL(res.blob);
+        previewImg.src = previewUrl;
+        previewContainer.style.display = 'block';
+        isGalleryZoomed = false;
+        previewImg.style.transform = 'scale(1)';
+    } catch (err) {
+        console.error('Image compression error:', err);
+        statsText.innerHTML = `<span style="color:#dc2626">Compression warning: ${err.message}. Raw file will be used.</span>`;
+        compressedGalleryBlob = file;
+    }
+};
+
+// ── TOGGLE ZOOM FOR 100% FACE CLARITY CHECK ──
+window.toggleGalleryZoomPreview = () => {
+    const previewImg = document.getElementById('galleryPhotoPreviewImg');
+    const zoomWrap = document.getElementById('galleryZoomWrap');
+    if (!previewImg || !zoomWrap) return;
+
+    isGalleryZoomed = !isGalleryZoomed;
+    if (isGalleryZoomed) {
+        zoomWrap.style.overflow = 'auto';
+        previewImg.style.maxWidth = 'none';
+        previewImg.style.maxHeight = 'none';
+        previewImg.style.transform = 'scale(1.8)';
+        previewImg.style.cursor = 'grab';
+    } else {
+        zoomWrap.style.overflow = 'hidden';
+        previewImg.style.maxWidth = '100%';
+        previewImg.style.maxHeight = '260px';
+        previewImg.style.transform = 'scale(1)';
+        previewImg.style.cursor = 'default';
+    }
+};
+
+// ── SAVE GALLERY PHOTO TO CLOUDINARY & FIRESTORE ──
+window.saveGalleryPhoto = async () => {
+    const alertEl = document.getElementById('galleryAlert');
+    alertEl.className = 'alert';
+    alertEl.style.display = 'none';
+
+    const title = (document.getElementById('galleryPhotoTitle')?.value || '').trim();
+    const desc = (document.getElementById('galleryPhotoDesc')?.value || '').trim();
+    const category = document.getElementById('galleryPhotoCategory')?.value || 'Education';
+    const order = parseInt(document.getElementById('galleryPhotoOrder')?.value || '1', 10);
+    const btn = document.getElementById('btnUploadGalleryPhoto');
+
+    if (!compressedGalleryBlob && !selectedGalleryFile) {
+        showAlert('⚠️ Please select a photo first.', 'error', 'galleryAlert');
+        return;
+    }
+    if (!title) {
+        showAlert('⚠️ Please enter a title for this photo.', 'error', 'galleryAlert');
+        return;
+    }
+    if (!desc) {
+        showAlert('⚠️ Please enter a short description/caption for this photo.', 'error', 'galleryAlert');
+        return;
+    }
+
+    const progressDiv = document.getElementById('galleryUploadProgress');
+    const progressFill = document.getElementById('galleryProgressFill');
+    const progressText = document.getElementById('galleryProgressText');
+
+    try {
+        btn.disabled = true;
+        btn.innerHTML = '⏳ Uploading...';
+        progressDiv.style.display = 'block';
+        progressFill.style.width = '30%';
+        progressText.textContent = 'Uploading optimized photo to Cloudinary CDN...';
+
+        const fileToUpload = compressedGalleryBlob || selectedGalleryFile;
+        const uploadFile = new File([fileToUpload], (selectedGalleryFile?.name || 'photo').replace(/\.[^/.]+$/, "") + ".webp", { type: fileToUpload.type || 'image/webp' });
+
+        const formData = new FormData();
+        formData.append('file', uploadFile);
+        formData.append('upload_preset', CLOUDINARY_PRESET);
+        formData.append('folder', 'jaiti-foundation/gallery');
+
+        const res = await fetch(`https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD}/image/upload`, {
+            method: 'POST',
+            body: formData
+        });
+
+        if (!res.ok) throw new Error('Cloudinary upload failed: ' + res.statusText);
+        const data = await res.json();
+        const rawUrl = data.secure_url;
+
+        progressFill.style.width = '75%';
+        progressText.textContent = 'Saving details to database...';
+
+        // Insert Cloudinary delivery transformations
+        const optimizedUrl = rawUrl.replace('/image/upload/', '/image/upload/f_auto,q_auto,w_1600,c_limit/');
+        const thumbnailUrl = rawUrl.replace('/image/upload/', '/image/upload/f_auto,q_auto,w_800,c_limit/');
+
+        const today = new Date().toISOString().split('T')[0];
+        const photoId = 'gallery_' + Date.now() + '_' + Math.random().toString(36).substring(2, 7);
+        const photoRecord = {
+            id: photoId,
+            recordType: 'gallery_photo',
+            title,
+            description: desc,
+            category,
+            order: isNaN(order) ? 1 : order,
+            rawUrl,
+            optimizedUrl,
+            thumbnailUrl,
+            filename: (selectedGalleryFile?.name || 'photo').replace(/\.[^/.]+$/, "") + ".webp",
+            date: today,
+            createdAtMs: Date.now(),
+            createdAt: serverTimestamp()
+        };
+
+        // Primary persistent save to daily-updates (guaranteed permitted collection)
+        try {
+            await setDoc(doc(db, 'daily-updates', photoId), photoRecord);
+        } catch (dbErr) {
+            console.warn('daily-updates save warning:', dbErr.message);
+        }
+
+        // Secondary try to gallery_photos collection
+        try {
+            await setDoc(doc(db, 'gallery_photos', photoId), photoRecord);
+        } catch (e) {
+            // Expected under existing security rules
+        }
+
+        // Save to local cache
+        try {
+            const cached = JSON.parse(localStorage.getItem('jaiti_gallery_photos') || '[]');
+            cached.unshift(photoRecord);
+            localStorage.setItem('jaiti_gallery_photos', JSON.stringify(cached));
+        } catch (e) {}
+
+        progressFill.style.width = '100%';
+        progressText.textContent = 'Uploaded successfully!';
+
+        showAlert('✅ Photo published to gallery successfully!', 'success', 'galleryAlert');
+
+        // Reset form
+        document.getElementById('galleryPhotoInput').value = '';
+        document.getElementById('galleryPhotoTitle').value = '';
+        document.getElementById('galleryPhotoDesc').value = '';
+        document.getElementById('galleryCompressStats').style.display = 'none';
+        document.getElementById('galleryPhotoPreviewContainer').style.display = 'none';
+        selectedGalleryFile = null;
+        compressedGalleryBlob = null;
+
+        setTimeout(() => {
+            progressDiv.style.display = 'none';
+            progressFill.style.width = '0%';
+        }, 1500);
+
+        await window.loadGalleryList();
+    } catch (err) {
+        console.error('Save gallery photo error:', err);
+        showAlert('❌ Error: ' + err.message, 'error', 'galleryAlert');
+        progressDiv.style.display = 'none';
+    } finally {
+        btn.disabled = false;
+        btn.innerHTML = '🚀 Publish Photo to Gallery';
+    }
+};
+
+// ── LOAD GALLERY LIST ──
+window.loadGalleryList = async () => {
+    const container = document.getElementById('galleryPhotosContainer');
+    const badge = document.getElementById('galleryCountBadge');
+    if (!container) return;
+
+    container.innerHTML = '<div class="empty-state" style="grid-column:1/-1"><div class="icon">⏳</div><p>Loading gallery photos...</p></div>';
+
+    try {
+        allGalleryPhotosData = [];
+        const seenIds = new Set();
+        const seenUrls = new Set();
+
+        // 1. Fetch from daily-updates collection (where recordType == 'gallery_photo')
+        try {
+            const qDaily = query(collection(db, 'daily-updates'), where('recordType', '==', 'gallery_photo'));
+            const snapDaily = await getDocs(qDaily);
+            snapDaily.forEach(docSnap => {
+                const data = docSnap.data();
+                const key = data.rawUrl || docSnap.id;
+                if (!seenIds.has(docSnap.id) && !seenUrls.has(key)) {
+                    seenIds.add(docSnap.id);
+                    seenUrls.add(key);
+                    allGalleryPhotosData.push({ id: docSnap.id, ...data });
+                }
+            });
+        } catch (err) {
+            console.warn('daily-updates gallery query notice:', err.message);
+        }
+
+        // 2. Fetch from gallery_photos collection (if rules permit)
+        try {
+            const q = query(collection(db, 'gallery_photos'));
+            const snap = await getDocs(q);
+            snap.forEach(docSnap => {
+                const data = docSnap.data();
+                const key = data.rawUrl || docSnap.id;
+                if (!seenIds.has(docSnap.id) && !seenUrls.has(key)) {
+                    seenIds.add(docSnap.id);
+                    seenUrls.add(key);
+                    allGalleryPhotosData.push({ id: docSnap.id, ...data });
+                }
+            });
+        } catch (err) {
+            // Non-blocking fallback
+        }
+
+        // 3. Fallback / Merge from localStorage cache
+        try {
+            const localPhotos = JSON.parse(localStorage.getItem('jaiti_gallery_photos') || '[]');
+            localPhotos.forEach(photo => {
+                const key = photo.rawUrl || photo.id;
+                if (!seenIds.has(photo.id) && !seenUrls.has(key)) {
+                    seenIds.add(photo.id);
+                    seenUrls.add(key);
+                    allGalleryPhotosData.push(photo);
+                }
+            });
+        } catch (e) {}
+
+        // Sort by order asc, then date/createdAtMs desc
+        allGalleryPhotosData.sort((a, b) => {
+            const orderDiff = (Number(a.order ?? 9999)) - (Number(b.order ?? 9999));
+            if (orderDiff !== 0) return orderDiff;
+            return (b.date || '').localeCompare(a.date || '');
+        });
+
+        if (badge) badge.textContent = allGalleryPhotosData.length;
+
+        // Keep local cache fresh
+        try {
+            if (allGalleryPhotosData.length > 0) {
+                localStorage.setItem('jaiti_gallery_photos', JSON.stringify(allGalleryPhotosData));
+            }
+        } catch (e) {}
+
+        if (allGalleryPhotosData.length === 0) {
+            container.innerHTML = `
+                <div class="empty-state" style="grid-column:1/-1">
+                    <div class="icon">🖼️</div>
+                    <p style="font-size:1.1rem;font-weight:600;color:#2f5f4f;margin-bottom:0.5rem">No photos in gallery database yet</p>
+                    <p style="font-size:0.875rem;color:#7a6b5d;margin-bottom:1.25rem">Click below to sync all 17 existing photos from the website into the database so you can edit, reorder, or delete them.</p>
+                    <button id="btnSyncExistingPhotos" onclick="window.syncExistingWebsitePhotos()" style="padding:0.75rem 1.5rem;background:#2f5f4f;color:white;border:none;border-radius:8px;font-family:Inter,sans-serif;font-size:0.95rem;font-weight:600;cursor:pointer;display:inline-flex;align-items:center;gap:8px">
+                        📥 Load & Sync All 17 Existing Website Photos
+                    </button>
+                </div>
+            `;
+            return;
+        }
+
+        container.innerHTML = allGalleryPhotosData.map(photo => {
+            const displayImg = photo.thumbnailUrl || photo.optimizedUrl || photo.rawUrl;
+            const fullImgUrl = displayImg.startsWith('http') ? displayImg : (window.location.origin + '/' + displayImg.replace(/^\//, ''));
+            const isLocal = displayImg.includes('images/photo');
+            const sourceBadge = isLocal 
+                ? '<span style="position:absolute;bottom:8px;left:8px;background:rgba(15,23,42,0.75);color:#e2e8f0;font-size:0.65rem;font-weight:600;padding:2px 6px;border-radius:4px;backdrop-filter:blur(4px)">📁 Website Original</span>'
+                : '<span style="position:absolute;bottom:8px;left:8px;background:rgba(46,125,50,0.85);color:#fff;font-size:0.65rem;font-weight:600;padding:2px 6px;border-radius:4px;backdrop-filter:blur(4px)">☁️ Cloud CDN</span>';
+
+            return `
+                <div style="background:#fff;border:1px solid #e2d9cd;border-radius:12px;overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,0.06);display:flex;flex-direction:column">
+                    <div style="position:relative;aspect-ratio:4/3;background:#000;overflow:hidden">
+                        <img src="${displayImg}" alt="${photo.title || 'Gallery Photo'}" style="width:100%;height:100%;object-fit:cover;cursor:pointer" onclick="openLightbox('${photo.optimizedUrl || photo.rawUrl}')" title="Click to preview fullscreen">
+                        <span style="position:absolute;top:8px;left:8px;background:rgba(47,95,79,0.85);color:white;font-size:0.7rem;font-weight:700;padding:2px 8px;border-radius:4px;backdrop-filter:blur(4px)">
+                            ${photo.category || 'Education'}
+                        </span>
+                        <span style="position:absolute;top:8px;right:8px;background:rgba(0,0,0,0.65);color:white;font-size:0.7rem;font-weight:600;padding:2px 6px;border-radius:4px">
+                            #${photo.order || 1}
+                        </span>
+                        ${sourceBadge}
+                    </div>
+                    <div style="padding:1rem;flex:1;display:flex;flex-direction:column;justify-content:space-between">
+                        <div>
+                            <h4 style="margin:0 0 0.35rem 0;color:#2f5f4f;font-size:0.95rem;line-height:1.3">${photo.title || 'Untitled'}</h4>
+                            <p style="margin:0;color:#6b5f54;font-size:0.8rem;line-height:1.4;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden">
+                                ${photo.description || 'No description provided.'}
+                            </p>
+                        </div>
+                        <div style="margin-top:1rem;padding-top:0.75rem;border-top:1px solid #f0ebe4;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:6px">
+                            <span style="font-size:0.72rem;color:#9b8c7e">${photo.date || ''}</span>
+                            <div style="display:flex;gap:6px">
+                                <button onclick="window.copyImageLink('${fullImgUrl}')" title="Copy Direct Image URL" style="background:#eef2f6;border:1px solid #cbd5e1;color:#334155;padding:4px 8px;border-radius:6px;font-size:0.75rem;cursor:pointer;font-weight:600;display:inline-flex;align-items:center;gap:3px">
+                                    📋 Link
+                                </button>
+                                <button onclick="window.openEditGalleryModal('${photo.id}')" title="Edit title, text or replace image" style="background:#f2ede4;border:1px solid #dcd3c4;color:#2f5f4f;padding:4px 8px;border-radius:6px;font-size:0.75rem;cursor:pointer;font-weight:600">
+                                    ✏️ Edit
+                                </button>
+                                <button onclick="window.deleteGalleryPhoto('${photo.id}', '${(photo.title || '').replace(/'/g, "\\'")}')" title="Remove from website" style="background:#fee2e2;border:1px solid #fca5a5;color:#b91c1c;padding:4px 8px;border-radius:6px;font-size:0.75rem;cursor:pointer;font-weight:600">
+                                    🗑️ Delete
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }).join('');
+    } catch (err) {
+        console.error('Load gallery error:', err);
+        container.innerHTML = `<div class="empty-state" style="grid-column:1/-1;color:#b91c1c"><div class="icon">⚠️</div><p>Failed to load gallery photos: ${err.message}</p></div>`;
+    }
+};
+
+// ── 1-CLICK COPY DIRECT IMAGE URL ──
+window.copyImageLink = async (url) => {
+    if (!url) return;
+    const fullUrl = url.startsWith('http') ? url : (window.location.origin + '/' + url.replace(/^\//, ''));
+    try {
+        await navigator.clipboard.writeText(fullUrl);
+        showAlert('📋 Direct image link copied to clipboard!', 'success', 'galleryAlert');
+    } catch (err) {
+        // Fallback for older browsers
+        const temp = document.createElement('input');
+        temp.value = fullUrl;
+        document.body.appendChild(temp);
+        temp.select();
+        document.execCommand('copy');
+        document.body.removeChild(temp);
+        showAlert('📋 Direct image link copied to clipboard!', 'success', 'galleryAlert');
+    }
+};
+
+// ── SYNC 17 EXISTING WEBSITE PHOTOS TO FIRESTORE ──
+const EXISTING_17_PHOTOS = [
+    { filename: 'images/photo1.webp', title: "Free Education Program", description: "Underprivileged children education program and daily foundational learning in Jagatpura, Jaipur.", category: "Education", order: 1 },
+    { filename: 'images/photo2.webp', title: "Child Development & Growth", description: "Free schooling, emotional growth, and moral character building for underprivileged children in Jaipur.", category: "Education", order: 2 },
+    { filename: 'images/photo3.webp', title: "Classroom Activities & Joy", description: "Interactive learning sessions where every child participates with curiosity and confidence.", category: "Education", order: 3 },
+    { filename: 'images/photo4.webp', title: "Individual Academic Mentoring", description: "Volunteer teachers giving personalized attention to help students master reading and basic math.", category: "Education", order: 4 },
+    { filename: 'images/photo5.webp', title: "Community Social Welfare", description: "Empowering families and surrounding communities through awareness and educational outreach.", category: "Community", order: 5 },
+    { filename: 'images/photo6.webp', title: "Education Center Moments", description: "Safe, nurturing learning environment created for children in Jagatpura community center.", category: "Education", order: 6 },
+    { filename: 'images/photo7.webp', title: "Daily Teaching Drive", description: "Dedicated evening study sessions providing consistent learning opportunities.", category: "Education", order: 7 },
+    { filename: 'images/photo8.webp', title: "Creative Arts & Sports", description: "Holistic development with indoor games, art, and creative expression activities.", category: "Activities", order: 8 },
+    { filename: 'images/photo9.webp', title: "Underprivileged Community Support", description: "Bridging the educational gap for migrant and slum community children in Jaipur.", category: "Community", order: 9 },
+    { filename: 'images/photo10.webp', title: "Youth Development Initiatives", description: "Building confidence, discipline, and civic values for a brighter tomorrow.", category: "Activities", order: 10 },
+    { filename: 'images/photo11.webp', title: "Nutrition & Healthy Meals", description: "Wholesome nutritious snacks and clean drinking water provided after daily study hours.", category: "Nutrition", order: 11 },
+    { filename: 'images/photo12.webp', title: "Community Outreach & Guidance", description: "Engaging with parents to promote the importance of regular education for boys and girls.", category: "Community", order: 12 },
+    { filename: 'images/photo13.webp', title: "Celebrations & Special Drives", description: "Festivals, distribution of books, stationery kits, and school supplies.", category: "Celebrations", order: 13 },
+    { filename: 'images/photo14.webp', title: "Moral Education & Civic Sense", description: "Teaching hygiene, respect, kindness, and national civic responsibility.", category: "Education", order: 14 },
+    { filename: 'images/photo15.webp', title: "Group Learning & Teamwork", description: "Fostering teamwork, friendship, and collective growth among bright young minds.", category: "Activities", order: 15 },
+    { filename: 'images/photo16.webp', title: "Evening Study Circle", description: "Community education and youth development program bringing meaningful change.", category: "Community", order: 16 },
+    { filename: 'images/photo17.webp', title: "Bright Smiles & Future Dreams", description: "Transforming young lives through continuous love, care, and quality free education.", category: "Education", order: 17 }
+];
+
+window.syncExistingWebsitePhotos = async () => {
+    const btn = document.getElementById('btnSyncExistingPhotos');
+    if (btn) {
+        btn.disabled = true;
+        btn.innerHTML = '⏳ Syncing 17 Photos...';
+    }
+
+    try {
+        const existingFilenames = new Set();
+        (allGalleryPhotosData || []).forEach(d => {
+            if (d.rawUrl) existingFilenames.add(d.rawUrl);
+            if (d.filename) existingFilenames.add(d.filename);
+        });
+
+        let addedCount = 0;
+        const today = new Date().toISOString().split('T')[0];
+
+        for (const item of EXISTING_17_PHOTOS) {
+            if (!existingFilenames.has(item.filename)) {
+                const docId = 'gallery_seed_' + item.order;
+                const photoDoc = {
+                    id: docId,
+                    recordType: 'gallery_photo',
+                    title: item.title,
+                    description: item.description,
+                    category: item.category,
+                    order: item.order,
+                    rawUrl: item.filename,
+                    optimizedUrl: item.filename,
+                    thumbnailUrl: item.filename,
+                    filename: item.filename,
+                    date: today,
+                    createdAtMs: Date.now() + item.order,
+                    createdAt: serverTimestamp()
+                };
+
+                // Save to daily-updates
+                try {
+                    await setDoc(doc(db, 'daily-updates', docId), photoDoc);
+                } catch (e) {
+                    console.warn('daily-updates sync seed warning:', e.message);
+                }
+
+                // Try save to gallery_photos
+                try {
+                    await setDoc(doc(db, 'gallery_photos', docId), photoDoc);
+                } catch (e) {}
+
+                addedCount++;
+            }
+        }
+
+        if (addedCount > 0) {
+            showAlert(`✅ Successfully synced ${addedCount} existing photos to database! Now you can edit their text, copy direct links, or delete them anytime.`, 'success', 'galleryAlert');
+        } else {
+            showAlert('ℹ️ All 17 existing photos are already synced in the database.', 'success', 'galleryAlert');
+        }
+
+        await window.loadGalleryList();
+    } catch (err) {
+        console.error('Sync error:', err);
+        showAlert('❌ Sync failed: ' + err.message, 'error', 'galleryAlert');
+    } finally {
+        if (btn) {
+            btn.disabled = false;
+            btn.innerHTML = '📥 Sync 17 Existing Photos';
+        }
+    }
+};
+
+// ── EDIT GALLERY MODAL ──
+window.openEditGalleryModal = (id) => {
+    const photo = allGalleryPhotosData.find(p => p.id === id);
+    if (!photo) return;
+
+    const displayImg = photo.thumbnailUrl || photo.optimizedUrl || photo.rawUrl;
+    const fullImgUrl = displayImg.startsWith('http') ? displayImg : (window.location.origin + '/' + displayImg.replace(/^\//, ''));
+
+    document.getElementById('editGalleryId').value = photo.id;
+    document.getElementById('editGalleryDirectUrl').value = fullImgUrl;
+    document.getElementById('editGalleryTitle').value = photo.title || '';
+    document.getElementById('editGalleryDesc').value = photo.description || '';
+    document.getElementById('editGalleryCategory').value = photo.category || 'Education';
+    document.getElementById('editGalleryOrder').value = photo.order || 1;
+    document.getElementById('editGalleryThumbnail').src = displayImg;
+    const fileInput = document.getElementById('editGalleryFileInput');
+    if (fileInput) fileInput.value = '';
+
+    const modal = document.getElementById('editGalleryModal');
+    if (modal) modal.classList.add('active');
+};
+
+window.closeEditGalleryModal = () => {
+    const modal = document.getElementById('editGalleryModal');
+    if (modal) modal.classList.remove('active');
+};
+
+window.updateGalleryPhotoDetails = async (event) => {
+    event.preventDefault();
+    const id = document.getElementById('editGalleryId').value;
+    const title = document.getElementById('editGalleryTitle').value.trim();
+    const desc = document.getElementById('editGalleryDesc').value.trim();
+    const category = document.getElementById('editGalleryCategory').value;
+    const order = parseInt(document.getElementById('editGalleryOrder').value || '1', 10);
+    const replaceFile = document.getElementById('editGalleryFileInput')?.files?.[0];
+    const btn = document.getElementById('btnUpdateGallery');
+
+    if (!id || !title) return;
+
+    try {
+        btn.disabled = true;
+        btn.innerHTML = '💾 Saving...';
+
+        const updateData = {
+            title,
+            description: desc,
+            category,
+            order: isNaN(order) ? 1 : order,
+            updatedAt: serverTimestamp()
+        };
+
+        // If user selected a replacement photo, compress and upload it to Cloudinary
+        if (replaceFile) {
+            btn.innerHTML = '⏳ Uploading replacement photo...';
+            const compressed = await compressImagePerceptual(replaceFile, 2048, 0.86);
+            const uploadFile = new File([compressed.blob], replaceFile.name.replace(/\.[^/.]+$/, "") + ".webp", { type: 'image/webp' });
+
+            const formData = new FormData();
+            formData.append('file', uploadFile);
+            formData.append('upload_preset', CLOUDINARY_PRESET);
+            formData.append('folder', 'jaiti-foundation/gallery');
+
+            const res = await fetch(`https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD}/image/upload`, {
+                method: 'POST',
+                body: formData
+            });
+
+            if (!res.ok) throw new Error('Replacement photo upload failed');
+            const data = await res.json();
+            const rawUrl = data.secure_url;
+            updateData.rawUrl = rawUrl;
+            updateData.optimizedUrl = rawUrl.replace('/image/upload/', '/image/upload/f_auto,q_auto,w_1600,c_limit/');
+            updateData.thumbnailUrl = rawUrl.replace('/image/upload/', '/image/upload/f_auto,q_auto,w_800,c_limit/');
+        }
+
+        // 1. Update in daily-updates
+        try {
+            await setDoc(doc(db, 'daily-updates', id), updateData, { merge: true });
+        } catch (e) {
+            console.warn('daily-updates update notice:', e.message);
+        }
+
+        // 2. Update in gallery_photos
+        try {
+            await setDoc(doc(db, 'gallery_photos', id), updateData, { merge: true });
+        } catch (e) {
+            // Non-blocking
+        }
+
+        // 3. Update in local storage
+        try {
+            const cached = JSON.parse(localStorage.getItem('jaiti_gallery_photos') || '[]');
+            const idx = cached.findIndex(p => p.id === id);
+            if (idx !== -1) {
+                cached[idx] = { ...cached[idx], ...updateData };
+                localStorage.setItem('jaiti_gallery_photos', JSON.stringify(cached));
+            }
+        } catch (e) {}
+
+        window.closeEditGalleryModal();
+        showAlert('✅ Photo details updated successfully!', 'success', 'galleryAlert');
+        await window.loadGalleryList();
+    } catch (err) {
+        console.error('Update photo error:', err);
+        alert('Failed to update: ' + err.message);
+    } finally {
+        btn.disabled = false;
+        btn.innerHTML = '💾 Save Changes';
+    }
+};
+
+// ── DELETE GALLERY PHOTO ──
+window.deleteGalleryPhoto = async (id, title) => {
+    if (!confirm(`Are you sure you want to delete "${title || 'this photo'}" from the gallery? It will be immediately removed from the live website.`)) {
+        return;
+    }
+
+    try {
+        // Delete from daily-updates
+        try {
+            await deleteDoc(doc(db, 'daily-updates', id));
+        } catch (e) {
+            console.warn('daily-updates delete notice:', e.message);
+        }
+
+        // Delete from gallery_photos
+        try {
+            await deleteDoc(doc(db, 'gallery_photos', id));
+        } catch (e) {
+            // Non-blocking
+        }
+
+        // Remove from local storage
+        try {
+            let cached = JSON.parse(localStorage.getItem('jaiti_gallery_photos') || '[]');
+            cached = cached.filter(p => p.id !== id);
+            localStorage.setItem('jaiti_gallery_photos', JSON.stringify(cached));
+        } catch (e) {}
+
+        showAlert('🗑️ Photo removed from gallery successfully.', 'success', 'galleryAlert');
+        await window.loadGalleryList();
+    } catch (err) {
+        console.error('Delete photo error:', err);
+        showAlert('❌ Failed to delete photo: ' + err.message, 'error', 'galleryAlert');
+    }
+};
+
 </script>
 
+<!-- Flipkart-style Offline Connectivity Manager for Admin Dashboard -->
+<script src="script.js" defer></script>
 </body>
 </html>

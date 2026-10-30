@@ -819,13 +819,21 @@ document.addEventListener('click', function(e) {
     if (galleryItem) {
         const galleryGrid = galleryItem.closest('.gallery-grid');
         if (galleryGrid) {
-            const items = Array.from(galleryGrid.querySelectorAll('.gallery-item img'));
-            galleryImages = items.map(img => ({
-                src: img.src,
-                alt: img.alt
-            }));
-            const clickedImg = galleryItem.querySelector('img');
-            const foundIndex = items.indexOf(clickedImg);
+            const items = Array.from(galleryGrid.querySelectorAll('.gallery-item')).filter(item => {
+                return window.getComputedStyle(item).display !== 'none';
+            });
+            galleryImages = items.map(item => {
+                const img = item.querySelector('img');
+                const titleEl = item.querySelector('.gallery-caption h3') || item.querySelector('h3');
+                const descEl = item.querySelector('.gallery-caption p') || item.querySelector('p');
+                return {
+                    src: item.dataset.highres || img.src,
+                    alt: img.alt || '',
+                    title: item.dataset.title || (titleEl ? titleEl.textContent.trim() : ''),
+                    desc: item.dataset.desc || (descEl ? descEl.textContent.trim() : '')
+                };
+            });
+            const foundIndex = items.indexOf(galleryItem);
             currentLightboxIndex = foundIndex !== -1 ? foundIndex : 0;
             openLightbox(currentLightboxIndex);
         }
@@ -865,6 +873,10 @@ function openLightbox(index) {
                         <polyline points="9 18 15 12 9 6"></polyline>
                     </svg>
                 </button>
+                <div class="lightbox-caption-box" id="lightboxCaptionBox" style="display:none">
+                    <h4 id="lightboxTitle"></h4>
+                    <p id="lightboxDesc"></p>
+                </div>
                 <div class="lightbox-counter">
                     <span class="current">1</span> / <span class="total">1</span>
                 </div>
@@ -906,11 +918,24 @@ function openLightbox(index) {
     document.removeEventListener('keydown', handleLightboxKeyboard);
     document.addEventListener('keydown', handleLightboxKeyboard);
     
-    // Update image and counter
+    // Update image, caption and counter
     const img = lightboxOverlay.querySelector('.lightbox-image');
-    img.src = galleryImages[index].src;
-    img.alt = galleryImages[index].alt;
+    const currentItem = galleryImages[index];
+    img.src = currentItem.src;
+    img.alt = currentItem.alt;
     
+    const captionBox = lightboxOverlay.querySelector('#lightboxCaptionBox');
+    const titleEl = lightboxOverlay.querySelector('#lightboxTitle');
+    const descEl = lightboxOverlay.querySelector('#lightboxDesc');
+
+    if (captionBox && (currentItem.title || currentItem.desc)) {
+        if (titleEl) titleEl.textContent = currentItem.title || '';
+        if (descEl) descEl.textContent = currentItem.desc || '';
+        captionBox.style.display = 'block';
+    } else if (captionBox) {
+        captionBox.style.display = 'none';
+    }
+
     lightboxOverlay.querySelector('.current').textContent = index + 1;
     lightboxOverlay.querySelector('.total').textContent = galleryImages.length;
     
@@ -976,3 +1001,130 @@ function throttle(func, limit) {
         }
     };
 }
+
+// ==========================================================
+// FLIPKART-STYLE NETWORK CONNECTIVITY UX MANAGER
+// ==========================================================
+(function initFlipkartStyleOfflineManager() {
+    let offlineBanner = null;
+    let offlineToast = null;
+    let toastTimer = null;
+    let onlineRestoreTimer = null;
+    let isCurrentlyOffline = false;
+
+    function createBannerElements() {
+        if (!document.getElementById('jaiti-offline-banner')) {
+            offlineBanner = document.createElement('div');
+            offlineBanner.id = 'jaiti-offline-banner';
+            offlineBanner.className = 'state-offline';
+            offlineBanner.setAttribute('role', 'alert');
+            offlineBanner.setAttribute('aria-live', 'assertive');
+            offlineBanner.innerHTML = `
+                <span class="banner-pulse"></span>
+                <span class="banner-icon">📡</span>
+                <span class="banner-text">You are offline. Showing saved page</span>
+            `;
+            document.body.appendChild(offlineBanner);
+        } else {
+            offlineBanner = document.getElementById('jaiti-offline-banner');
+        }
+
+        if (!document.getElementById('jaiti-offline-toast')) {
+            offlineToast = document.createElement('div');
+            offlineToast.id = 'jaiti-offline-toast';
+            offlineToast.textContent = "⚡ You're offline. Reconnect to navigate.";
+            document.body.appendChild(offlineToast);
+        } else {
+            offlineToast = document.getElementById('jaiti-offline-toast');
+        }
+    }
+
+    function showOfflineToast(message) {
+        if (!offlineToast) return;
+        if (message) offlineToast.textContent = message;
+        offlineToast.classList.add('visible');
+        clearTimeout(toastTimer);
+        toastTimer = setTimeout(() => {
+            offlineToast.classList.remove('visible');
+        }, 2200);
+    }
+
+    function setOfflineState(offline, notifyUser = true) {
+        isCurrentlyOffline = offline;
+        createBannerElements();
+
+        if (offline) {
+            // Apply grayscale to HTML and Body
+            document.documentElement.classList.add('app-offline-active');
+            document.body.classList.add('app-offline-active');
+
+            if (offlineBanner && notifyUser) {
+                clearTimeout(onlineRestoreTimer);
+                offlineBanner.className = 'state-offline visible';
+                offlineBanner.innerHTML = `
+                    <span class="banner-pulse"></span>
+                    <span class="banner-icon">📡</span>
+                    <span class="banner-text">You are offline. Showing saved page</span>
+                `;
+            }
+        } else {
+            // Remove grayscale
+            document.documentElement.classList.remove('app-offline-active');
+            document.body.classList.remove('app-offline-active');
+
+            if (offlineBanner && notifyUser) {
+                offlineBanner.className = 'state-online visible';
+                offlineBanner.innerHTML = `
+                    <span class="banner-pulse"></span>
+                    <span class="banner-icon">⚡</span>
+                    <span class="banner-text">Back online! Reconnected</span>
+                `;
+
+                clearTimeout(onlineRestoreTimer);
+                onlineRestoreTimer = setTimeout(() => {
+                    offlineBanner.classList.remove('visible');
+                }, 2600);
+            }
+        }
+    }
+
+    // Intercept clicks on links, buttons, and form submits while offline
+    function interceptOfflineClicks(e) {
+        if (!isCurrentlyOffline) return;
+
+        // Check if user clicked an interactive link or button
+        const target = e.target.closest('a, button, input[type="submit"], input[type="button"], [role="button"], form');
+        if (target) {
+            // Stop navigation & prevent network request failure
+            e.preventDefault();
+            e.stopPropagation();
+            showOfflineToast("⚡ You're offline. Reconnect to navigate.");
+        }
+    }
+
+    // Window network event listeners
+    window.addEventListener('offline', () => {
+        setOfflineState(true, true);
+    });
+
+    window.addEventListener('online', () => {
+        setOfflineState(false, true);
+    });
+
+    // Capture-phase listener for clicks
+    document.addEventListener('click', interceptOfflineClicks, true);
+
+    // Initial check on load
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', () => {
+            if (navigator.onLine === false) {
+                setOfflineState(true, true);
+            }
+        });
+    } else {
+        if (navigator.onLine === false) {
+            setOfflineState(true, true);
+        }
+    }
+})();
+

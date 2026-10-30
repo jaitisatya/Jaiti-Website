@@ -1073,6 +1073,89 @@ p {
 
 .gallery-section { background: var(--white); }
 
+/* Gallery Category Filter Bar */
+.gallery-filter-bar {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 0.65rem;
+    margin-bottom: 2.25rem;
+}
+
+.gallery-filter-btn {
+    background: #f1f5f9;
+    color: #475569;
+    border: 1.5px solid #cbd5e1;
+    border-radius: 50px;
+    padding: 0.5rem 1.15rem;
+    font-size: 0.875rem;
+    font-weight: 600;
+    font-family: inherit;
+    cursor: pointer;
+    transition: all 0.25s ease;
+}
+
+.gallery-filter-btn:hover {
+    background: #e2e8f0;
+    color: #1e293b;
+    border-color: #94a3b8;
+}
+
+.gallery-filter-btn.active {
+    background: var(--primary, #0B508D);
+    color: #ffffff;
+    border-color: var(--primary, #0B508D);
+    box-shadow: 0 4px 12px rgba(11, 80, 141, 0.25);
+}
+
+.lightbox-caption-box {
+    position: absolute;
+    bottom: 4.5rem;
+    left: 50%;
+    transform: translateX(-50%);
+    max-width: 85%;
+    width: 650px;
+    background: rgba(15, 23, 42, 0.85);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.18);
+    border-radius: 12px;
+    padding: 0.85rem 1.25rem;
+    color: #ffffff;
+    text-align: center;
+    pointer-events: auto;
+    z-index: 10;
+    transition: opacity 0.3s ease;
+}
+
+.lightbox-caption-box h4 {
+    margin: 0 0 0.25rem 0;
+    font-size: 1.05rem;
+    color: #ffffff;
+    font-weight: 700;
+}
+
+.lightbox-caption-box p {
+    margin: 0;
+    font-size: 0.85rem;
+    color: rgba(255, 255, 255, 0.88);
+    line-height: 1.4;
+}
+
+@media (max-width: 600px) {
+    .lightbox-caption-box {
+        bottom: 3.8rem;
+        max-width: 92%;
+        padding: 0.6rem 0.85rem;
+    }
+    .lightbox-caption-box h4 {
+        font-size: 0.9rem;
+    }
+    .lightbox-caption-box p {
+        font-size: 0.75rem;
+    }
+}
+
 .gallery-grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
@@ -2146,3 +2229,134 @@ p {
         display: none !important;
     }
 }
+
+/* ==========================================================
+   FLIPKART-STYLE OFFLINE STATE (GRAYSCAE & INTERACTIVE FREEZE)
+   ========================================================== */
+html.app-offline-active,
+body.app-offline-active {
+    filter: grayscale(100%) contrast(92%) !important;
+    transition: filter 0.4s ease;
+}
+
+/* Keep scrolling smooth and fully functional */
+body.app-offline-active {
+    overflow-y: auto !important;
+    user-select: auto;
+}
+
+/* In offline mode: buttons, links, inputs freeze (hardcoded look) */
+body.app-offline-active a,
+body.app-offline-active button,
+body.app-offline-active input,
+body.app-offline-active select,
+body.app-offline-active textarea,
+body.app-offline-active [role="button"] {
+    cursor: not-allowed !important;
+}
+
+/* Floating Offline/Online Status Banner */
+#jaiti-offline-banner {
+    position: fixed;
+    top: 14px;
+    left: 50%;
+    transform: translateX(-50%) translateY(-100px);
+    z-index: 99999999;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 18px;
+    border-radius: 9999px;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Inter, sans-serif;
+    font-size: 0.875rem;
+    font-weight: 600;
+    line-height: 1.2;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25), 0 2px 6px rgba(0, 0, 0, 0.15);
+    transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.35s ease, background 0.3s ease;
+    opacity: 0;
+    pointer-events: auto;
+    filter: none !important; /* Keep banner crisp and readable */
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+}
+
+#jaiti-offline-banner.visible {
+    transform: translateX(-50%) translateY(0);
+    opacity: 1;
+}
+
+#jaiti-offline-banner.state-offline {
+    background: rgba(24, 24, 27, 0.95);
+    color: #f4f4f5;
+    border: 1px solid rgba(255, 255, 255, 0.15);
+}
+
+#jaiti-offline-banner.state-online {
+    background: rgba(16, 105, 50, 0.96);
+    color: #ffffff;
+    border: 1px solid rgba(255, 255, 255, 0.25);
+}
+
+#jaiti-offline-banner .banner-icon {
+    font-size: 1.1rem;
+    line-height: 1;
+    display: inline-flex;
+    align-items: center;
+}
+
+#jaiti-offline-banner .banner-pulse {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: #ef4444;
+    animation: jaitiPulse 1.4s infinite;
+}
+
+#jaiti-offline-banner.state-online .banner-pulse {
+    background: #22c55e;
+    animation: none;
+}
+
+@keyframes jaitiPulse {
+    0% { transform: scale(0.95); opacity: 0.9; }
+    50% { transform: scale(1.3); opacity: 0.5; }
+    100% { transform: scale(0.95); opacity: 0.9; }
+}
+
+/* Subtle click-rejection toast for taps while offline */
+#jaiti-offline-toast {
+    position: fixed;
+    bottom: 24px;
+    left: 50%;
+    transform: translateX(-50%) translateY(60px);
+    z-index: 99999999;
+    background: #18181b;
+    color: #ffffff;
+    padding: 8px 16px;
+    border-radius: 8px;
+    font-size: 0.825rem;
+    font-weight: 500;
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    box-shadow: 0 8px 24px rgba(0,0,0,0.3);
+    opacity: 0;
+    transition: transform 0.25s ease, opacity 0.25s ease;
+    pointer-events: none;
+    filter: none !important;
+}
+
+#jaiti-offline-toast.visible {
+    transform: translateX(-50%) translateY(0);
+    opacity: 1;
+}
+
+@media (max-width: 640px) {
+    #jaiti-offline-banner {
+        top: 10px;
+        width: calc(100% - 28px);
+        max-width: 380px;
+        justify-content: center;
+        padding: 9px 14px;
+        font-size: 0.8125rem;
+    }
+}
+
