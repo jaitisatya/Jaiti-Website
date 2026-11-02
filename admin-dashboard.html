@@ -969,7 +969,7 @@
             padding: 1rem;
         }
 
-        .modal.show { display: flex; }
+        .modal.show, .modal.active { display: flex; }
 
         .modal-content {
             background: white;
@@ -1706,7 +1706,7 @@
     </div>
 
     <!-- EDIT GALLERY PHOTO MODAL -->
-    <div class="modal" id="editGalleryModal">
+    <div class="modal" id="editGalleryModal" onclick="if(event.target === this) window.closeEditGalleryModal()">
         <div class="modal-content" style="max-width:550px">
             <div class="modal-header">
                 ✏️ Edit Photo Details
@@ -1718,7 +1718,7 @@
                 <div style="text-align:center;margin-bottom:1rem">
                     <img id="editGalleryThumbnail" src="" alt="Thumbnail" style="max-height:140px;border-radius:8px;object-fit:cover;border:1px solid #ddd;box-shadow:0 2px 8px rgba(0,0,0,0.1)">
                     <div style="margin-top:0.5rem">
-                        <button type="button" onclick="window.copyImageLink(document.getElementById('editGalleryDirectUrl').value)" style="padding:4px 10px;background:#f2ede4;border:1px solid #dcd3c4;border-radius:6px;font-size:0.75rem;cursor:pointer;color:#2f5f4f;font-weight:600;display:inline-flex;align-items:center;gap:4px">
+                        <button type="button" onclick="window.copyImageLink(document.getElementById('editGalleryDirectUrl').value, this)" style="padding:4px 10px;background:#f2ede4;border:1px solid #dcd3c4;border-radius:6px;font-size:0.75rem;cursor:pointer;color:#2f5f4f;font-weight:600;display:inline-flex;align-items:center;gap:4px;transition:all 0.2s">
                             📋 Copy Direct Image URL
                         </button>
                     </div>
@@ -5707,7 +5707,7 @@ window.loadGalleryList = async () => {
                         <div style="margin-top:1rem;padding-top:0.75rem;border-top:1px solid #f0ebe4;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:6px">
                             <span style="font-size:0.72rem;color:#9b8c7e">${photo.date || ''}</span>
                             <div style="display:flex;gap:6px">
-                                <button onclick="window.copyImageLink('${fullImgUrl}')" title="Copy Direct Image URL" style="background:#eef2f6;border:1px solid #cbd5e1;color:#334155;padding:4px 8px;border-radius:6px;font-size:0.75rem;cursor:pointer;font-weight:600;display:inline-flex;align-items:center;gap:3px">
+                                <button onclick="window.copyImageLink('${fullImgUrl}', this)" title="Copy Direct Image URL" style="background:#eef2f6;border:1px solid #cbd5e1;color:#334155;padding:4px 8px;border-radius:6px;font-size:0.75rem;cursor:pointer;font-weight:600;display:inline-flex;align-items:center;gap:3px;transition:all 0.2s">
                                     📋 Link
                                 </button>
                                 <button onclick="window.openEditGalleryModal('${photo.id}')" title="Edit title, text or replace image" style="background:#f2ede4;border:1px solid #dcd3c4;color:#2f5f4f;padding:4px 8px;border-radius:6px;font-size:0.75rem;cursor:pointer;font-weight:600">
@@ -5729,22 +5729,58 @@ window.loadGalleryList = async () => {
 };
 
 // ── 1-CLICK COPY DIRECT IMAGE URL ──
-window.copyImageLink = async (url) => {
+window.copyImageLink = async (url, btnElement) => {
     if (!url) return;
     const fullUrl = url.startsWith('http') ? url : (window.location.origin + '/' + url.replace(/^\//, ''));
+    let copied = false;
     try {
-        await navigator.clipboard.writeText(fullUrl);
-        showAlert('📋 Direct image link copied to clipboard!', 'success', 'galleryAlert');
+        if (navigator.clipboard && window.isSecureContext) {
+            await navigator.clipboard.writeText(fullUrl);
+            copied = true;
+        }
     } catch (err) {
-        // Fallback for older browsers
-        const temp = document.createElement('input');
-        temp.value = fullUrl;
-        document.body.appendChild(temp);
-        temp.select();
-        document.execCommand('copy');
-        document.body.removeChild(temp);
-        showAlert('📋 Direct image link copied to clipboard!', 'success', 'galleryAlert');
+        // Fallback below
     }
+
+    if (!copied) {
+        try {
+            const temp = document.createElement('textarea');
+            temp.value = fullUrl;
+            temp.setAttribute('readonly', '');
+            temp.style.position = 'fixed';
+            temp.style.opacity = '0';
+            temp.style.left = '-9999px';
+            document.body.appendChild(temp);
+            temp.focus();
+            temp.select();
+            copied = document.execCommand('copy');
+            document.body.removeChild(temp);
+        } catch (err) {
+            console.error('Fallback copy error:', err);
+        }
+    }
+
+    // Direct inline button feedback
+    if (btnElement && btnElement instanceof HTMLElement) {
+        const origHtml = btnElement.innerHTML;
+        const origBg = btnElement.style.background;
+        const origColor = btnElement.style.color;
+        const origBorder = btnElement.style.borderColor;
+
+        btnElement.innerHTML = '✓ Copied!';
+        btnElement.style.background = '#dcfce7';
+        btnElement.style.color = '#15803d';
+        btnElement.style.borderColor = '#86efac';
+
+        setTimeout(() => {
+            btnElement.innerHTML = origHtml;
+            btnElement.style.background = origBg;
+            btnElement.style.color = origColor;
+            btnElement.style.borderColor = origBorder;
+        }, 2000);
+    }
+
+    showAlert('📋 Direct image link copied to clipboard: ' + fullUrl, 'success', 'galleryAlert');
 };
 
 // ── SYNC 17 EXISTING WEBSITE PHOTOS TO FIRESTORE ──
@@ -5840,7 +5876,7 @@ window.syncExistingWebsitePhotos = async () => {
 
 // ── EDIT GALLERY MODAL ──
 window.openEditGalleryModal = (id) => {
-    const photo = allGalleryPhotosData.find(p => p.id === id);
+    const photo = (allGalleryPhotosData || []).find(p => p.id === id);
     if (!photo) return;
 
     const displayImg = photo.thumbnailUrl || photo.optimizedUrl || photo.rawUrl;
@@ -5857,13 +5893,33 @@ window.openEditGalleryModal = (id) => {
     if (fileInput) fileInput.value = '';
 
     const modal = document.getElementById('editGalleryModal');
-    if (modal) modal.classList.add('active');
+    if (modal) {
+        modal.classList.add('show');
+        modal.classList.add('active');
+        modal.style.display = 'flex';
+    }
 };
 
 window.closeEditGalleryModal = () => {
     const modal = document.getElementById('editGalleryModal');
-    if (modal) modal.classList.remove('active');
+    if (modal) {
+        modal.classList.remove('show');
+        modal.classList.remove('active');
+        modal.style.display = 'none';
+    }
+    const fileInput = document.getElementById('editGalleryFileInput');
+    if (fileInput) fileInput.value = '';
 };
+
+// Close gallery edit modal on Escape key
+document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') {
+        const modal = document.getElementById('editGalleryModal');
+        if (modal && (modal.classList.contains('show') || modal.style.display === 'flex')) {
+            window.closeEditGalleryModal();
+        }
+    }
+});
 
 window.updateGalleryPhotoDetails = async (event) => {
     event.preventDefault();
