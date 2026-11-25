@@ -20,6 +20,8 @@ export default defineConfig(() => {
           adminPanel: path.resolve(__dirname, 'admin-panel.html'),
           adminDashboard: path.resolve(__dirname, 'admin-dashboard.html'),
           youtube: path.resolve(__dirname, 'youtube.html'),
+          sadakKinareWalaSchool: path.resolve(__dirname, 'sadak-kinare-wala-school.html'),
+          sadakKinareWalaSchoolHindi: path.resolve(__dirname, 'sadak-kinare-wala-school-hindi.html'),
         },
       },
     },
